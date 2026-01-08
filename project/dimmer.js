@@ -6,7 +6,7 @@ function createDimmerCard(config = {}) {
     const defaultConfig = {
         entityId: config.entityId || "light.pantry_cct_lighr_exp_room_entrance_light",
         name: config.name || "Dimmer",
-        subtitle: config.subtitle || "Drag to adjust brightness",
+        subtitle: config.subtitle || "Drag to adjust",
         icon: config.icon || "material-icons:lightbulb",
         cardWidth: config.cardWidth || "100%",
         cardHeight: config.cardHeight || "96px",
@@ -547,7 +547,7 @@ function initializeDimmer(cardContainer, entityId, accentColor, cardId) {
         if (domain === 'light') {
             cardSub.textContent = isOn ? 
                 `Brightness: ${brightness}%` : 
-                'Drag to adjust brightness';
+                'Drag to adjust';
         } else {
             cardSub.textContent = isOn ? 
                 `${entityId} is ON` : 
@@ -585,7 +585,7 @@ function initializeDimmer(cardContainer, entityId, accentColor, cardId) {
             if (isOn) {
                 cardSub.textContent = `Brightness: ${brightness}%`;
             } else {
-                cardSub.textContent = 'Drag to adjust brightness';
+                cardSub.textContent = 'Drag to adjust';
             }
         }
         

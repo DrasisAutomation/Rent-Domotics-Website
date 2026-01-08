@@ -6,7 +6,7 @@ function createCCTLightCard(config = {}) {
     const defaultConfig = {
         entityId: config.entityId || "light.pantry_cct_lighr_exp_room_entrance_light",
         name: config.name || "CCT Light",
-        subtitle: config.subtitle || "Drag to adjust brightness • Warmth control below",
+        subtitle: config.subtitle || "Drag to adjust",
         icon: config.icon || "material-icons:lightbulb",
         cardWidth: config.cardWidth || "100%",
         cardHeight: config.cardHeight || "148px",
@@ -641,7 +641,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor) {
         if (domain === 'light') {
             cardSub.textContent = isOn ?
                 `Brightness: ${brightness}% • Warmth: ${warmth}%` :
-                'Drag to adjust brightness • Warmth control below';
+                'Drag to adjust';
         } else {
             cardSub.textContent = isOn ?
                 `${entityId} is ON` :
@@ -679,7 +679,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor) {
             if (isOn) {
                 cardSub.textContent = `Brightness: ${brightness}% • Warmth: ${warmth}%`;
             } else {
-                cardSub.textContent = 'Drag to adjust brightness • Warmth control below';
+                cardSub.textContent = 'Drag to adjust';
             }
         }
 
