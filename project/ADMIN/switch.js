@@ -114,7 +114,7 @@ function getSwitchCSS(accentColor, cardId) {
         #${cardId} .light-card {
             width: 100%;
             max-width: 520px;
-            height: var(--card-height) !important;
+            height: 75px !important;
             border-radius: var(--corner);
             position: relative;
             overflow: hidden;

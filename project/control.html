@@ -138,6 +138,9 @@
             background: #e05c1a;
             transform: translateY(-1px);
         }
+        .property-details{
+            display: none;
+        }
     </style>
 </head>
 
@@ -554,7 +557,7 @@
 
                 if (!user) {
                     console.log('No user found, redirecting to login');
-                    window.location.href = 'login.html';
+                    window.location.href = 'index.html';
                     return;
                 }
 
@@ -755,7 +758,7 @@
             try {
                 await firebase.auth().signOut();
                 localStorage.clear();
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Logout error:', error);
             }

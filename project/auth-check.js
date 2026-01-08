@@ -6,7 +6,7 @@ async function checkUserAuth() {
   
   if (!currentUser) {
     // Not logged in, redirect to login
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
     return false;
   }
 
@@ -49,7 +49,7 @@ async function checkUserAuth() {
       await firebase.auth().signOut();
       localStorage.removeItem('currentPropertyId');
       localStorage.removeItem('currentPropertyData');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return false;
     }
 
@@ -62,7 +62,7 @@ async function checkUserAuth() {
     return true;
   } catch (error) {
     console.error('Auth check error:', error);
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
     return false;
   }
 }
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Wait for Firebase to be ready
     if (typeof firebase === 'undefined' || !firebase.apps.length) {
       console.error('Firebase not loaded');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (error) {
     console.error('Authentication initialization error:', error);
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
   }
 });
 
@@ -101,7 +101,7 @@ function userLogout() {
   firebase.auth().signOut().then(() => {
     localStorage.removeItem('currentPropertyId');
     localStorage.removeItem('currentPropertyData');
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
   }).catch((error) => {
     console.error('Logout error:', error);
   });

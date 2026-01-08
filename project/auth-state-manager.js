@@ -18,7 +18,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
   const isAdmin = ADMIN_EMAILS.includes(user.email);
   
   // Redirect logic based on role and page
-  if (isAdmin && currentPage !== 'admin.html' && currentPage !== 'login.html') {
+  if (isAdmin && currentPage !== 'admin.html' && currentPage !== 'index.html') {
     // Admin on non-admin page, redirect to admin.html
     console.log('Admin detected on non-admin page, redirecting to admin.html');
     window.location.href = 'admin.html';

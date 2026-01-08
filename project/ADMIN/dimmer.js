@@ -113,7 +113,7 @@ function getDimmerCSS(accentColor, cardId) {
         #${cardId} .light-card {
             width: 100%;
             max-width: 520px;
-            height: var(--card-height) !important;
+            height: 75px !important;
             border-radius: 14px !important;
             position: relative;
             overflow: hidden;

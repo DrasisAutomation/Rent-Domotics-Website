@@ -12,7 +12,7 @@ function initializeAdminAuth() {
   // Check if Firebase is initialized
   if (typeof firebase === 'undefined' || !firebase.apps.length) {
     console.error('Firebase not loaded');
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
     return;
   }
   
@@ -20,7 +20,7 @@ function initializeAdminAuth() {
     if (!user) {
       // Not logged in, redirect to login
       console.log('No user, redirecting to login');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -46,7 +46,7 @@ function adminLogout() {
   if (confirm('Are you sure you want to logout?')) {
     firebase.auth().signOut().then(() => {
       console.log('Admin logged out');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     }).catch((error) => {
       console.error('Admin logout error:', error);
       alert('Logout failed: ' + error.message);

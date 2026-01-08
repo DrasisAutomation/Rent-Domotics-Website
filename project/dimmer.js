@@ -1,3 +1,4 @@
+// dimmer.js - Dimmer Control Module (Fixed Gradient Visibility)
 
 
 // Create a dimmer card with Home Assistant integration
@@ -112,7 +113,7 @@ function getDimmerCSS(accentColor, cardId) {
         #${cardId} .light-card {
             width: 100%;
             max-width: 520px;
-            height: var(--card-height) !important;
+            height: 75px !important;
             border-radius: 14px !important;
             position: relative;
             overflow: hidden;
@@ -454,13 +455,13 @@ function initializeDimmer(cardContainer, entityId, accentColor, cardId) {
         console.log(`Connecting to Home Assistant WebSocket for ${entityId}...`);
         
         try {
-            ws = new WebSocket(window.HA_CONFIG.WS_URL);
+                        ws = new WebSocket(window.HA_CONFIG.WS_URL);
             
             ws.onopen = () => {
                 console.log("WebSocket connected to Home Assistant");
                 ws.send(JSON.stringify({
                     type: "auth",
-                    access_token: window.HA_CONFIG.TOKEN
+                                        access_token: window.HA_CONFIG.TOKEN
                 }));
             };
             

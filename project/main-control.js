@@ -32,7 +32,7 @@ async function loadDashboardFromFirebase() {
         if (!user) {
             console.log("User not authenticated, redirecting to login");
             showNotification("User not authenticated", "error");
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
             return;
         }
 
@@ -639,7 +639,7 @@ async function logout() {
         console.log("Logging out...");
         await firebase.auth().signOut();
         localStorage.clear();
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     } catch (error) {
         console.error('Logout error:', error);
     }

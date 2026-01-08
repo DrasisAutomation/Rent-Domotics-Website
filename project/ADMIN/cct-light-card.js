@@ -1,20 +1,16 @@
-// cct-light-card.js - CCT Light Card Module with Home Assistant Integration and Modals
-// UPDATED VERSION - FIXED FOR SWITCH ENTITIES AND ICON LOADING
+// cct-light-card.js - CCT Light Card Module with Home Assistant Integration
+// FIXED VERSION - Gradient shows immediately while dragging, no modal
 
-
-// Create a CCT light card with Home Assistant integration and modals
+// Create a CCT light card with Home Assistant integration
 function createCCTLightCard(config = {}) {
     const defaultConfig = {
         entityId: config.entityId || "light.pantry_cct_lighr_exp_room_entrance_light",
         name: config.name || "CCT Light",
         subtitle: config.subtitle || "Drag to adjust brightness • Warmth control below",
-        icon: config.icon || "material-icons:lightbulb", // CHANGED: Default to material-icons
+        icon: config.icon || "material-icons:lightbulb",
         cardWidth: config.cardWidth || "100%",
-        cardHeight: config.cardHeight || "128px",
-        accentColor: config.accentColor || "#f26f1e",
-        showModal: config.showModal || true,
-        modalWidth: config.modalWidth || "90%",
-        modalMaxWidth: config.modalMaxWidth || "500px"
+        cardHeight: config.cardHeight || "148px",
+        accentColor: config.accentColor || "#f26f1e"
     };
 
     // Parse icon configuration
@@ -34,7 +30,6 @@ function createCCTLightCard(config = {}) {
 
     // Generate unique ID for this card
     const cardId = `cct-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const modalId = `${cardId}-modal`;
 
     // Create card container
     const cardContainer = document.createElement('div');
@@ -44,9 +39,9 @@ function createCCTLightCard(config = {}) {
     cardContainer.style.setProperty('--card-height', defaultConfig.cardHeight);
     cardContainer.style.setProperty('--accent-on', defaultConfig.accentColor);
 
-    // Create card HTML with proper icon handling
+    // Create card HTML with proper icon handling (NO MODAL)
     cardContainer.innerHTML = `
-        <div class="mc-cctlight-card" data-entity-id="${defaultConfig.entityId}" data-show-modal="${defaultConfig.showModal}">
+        <div class="mc-cctlight-card" data-entity-id="${defaultConfig.entityId}">
             <div class="light-card off" id="${cardId}-lightCard" role="button" aria-pressed="false" aria-label="Light control card" tabindex="0">
                 <div class="card-content">
                     <div class="left">
@@ -76,103 +71,32 @@ function createCCTLightCard(config = {}) {
                 </div>
             </div>
         </div>
-        
-        <!-- Modal Container -->
-        <div id="${modalId}" class="cct-modal-overlay" style="display: none;">
-            <div class="cct-modal-content">
-                <div class="modal-header">
-                    <h3 id="${modalId}-title">${defaultConfig.name} Controls</h3>
-                    <button class="modal-close-btn" aria-label="Close modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-brightness-control">
-                        <div class="modal-brightness-header">
-                            <span>Brightness</span>
-                            <span id="${modalId}-brightnessValue">0%</span>
-                        </div>
-                        <div class="modal-slider-container">
-                            <input type="range" 
-                                   id="${modalId}-brightnessSlider" 
-                                   class="modal-slider" 
-                                   min="0" 
-                                   max="100" 
-                                   value="0"
-                                   aria-label="Brightness control">
-                            <div class="slider-ticks">
-                                <span>0</span>
-                                <span>25</span>
-                                <span>50</span>
-                                <span>75</span>
-                                <span>100</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-warmth-control">
-                        <div class="modal-warmth-header">
-                            <span>Color Temperature</span>
-                            <span id="${modalId}-warmthValue">50%</span>
-                        </div>
-                        <div class="modal-slider-container">
-                            <input type="range" 
-                                   id="${modalId}-warmthSlider" 
-                                   class="modal-slider" 
-                                   min="0" 
-                                   max="100" 
-                                   value="50"
-                                   aria-label="Color temperature control">
-                            <div class="slider-labels">
-                                <span class="cool-label">Cool</span>
-                                <span class="warm-label">Warm</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-presets">
-                        <h4>Quick Presets</h4>
-                        <div class="preset-buttons">
-                            <button class="preset-btn" data-brightness="10" data-warmth="30">Night Light</button>
-                            <button class="preset-btn" data-brightness="50" data-warmth="50">Relax</button>
-                            <button class="preset-btn" data-brightness="80" data-warmth="70">Reading</button>
-                            <button class="preset-btn" data-brightness="100" data-warmth="100">Daylight</button>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-power-control">
-                        <button id="${modalId}-powerBtn" class="power-btn off">
-                            <i class="fas fa-power-off"></i>
-                            <span>Turn On</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     `;
 
-    // Add CSS styles
-    addCCTStyles(defaultConfig.accentColor, cardId, modalId, defaultConfig.modalWidth, defaultConfig.modalMaxWidth);
+    // Add CSS styles (NO MODAL CSS)
+    addCCTStyles(defaultConfig.accentColor, cardId);
 
     // Initialize the card functionality
     setTimeout(() => {
-        initializeCCTCard(cardContainer, defaultConfig.entityId, defaultConfig.accentColor, modalId, defaultConfig.showModal);
+        initializeCCTCard(cardContainer, defaultConfig.entityId, defaultConfig.accentColor);
     }, 100);
 
     return cardContainer;
 }
 
 // Add CCT card CSS styles to document
-function addCCTStyles(accentColor, cardId, modalId, modalWidth = "90%", modalMaxWidth = "500px") {
+function addCCTStyles(accentColor, cardId) {
     const styleId = `cct-styles-${cardId}`;
     if (document.getElementById(styleId)) return;
 
     const style = document.createElement('style');
     style.id = styleId;
-    style.textContent = getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth);
+    style.textContent = getCCTCSS(accentColor, cardId);
     document.head.appendChild(style);
 }
 
-// Get CCT CSS as string
-function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
+// Get CCT CSS as string (NO MODAL CSS)
+function getCCTCSS(accentColor, cardId) {
     // Convert hex to RGB
     const rgbColor = hexToRgb(accentColor);
     const rgbString = rgbColor ? `${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}` : '242, 111, 30';
@@ -205,7 +129,7 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
         #${cardId} .light-card {
             width: 100%;
             max-width: 520px;
-            height: var(--card-height);
+            height: 132px !important;
             border-radius: var(--corner);
             position: relative;
             overflow: hidden;
@@ -236,7 +160,8 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
         }
 
         #${cardId} .light-card.off {
-            background: var(--bg-off);
+            background: var(--bg-off) !important;
+            background-image: none !important;
         }
 
         #${cardId} .light-card:active {
@@ -296,13 +221,11 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
             overflow: hidden;
             mix-blend-mode: difference;
             min-height: 16px;
-            margin-top: 10px;
         }
 
         #${cardId} .sub {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.8);
-            margin-top: 6px;
             mix-blend-mode: difference;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -390,7 +313,7 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
         }
 
         #${cardId} .warmth-slider {
-            height: 15px;
+            height: 24px;
             width: 100%;
             background: linear-gradient(90deg, 
                 rgba(255, 255, 255, 0.9) 0%, 
@@ -408,7 +331,7 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
             left: var(--warmth);
             transform: translate(-50%, -50%);
             width: 4px;
-            height: 20px;
+            height: 27px;
             background: #fff;
             border-radius: 2px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -453,248 +376,14 @@ function getCCTCSS(accentColor, cardId, modalId, modalWidth, modalMaxWidth) {
             opacity: 0.6;
         }
 
-        /* Modal Styles */
-        #${modalId}.cct-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #${modalId}.cct-modal-overlay.show {
-            opacity: 1;
-        }
-
-        #${modalId} .cct-modal-content {
-            width: ${modalWidth};
-            max-width: ${modalMaxWidth};
-            background: rgba(30, 30, 35, 0.95);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-#${modalId} .mc-cctlight-card-wrapper {
-margin: 0px !important;}
-        #${modalId}.show .cct-modal-content {
-            transform: translateY(0);
-        }
-
-        #${modalId} .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        #${modalId} .modal-header h3 {
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        #${modalId} .modal-close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            font-size: 24px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        #${modalId} .modal-close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        #${modalId} .modal-body {
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
-
-        #${modalId} .modal-brightness-control,
-        #${modalId} .modal-warmth-control {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        #${modalId} .modal-brightness-header,
-        #${modalId} .modal-warmth-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            color: white;
-            font-weight: 500;
-        }
-
-        #${modalId} .modal-brightness-header span:first-child,
-        #${modalId} .modal-warmth-header span:first-child {
-            font-size: 15px;
-        }
-
-        #${modalId} .modal-brightness-header span:last-child,
-        #${modalId} .modal-warmth-header span:last-child {
-            font-size: 16px;
-            font-weight: 600;
-            color: ${accentColor};
-        }
-
-        #${modalId} .modal-slider-container {
-            position: relative;
-        }
-
-        #${modalId} .modal-slider {
-            width: 100%;
-            height: 44px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            cursor: pointer;
-            outline: none;
-        }
-
-        #${modalId} .modal-slider::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-        }
-
-        #${modalId} .modal-slider::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-        }
-
-        #${modalId} .modal-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            background: ${accentColor};
-            border-radius: 50%;
-            cursor: pointer;
-            margin-top: -8px;
-            box-shadow: 0 4px 12px rgba(${rgbString}, 0.4);
-            border: 3px solid white;
-        }
-
-        #${modalId} .modal-slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            background: ${accentColor};
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(${rgbString}, 0.4);
-        }
-
-        #${modalId} .slider-ticks {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-        }
-
-        #${modalId} .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-        }
-
-        #${modalId} .cool-label {
-            color: #888888;
-            font-size: 13px;
-        }
-
-        #${modalId} .warm-label {
-            color: ${accentColor};
-            font-size: 13px;
-        }
-
-        #${modalId} .modal-presets h4 {
-            color: white;
-            font-size: 15px;
-            margin-bottom: 12px;
-            font-weight: 500;
-        }
-
-        #${modalId} .preset-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        #${modalId} .preset-btn {
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        #${modalId} .preset-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        #${modalId} .preset-btn:active {
-            transform: scale(0.98);
-        }
-
-        #${modalId} .modal-power-control {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        #${modalId} .power-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 32px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        #${modalId} .power-btn.on {
-            background: ${accentColor};
-            color: white;
-        }
-
-        #${modalId} .power-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(${rgbString}, 0.3);
+        /* IMPORTANT: Ensure gradient is visible when on */
+        #${cardId} .light-card.on {
+            background: 
+                linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.95) 0%,
+                    rgba(255, 255, 255, 0.95) var(--brightness),
+                    rgba(0, 0, 0, 0.85) var(--brightness),
+                    rgba(0, 0, 0, 0.85) 100%) !important;
         }
 
         /* Responsive Styles */
@@ -728,15 +417,6 @@ margin: 0px !important;}
             #${cardId} .status, #${cardId} .bright-percent {
                 font-size: 12px;
             }
-            
-            #${modalId} .cct-modal-content {
-                padding: 20px;
-            }
-            
-            #${modalId} .modal-brightness-control,
-            #${modalId} .modal-warmth-control {
-                padding: 16px;
-            }
         }
 
         @media (max-width: 420px) {
@@ -768,19 +448,15 @@ margin: 0px !important;}
             }
             
             #${cardId} .warmth-slider {
-                height: 14px;
+                height: 24px;
             }
             
             #${cardId} .warmth-handle {
-                height: 18px;
+                height: 20px;
             }
             
             #${cardId} .warmth-labels {
                 font-size: 10px;
-            }
-            
-            #${modalId} .preset-buttons {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -810,10 +486,6 @@ margin: 0px !important;}
             #${cardId} .sub {
                 font-size: 9px;
             }
-            
-            #${modalId} .cct-modal-content {
-                padding: 16px;
-            }
         }
     `;
 }
@@ -828,8 +500,8 @@ function hexToRgb(hex) {
     } : null;
 }
 
-// Initialize CCT card functionality - UPDATED FOR SWITCH ENTITIES
-function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showModal) {
+// Initialize CCT card functionality - FIXED: Gradient shows immediately, but turns off properly
+function initializeCCTCard(cardContainer, entityId, accentColor) {
     const lightCard = cardContainer.querySelector('.light-card');
     const statusText = cardContainer.querySelector('.status');
     const percentText = cardContainer.querySelector('.bright-percent');
@@ -837,16 +509,6 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
     const warmthHandle = cardContainer.querySelector('.warmth-handle');
     const cardName = cardContainer.querySelector('.name');
     const cardSub = cardContainer.querySelector('.sub');
-    const modalOverlay = cardContainer.querySelector(`#${modalId}`);
-
-    // Modal elements
-    const modalCloseBtn = modalOverlay.querySelector('.modal-close-btn');
-    const modalBrightnessSlider = modalOverlay.querySelector(`#${modalId}-brightnessSlider`);
-    const modalWarmthSlider = modalOverlay.querySelector(`#${modalId}-warmthSlider`);
-    const modalBrightnessValue = modalOverlay.querySelector(`#${modalId}-brightnessValue`);
-    const modalWarmthValue = modalOverlay.querySelector(`#${modalId}-warmthValue`);
-    const modalPowerBtn = modalOverlay.querySelector(`#${modalId}-powerBtn`);
-    const presetButtons = modalOverlay.querySelectorAll('.preset-btn');
 
     // State
     let ws = null;
@@ -870,7 +532,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
     let lastBrightness = 50;
     let lastServiceCall = 0;
     let ignoreNextUpdate = false;
-    let modalOpen = false;
+    let hasInlineStyle = false; // Track if we have inline style applied
 
     // Get domain from entity ID
     const domain = entityId.split('.')[0];
@@ -920,7 +582,6 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
                         if (entity) {
                             updateFromEntityState(entity);
                             updateUI(true);
-                            updateModalUI();
                             console.log(`Initial state loaded: ${isOn ? 'ON' : 'OFF'}, Brightness: ${brightness}%, Warmth: ${warmth}%`);
                         }
                     }
@@ -929,7 +590,6 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
                     if (data.event.data.entity_id === entityId) {
                         updateFromEntityState(data.event.data.new_state);
                         updateUI(true);
-                        updateModalUI();
                         console.log(`State updated: ${isOn ? 'ON' : 'OFF'}, Brightness: ${brightness}%, Warmth: ${warmth}%`);
                     }
                 }
@@ -952,8 +612,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
         };
     }
 
-    // Update state from Home Assistant entity - UPDATED FOR SWITCH ENTITIES
-    // In cct-light-card.js - Update updateFromEntityState function
+    // Update state from Home Assistant entity
     function updateFromEntityState(entity) {
         if (!entity) return;
 
@@ -977,12 +636,6 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
         } else {
             warmth = isOn ? 50 : 0;
         }
-
-        // COMMENT OUT OR REMOVE this section to keep custom name:
-        // DO NOT override the name with entity's friendly_name
-        // if (entity.attributes && entity.attributes.friendly_name) {
-        //     cardName.textContent = entity.attributes.friendly_name;
-        // }
 
         // Update subtitle based on entity type
         if (domain === 'light') {
@@ -1030,19 +683,32 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
             }
         }
 
-        // Toggle classes
+        // Toggle classes - FIXED: Remove inline style when turning off
         if (isOn) {
             lightCard.classList.remove('off');
             lightCard.classList.add('on');
             lightCard.setAttribute('aria-pressed', 'true');
             statusText.textContent = 'ON';
             percentText.style.opacity = '1';
+            
+            // Force gradient to show when on
+            lightCard.style.background = 
+                `linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.95) 0%,
+                    rgba(255, 255, 255, 0.95) ${brightness}%,
+                    rgba(0, 0, 0, 0.85) ${brightness}%,
+                    rgba(0, 0, 0, 0.85) 100%)`;
+            hasInlineStyle = true;
         } else {
             lightCard.classList.remove('on');
             lightCard.classList.add('off');
             lightCard.setAttribute('aria-pressed', 'false');
             statusText.textContent = 'OFF';
             percentText.style.opacity = '0.3';
+            
+            // Remove inline style so CSS can take over with .off class
+            lightCard.style.background = '';
+            hasInlineStyle = false;
         }
 
         // Call service if connected and not skipping
@@ -1051,36 +717,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
         }
     }
 
-    // Update modal UI
-    function updateModalUI() {
-        if (!modalOverlay) return;
-
-        modalBrightnessSlider.value = brightness;
-        modalWarmthSlider.value = warmth;
-        modalBrightnessValue.textContent = brightness + '%';
-        modalWarmthValue.textContent = warmth + '%';
-
-        // Hide warmth controls for non-light entities
-        if (domain !== 'light') {
-            modalOverlay.querySelector('.modal-warmth-control').style.display = 'none';
-            modalOverlay.querySelector('.modal-presets').style.display = 'none';
-            modalBrightnessSlider.max = 100; // Still allow brightness for visual feedback
-            modalBrightnessSlider.disabled = false;
-        }
-
-        // Update power button
-        if (isOn) {
-            modalPowerBtn.classList.remove('off');
-            modalPowerBtn.classList.add('on');
-            modalPowerBtn.querySelector('span').textContent = 'Turn Off';
-        } else {
-            modalPowerBtn.classList.remove('on');
-            modalPowerBtn.classList.add('off');
-            modalPowerBtn.querySelector('span').textContent = 'Turn On';
-        }
-    }
-
-    // Set brightness from X coordinate
+    // Set brightness from X coordinate - FIXED: Show gradient immediately
     function setBrightnessFromX(clientX) {
         if (!lightCard) return;
 
@@ -1099,20 +736,35 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
                 lastBrightness = brightness;
             }
 
-            // Only update gradient for light entities
+            // FIX: Apply gradient immediately for visual feedback while dragging
+            // This overrides the .off class background temporarily
+            lightCard.style.background = 
+                `linear-gradient(90deg, 
+                    rgba(255, 255, 255, 0.95) 0%, 
+                    rgba(255, 255, 255, 0.95) ${brightness}%, 
+                    rgba(0, 0, 0, 0.85) ${brightness}%, 
+                    rgba(0, 0, 0, 0.85) 100%)`;
+            hasInlineStyle = true;
+            
+            // Also update CSS variable
+            lightCard.style.setProperty('--brightness', brightness + '%');
+            
+            // Only update text for light entities
             if (domain === 'light') {
-                lightCard.style.setProperty('--brightness', brightness + '%');
                 percentText.textContent = brightness + '%';
             } else {
                 percentText.textContent = isOn ? 'ON' : 'OFF';
             }
 
             percentText.style.opacity = isOn ? "1" : "0.3";
-
-            // Update modal if open
-            if (modalOpen) {
-                modalBrightnessSlider.value = brightness;
-                modalBrightnessValue.textContent = brightness + '%';
+            
+            // Update UI classes immediately for visual feedback
+            if (isOn && !lightCard.classList.contains('on')) {
+                lightCard.classList.remove('off');
+                lightCard.classList.add('on');
+                lightCard.setAttribute('aria-pressed', 'true');
+                statusText.textContent = 'ON';
+                percentText.style.opacity = '1';
             }
         }
     }
@@ -1134,43 +786,33 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
             // Auto-turn on when adjusting warmth
             if (warmth > 0) {
                 isOn = true;
-                if (brightness === 0) brightness = lastBrightness || 50;
-            }
-
-            // Update modal if open
-            if (modalOpen) {
-                modalWarmthSlider.value = warmth;
-                modalWarmthValue.textContent = warmth + '%';
+                if (brightness === 0) {
+                    brightness = lastBrightness || 50;
+                    // Also apply gradient for warmth adjustment
+                    lightCard.style.background = 
+                        `linear-gradient(90deg, 
+                            rgba(255, 255, 255, 0.95) 0%, 
+                            rgba(255, 255, 255, 0.95) ${brightness}%, 
+                            rgba(0, 0, 0, 0.85) ${brightness}%, 
+                            rgba(0, 0, 0, 0.85) 100%)`;
+                    hasInlineStyle = true;
+                    lightCard.style.setProperty('--brightness', brightness + '%');
+                    percentText.textContent = brightness + '%';
+                }
+                
+                // Update UI immediately
+                if (!lightCard.classList.contains('on')) {
+                    lightCard.classList.remove('off');
+                    lightCard.classList.add('on');
+                    lightCard.setAttribute('aria-pressed', 'true');
+                    statusText.textContent = 'ON';
+                    percentText.style.opacity = '1';
+                }
             }
         }
     }
 
-    // Open modal
-    function openModal() {
-        if (!showModal || modalOpen) return;
-
-        updateModalUI();
-        modalOverlay.style.display = 'flex';
-        setTimeout(() => {
-            modalOverlay.classList.add('show');
-        }, 10);
-        modalOpen = true;
-
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-    }
-
-    // Close modal
-    function closeModal() {
-        modalOverlay.classList.remove('show');
-        setTimeout(() => {
-            modalOverlay.style.display = 'none';
-            modalOpen = false;
-            document.body.style.overflow = '';
-        }, 300);
-    }
-
-    // Call Home Assistant service - UPDATED FOR DIFFERENT ENTITY TYPES
+    // Call Home Assistant service
     function callService() {
         if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) return;
 
@@ -1285,7 +927,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
         }
     }
 
-    // Event Handlers - UPDATED FOR SWITCH ENTITIES
+    // Event Handlers
     function handlePointerDown(ev) {
         // Don't handle warmth for non-light entities
         if (domain === 'light' && (ev.target.closest('.warmth-slider') || ev.target.closest('.warmth-handle'))) return;
@@ -1408,60 +1050,7 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
                 Math.min(100, warmth + 10) :
                 Math.max(0, warmth - 10);
             updateUI();
-        } else if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openModal();
         }
-    }
-
-    // Modal event handlers
-    function handleModalBrightnessChange() {
-        brightness = parseInt(modalBrightnessSlider.value);
-        if (brightness > 0) isOn = true;
-        updateUI();
-    }
-
-    function handleModalWarmthChange() {
-        // Only for light entities
-        if (domain !== 'light') return;
-
-        warmth = parseInt(modalWarmthSlider.value);
-        if (warmth > 0) {
-            isOn = true;
-            if (brightness === 0) brightness = lastBrightness || 50;
-        }
-        updateUI();
-    }
-
-    function handleModalPowerClick() {
-        if (isOn) {
-            lastBrightness = brightness;
-            isOn = false;
-        } else {
-            isOn = true;
-            brightness = lastBrightness || (domain === 'light' ? 50 : 100);
-        }
-        updateUI();
-        updateModalUI();
-    }
-
-    function handlePresetClick(e) {
-        // Only for light entities
-        if (domain !== 'light') return;
-
-        const btn = e.target.closest('.preset-btn');
-        if (!btn) return;
-
-        const brightnessPreset = parseInt(btn.dataset.brightness);
-        const warmthPreset = parseInt(btn.dataset.warmth);
-
-        isOn = true;
-        brightness = brightnessPreset;
-        warmth = warmthPreset;
-        lastBrightness = brightness;
-
-        updateUI();
-        updateModalUI();
     }
 
     // Attach Event Listeners
@@ -1499,44 +1088,6 @@ function initializeCCTCard(cardContainer, entityId, accentColor, modalId, showMo
 
         // Make card focusable
         lightCard.setAttribute('tabindex', '0');
-
-        // Modal event listeners
-        if (showModal) {
-            // Open modal on card click
-            lightCard.addEventListener('click', (ev) => {
-                if (!moved && Date.now() - startTime < 300) {
-                    openModal();
-                }
-            });
-
-            // Modal controls
-            modalCloseBtn.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', (ev) => {
-                if (ev.target === modalOverlay) {
-                    closeModal();
-                }
-            });
-
-            modalBrightnessSlider.addEventListener('input', handleModalBrightnessChange);
-
-            // Only add warmth listener for light entities
-            if (domain === 'light') {
-                modalWarmthSlider.addEventListener('input', handleModalWarmthChange);
-
-                presetButtons.forEach(btn => {
-                    btn.addEventListener('click', handlePresetClick);
-                });
-            }
-
-            modalPowerBtn.addEventListener('click', handleModalPowerClick);
-
-            // Close modal with Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modalOpen) {
-                    closeModal();
-                }
-            });
-        }
     }
 
     // Initialize
