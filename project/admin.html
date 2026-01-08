@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Property Dashboard</title>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f8f9fa;
+            color: #202124;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* Prevents overflow on mobile */
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #dadce0;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .hamburger-menu:hover {
+            background-color: #f1f3f4;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 10px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 300px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: #1665d8;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f3f4;
+        }
+
+        .btn-dashboard {
+            background: #34a853;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-dashboard:hover {
+            background: #2e8b47;
+        }
+
+        .btn-dashboard::before {
+            content: '📊';
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(280px);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #dadce0;
+        }
+
+        .mobile-menu-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+            padding: 4px;
+        }
+
+        .mobile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #202124;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .mobile-menu-item.active {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .mobile-menu-item-icon {
+            font-size: 20px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            margin-bottom: 32px;
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .content-header p {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        /* Properties Grid */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .property-card {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .property-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #1a73e8;
+        }
+
+        .property-location {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .property-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .property-details {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .property-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .property-info-item {
+            text-align: center;
+        }
+
+        .property-info-label {
+            display: block;
+            color: #5f6368;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .property-info-value {
+            color: #202124;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .property-user {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .property-user-label {
+            color: #5f6368;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .property-user-value {
+            color: #202124;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .property-expiry {
+            background: #fef7e0;
+            border: 1px solid #fbbc04;
+            color: #9d8600;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn-sm {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .btn-edit:hover {
+            background: #d2e3fc;
+        }
+
+        .btn-delete {
+            background: #fce8e6;
+            color: #d33b27;
+        }
+
+        .btn-delete:hover {
+            background: #f8d7da;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            padding: 0;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #dadce0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .form-label .optional {
+            color: #5f6368;
+            font-weight: normal;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .date-time-picker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .picker-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .picker-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6368;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .date-input,
+        .time-input {
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .date-input:focus,
+        .time-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid #dadce0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #f1f3f4;
+        }
+
+        .btn-save {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover {
+            background: #1665d8;
+        }
+
+        .btn-upload {
+            background: #34a853;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-upload:hover {
+            background: #2e8b47;
+        }
+
+        /* Upload Section in Modal */
+        .upload-section {
+            border-top: 1px solid #dadce0;
+            margin-top: 32px;
+            padding-top: 24px;
+        }
+
+        .upload-section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-section-title::before {
+            content: '📊';
+        }
+
+        .upload-area {
+            border: 2px dashed #dadce0;
+            border-radius: 8px;
+            padding: 32px 24px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .upload-area:hover {
+            border-color: #1a73e8;
+            background: #f1f3f4;
+        }
+
+        .upload-area.dragover {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+        }
+
+        .upload-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: #5f6368;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 4px;
+        }
+
+        .upload-subtext {
+            font-size: 12px;
+            color: #9aa0a6;
+        }
+
+        .uploaded-file {
+            background: #f1f3f4;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-icon {
+            font-size: 20px;
+            color: #5f6368;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 2px;
+            font-size: 13px;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #5f6368;
+        }
+
+        .upload-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-remove {
+            background: #fce8e6;
+            color: #d33b27;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: #f8d7da;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a73e8;
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease;
+            z-index: 2001;
+            max-width: 400px;
+            word-wrap: break-word;
+        }
+
+        .toast.success {
+            background: #34a853;
+        }
+
+        .toast.error {
+            background: #ea4335;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f3f4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dadce0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9aa0a6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .properties-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header {
+                padding: 16px 20px;
+            }
+            
+            .search-input {
+                width: 200px;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+            
+            .header-title {
+                font-size: 20px;
+            }
+            
+            .header-actions {
+                gap: 12px;
+            }
+            
+            .search-input {
+                width: 180px;
+                padding: 8px 12px;
+            }
+            
+            .btn-primary,
+            .btn-secondary,
+            .btn-dashboard {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .content-header h1 {
+                font-size: 24px;
+            }
+            
+            .properties-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .property-card {
+                padding: 20px;
+            }
+            
+            .property-name {
+                font-size: 18px;
+            }
+            
+            .modal-body {
+                padding: 24px;
+            }
+            
+            .date-time-picker {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .toast {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header {
+                padding: 12px 16px;
+            }
+            
+            .header-actions {
+                gap: 8px;
+            }
+            
+            .search-input {
+                width: 150px;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .btn-primary,
+            .btn-secondary,
+            .btn-dashboard {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .content {
+                padding: 16px;
+            }
+            
+            .content-header h1 {
+                font-size: 20px;
+            }
+            
+            .property-card {
+                padding: 16px;
+            }
+            
+            .modal-content {
+                margin: 10px;
+            }
+            
+            .modal-header {
+                padding: 20px;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .modal-footer {
+                padding: 20px;
+                flex-direction: column;
+            }
+            
+            .btn-cancel,
+            .btn-save {
+                width: 100%;
+            }
+            
+            .upload-area {
+                padding: 24px 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .search-input {
+                display: none;
+            }
+            
+            .header-actions {
+                gap: 6px;
+            }
+            
+            .btn-primary,
+            .btn-secondary,
+            .btn-dashboard {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-menu-title">Menu</div>
+            <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+        </div>
+        <a href="ADMIN/control.html" class="mobile-menu-item">
+            <div class="mobile-menu-item-icon">📊</div>
+            <div>Dashboard</div>
+        </a>
+        <div class="mobile-menu-item active">
+            <div class="mobile-menu-item-icon">🏠</div>
+            <div>Properties</div>
+        </div>
+        <div class="mobile-menu-item" onclick="openModal()">
+            <div class="mobile-menu-item-icon">➕</div>
+            <div>Add Property</div>
+        </div>
+        <div class="mobile-menu-item" onclick="logout()">
+            <div class="mobile-menu-item-icon">🚪</div>
+            <div>Logout</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <button class="hamburger-menu" onclick="toggleMobileMenu()">☰</button>
+                    <div class="header-title">Real Estate Properties Management</div>
+                </div>
+                <div class="header-actions">
+                    <input type="search" placeholder="Search properties..." class="search-input">
+                    <button class="btn-dashboard" onclick="goToDashboard()">Dashboard</button>
+                    <button class="btn-primary" onclick="openModal()">Add Property</button>
+                    <button class="btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>Managed Properties</h1>
+                    <p>Manage property access and control user permissions with automatic expiration</p>
+                </div>
+
+                <div class="properties-grid" id="propertiesGrid">
+                    <!-- Properties will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property Modal -->
+    <div class="modal" id="propertyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Manage Property Access</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Property Name <span style="color: #d33b27;">*</span></label>
+                    <input type="text" class="form-input" id="propertyName" placeholder="Enter property name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Primary Email Address <span style="color: #d33b27;">*</span></label>
+                    <input type="email" class="form-input" id="email1" placeholder="Enter primary email address" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Secondary Email Address <span class="optional">(Optional)</span></label>
+                    <input type="email" class="form-input" id="email2" placeholder="Enter secondary email address">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tertiary Email Address <span class="optional">(Optional)</span></label>
+                    <input type="email" class="form-input" id="email3" placeholder="Enter tertiary email address">
+                </div>
+
+                <div class="date-time-picker">
+                    <div class="picker-group">
+                        <div class="picker-label">Expiry Date</div>
+                        <input type="date" class="date-input" id="expiryDate" required>
+                    </div>
+                    <div class="picker-group">
+                        <div class="picker-label">Expiry Time</div>
+                        <input type="time" class="time-input" id="expiryTime" required>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <div class="upload-section-title">Upload Dashboard Data</div>
+
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('jsonFile').click()">
+                        <div class="upload-icon">📊</div>
+                        <div class="upload-text">Click to upload JSON file or drag and drop</div>
+                        <div class="upload-subtext">Supports .json files only</div>
+                        <input type="file" id="jsonFile" accept=".json" style="display: none;" 
+                               onchange="handleFileUpload(event)">
+                    </div>
+
+                    <div id="uploadedFileInfo" style="display: none;">
+                        <div class="uploaded-file">
+                            <div class="file-icon">📄</div>
+                            <div class="file-info">
+                                <div class="file-name" id="fileName"></div>
+                                <div class="file-size" id="fileSize"></div>
+                            </div>
+                        </div>
+                        <div class="upload-actions">
+                            <button class="btn-remove" onclick="removeFile()">Remove File</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" onclick="saveProperty()">Save Property</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Admin emails (hardcoded)
+        const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
+        
+        let currentPropertyId = null;
+        let uploadedFile = null;
+        let currentDashboardData = null;
+        let properties = [];
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAuth();
+            await loadProperties();
+            setupDragAndDrop();
+            setupMobileMenuClose();
+        });
+
+        // Check if user is admin
+        async function checkAdminAuth() {
+            return new Promise((resolve) => {
+                firebase.auth().onAuthStateChanged(async (user) => {
+                    if (!user) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const userEmail = user.email;
+                    
+                    if (!ADMIN_EMAILS.includes(userEmail)) {
+                        // Not admin, redirect to user dashboard
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    
+                    resolve();
+                });
+            });
+        }
+
+        // Load properties from Firebase
+        async function loadProperties() {
+            try {
+                const snapshot = await db.collection('properties').get();
+                properties = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    properties.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+                
+                renderProperties();
+            } catch (error) {
+                console.error('Error loading properties:', error);
+                showToast('Error loading properties', 'error');
+            }
+        }
+
+        // Render all properties
+        function renderProperties() {
+            const grid = document.getElementById('propertiesGrid');
+            grid.innerHTML = '';
+
+            if (properties.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #5f6368;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                        <h3 style="font-weight: 400; margin-bottom: 8px;">No properties yet</h3>
+                        <p style="font-size: 14px;">Click the "Add Property" button to create your first property</p>
+                    </div>
+                `;
+                return;
+            }
+
+            properties.forEach(property => {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                
+                // Collect all non-empty emails
+                const emails = [
+                    property.email1,
+                    property.email2,
+                    property.email3
+                ].filter(email => email && email.trim() !== '');
+                
+                let expiryInfo = '';
+                let userInfo = '';
+                
+                if (property.expiryDate && property.expiryTime) {
+                    const expiryDate = new Date(property.expiryDate + ' ' + property.expiryTime);
+                    const now = new Date();
+                    const isExpired = expiryDate < now;
+                    
+                    expiryInfo = `
+                        <div class="property-expiry" style="${isExpired ? 'background: #fce8e6; border-color: #ea4335; color: #d33b27;' : ''}">
+                            ⏱️ ${isExpired ? 'EXPIRED: ' : ''}Access Expires: ${expiryDate.toLocaleString()}
+                        </div>
+                    `;
+                }
+                
+                if (emails.length > 0) {
+                    userInfo = emails.map((email, index) => `
+                        <div class="property-user">
+                            <div class="property-user-label">Email ${index + 1}</div>
+                            <div class="property-user-value">${email}</div>
+                        </div>
+                    `).join('');
+                }
+
+                card.innerHTML = `
+                    <div class="property-location">${property.propertyName || 'Unnamed Property'}</div>
+                    <div class="property-name">${property.propertyName || 'Unnamed Property'}</div>
+                    
+                    <div class="property-info">
+                        <div class="property-info-item">
+                            <span class="property-info-label">Users</span>
+                            <span class="property-info-value">${emails.length}</span>
+                        </div>
+                        <div class="property-info-item">
+                            <span class="property-info-label">Dashboard</span>
+                            <span class="property-info-value" style="color: ${property.dashboardData ? '#1a73e8' : '#5f6368'}">
+                                ${property.dashboardData ? 'Configured' : 'Not Set'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    ${emails.length > 0 ? userInfo : '<div style="color: #5f6368; font-size: 13px; padding: 12px; background: #f8f9fa; border-radius: 4px;">No users assigned</div>'}
+                    ${expiryInfo}
+                    
+                    <div class="property-actions">
+                        <button class="btn-sm btn-edit" onclick="openModal('${property.id}')">
+                            ${property.dashboardData ? 'Edit Property' : 'Configure Property'}
+                        </button>
+                        <button class="btn-sm btn-delete" onclick="deleteProperty('${property.id}')">Delete</button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Open modal for property configuration
+        async function openModal(propertyId = null) {
+            closeMobileMenu(); // Close mobile menu when opening modal
+            currentPropertyId = propertyId;
+            
+            if (propertyId) {
+                // Edit existing property
+                const property = properties.find(p => p.id === propertyId);
+                document.getElementById('modalTitle').textContent = 'Edit Property';
+                document.getElementById('propertyName').value = property.propertyName || '';
+                document.getElementById('email1').value = property.email1 || '';
+                document.getElementById('email2').value = property.email2 || '';
+                document.getElementById('email3').value = property.email3 || '';
+                document.getElementById('expiryDate').value = property.expiryDate || '';
+                document.getElementById('expiryTime').value = property.expiryTime || '';
+                
+                if (property.dashboardData) {
+                    currentDashboardData = property.dashboardData.data;
+                    showToast('Existing dashboard data loaded', 'success');
+                }
+            } else {
+                // Create new property
+                document.getElementById('modalTitle').textContent = 'Create New Property';
+                document.getElementById('propertyName').value = '';
+                document.getElementById('email1').value = '';
+                document.getElementById('email2').value = '';
+                document.getElementById('email3').value = '';
+                document.getElementById('expiryDate').value = '';
+                document.getElementById('expiryTime').value = '';
+                currentDashboardData = null;
+            }
+
+            // Reset file upload section
+            uploadedFile = null;
+            document.getElementById('uploadedFileInfo').style.display = 'none';
+            document.getElementById('uploadArea').classList.remove('dragover');
+            document.getElementById('jsonFile').value = '';
+
+            document.getElementById('propertyModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('propertyModal').classList.remove('active');
+            currentPropertyId = null;
+            currentDashboardData = null;
+        }
+
+        // Save property to Firebase
+        async function saveProperty() {
+            const propertyName = document.getElementById('propertyName').value.trim();
+            const email1 = document.getElementById('email1').value.trim();
+            const email2 = document.getElementById('email2').value.trim();
+            const email3 = document.getElementById('email3').value.trim();
+            const expiryDate = document.getElementById('expiryDate').value;
+            const expiryTime = document.getElementById('expiryTime').value;
+
+            // Validation
+            if (!propertyName || !email1 || !expiryDate || !expiryTime) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email1)) {
+                showToast('Please enter a valid primary email address', 'error');
+                return;
+            }
+            
+            if (email2 && !emailRegex.test(email2)) {
+                showToast('Please enter a valid secondary email address', 'error');
+                return;
+            }
+            
+            if (email3 && !emailRegex.test(email3)) {
+                showToast('Please enter a valid tertiary email address', 'error');
+                return;
+            }
+
+            try {
+                const propertyData = {
+                    propertyName,
+                    email1,
+                    email2: email2 || null,
+                    email3: email3 || null,
+                    expiryDate,
+                    expiryTime,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Add dashboard data if exists
+                if (currentDashboardData) {
+                    propertyData.dashboardData = {
+                        data: currentDashboardData,
+                        uploadedAt: new Date().toISOString()
+                    };
+                }
+
+                if (currentPropertyId) {
+                    // Update existing property
+                    await db.collection('properties').doc(currentPropertyId).update(propertyData);
+                    showToast('Property updated successfully!', 'success');
+                } else {
+                    // Create new property
+                    propertyData.createdAt = new Date().toISOString();
+                    await db.collection('properties').add(propertyData);
+                    showToast('Property created successfully!', 'success');
+                }
+
+                await loadProperties();
+                closeModal();
+            } catch (error) {
+                console.error('Error saving property:', error);
+                showToast('Error saving property data', 'error');
+            }
+        }
+
+        // Delete property
+        async function deleteProperty(propertyId) {
+            if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                try {
+                    await db.collection('properties').doc(propertyId).delete();
+                    showToast('Property deleted', 'success');
+                    await loadProperties();
+                } catch (error) {
+                    console.error('Error deleting property:', error);
+                    showToast('Error deleting property', 'error');
+                }
+            }
+        }
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            
+            if (menu.classList.contains('active')) {
+                closeMobileMenu();
+            } else {
+                menu.classList.add('active');
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                }, 10);
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            
+            menu.classList.remove('active');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function setupMobileMenuClose() {
+            // Close menu when clicking outside on mobile
+            document.getElementById('mobileMenuOverlay').addEventListener('click', closeMobileMenu);
+            
+            // Close menu when clicking on menu items
+            document.querySelectorAll('.mobile-menu-item').forEach(item => {
+                item.addEventListener('click', closeMobileMenu);
+            });
+        }
+
+        // Dashboard Navigation
+        function goToDashboard() {
+            window.location.href = 'admin-control.html';
+        }
+
+        // Setup drag and drop
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function unhighlight() {
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                handleFileUpload({ target: { files: files } });
+            }
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+
+            if (file && file.type === 'application/json') {
+                uploadedFile = file;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        currentDashboardData = JSON.parse(e.target.result);
+
+                        // Display file info
+                        document.getElementById('fileName').textContent = file.name;
+                        document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                        document.getElementById('uploadedFileInfo').style.display = 'block';
+
+                        showToast('File loaded successfully', 'success');
+                    } catch (error) {
+                        showToast('Invalid JSON file format', 'error');
+                        console.error('JSON parsing error:', error);
+                        uploadedFile = null;
+                        currentDashboardData = null;
+                    }
+                };
+
+                reader.onerror = function() {
+                    showToast('Error reading file', 'error');
+                    uploadedFile = null;
+                    currentDashboardData = null;
+                };
+
+                reader.readAsText(file);
+            } else {
+                showToast('Please upload a valid JSON file', 'error');
+            }
+        }
+
+        // Remove uploaded file
+        function removeFile() {
+            uploadedFile = null;
+            currentDashboardData = null;
+            document.getElementById('uploadedFileInfo').style.display = 'none';
+            document.getElementById('jsonFile').value = '';
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Show toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('propertyModal').addEventListener('click', (e) => {
+            if (e.target.id === 'propertyModal') {
+                closeModal();
+            }
+        });
+
+        // Close mobile menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+                closeModal();
+            }
+        });
+        // Track admin location
+if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
+  localStorage.setItem('lastAdminPage', 'admin');
+  console.log('Admin on properties page, setting redirect preference');
+}
+    </script>
+    <script src="firebase-config.js"></script>
+<script src="admin-auth-check.js"></script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Dashboard</title>
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="control.css">
+    <style>
+        /* Additional styles for Firebase integration */
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .property-banner {
+            background: rgba(255, 255, 255, 0.199);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: none; /* Hidden by default */
+        }
+        
+        .property-info {
+            flex: 1;
+        }
+        
+        .property-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .property-details {
+            font-size: 14px;
+            opacity: 0.9;
+            color: white;
+        }
+        
+        .property-expiry {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            grid-column: 1 / -1;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #f26f1e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .access-denied {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+        
+        .access-denied i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #f44336;
+            opacity: 0.7;
+        }
+        
+        .access-denied h3 {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .access-denied p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .access-denied .action-btn {
+            padding: 10px 24px;
+            background: #f26f1e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .access-denied .action-btn:hover {
+            background: #e05c1a;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-title">
+            <i class="fas fa-home"></i>
+            <span id="headerTitle">Property Dashboard</span>
+        </div>
+        <div class="header-buttons">
+            <button class="header-btn logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <button class="header-btn save-btn" id="saveDashboardBtn" style="display: none;">
+                <i class="fas fa-download"></i>
+                <span>Save</span>
+            </button>
+            <button class="header-btn edit-btn" id="editBtn"  style="display: none;">
+                <i class="fas fa-plus"></i>
+                <span>Edit</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Property Info Banner -->
+    <div class="property-banner" id="propertyBanner">
+        <div class="property-info">
+            <div class="property-name" id="propertyName">Loading...</div>
+            <div class="property-details" id="propertyDetails"></div>
+        </div>
+        <div class="property-expiry" id="propertyExpiry"></div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content" id="dashboardContent">
+        <div class="dashboard-grid" id="dashboardGrid">
+            <!-- Loading state -->
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+                <div>Loading dashboard...</div>
+            </div>
+            
+            <!-- Empty state (hidden by default) -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-plus-circle"></i>
+                <h3>No controls added yet</h3>
+                <p>Click "Edit" to add your first control</p>
+            </div>
+            
+            <!-- Access denied state (hidden by default) -->
+            <div class="access-denied" id="accessDeniedState" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Access Denied</h3>
+                <p id="accessDeniedReason"></p>
+                <button class="action-btn" onclick="goToIndex()">Back to Home</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Control Type Selection Modal -->
+    <div class="modal-overlay" id="typeSelectionModal">
+        <div class="modal" id="typeSelection">
+            <div class="modal-header">
+                <div class="modal-title">Select Control Type</div>
+                <div class="modal-subtitle">Choose the type of control you want to add</div>
+            </div>
+
+            <div class="modal-content">
+                <div class="control-type-grid">
+                    <!-- Toggle -->
+                    <div class="control-type-card" data-type="toggle">
+                        <div class="control-type-icon">
+                            <i class="material-icons">toggle_on</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Toggle Switch</h3>
+                            <p>Simple on/off switches for lights and appliances</p>
+                        </div>
+                    </div>
+
+                    <!-- Dimmer -->
+                    <div class="control-type-card" data-type="dimmer">
+                        <div class="control-type-icon">
+                            <i class="material-icons">brightness_medium</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Dimmer</h3>
+                            <p>Adjustable light intensity controls</p>
+                        </div>
+                    </div>
+
+                    <!-- CCT Light -->
+                    <div class="control-type-card" data-type="cct">
+                        <div class="control-type-icon">
+                            <i class="material-icons">wb_incandescent</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>CCT Light</h3>
+                            <p>Color temperature adjustable lighting</p>
+                        </div>
+                    </div>
+
+                    <!-- RGB Light -->
+                    <div class="control-type-card" data-type="rgb">
+                        <div class="control-type-icon">
+                            <i class="material-icons">palette</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>RGB Light</h3>
+                            <p>Full color spectrum lighting controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Curtain -->
+                    <div class="control-type-card" data-type="curtain">
+                        <div class="control-type-icon">
+                            <i class="material-icons">blinds</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Curtain</h3>
+                            <p>Motorized curtain and blind controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Sensor -->
+                    <div class="control-type-card" data-type="sensor">
+                        <div class="control-type-icon">
+                            <i class="material-icons">sensors</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Sensor</h3>
+                            <p>Motion, temperature, and environmental sensors</p>
+                        </div>
+                    </div>
+
+                    <!-- Lock -->
+                    <div class="control-type-card" data-type="lock">
+                        <div class="control-type-icon">
+                            <i class="material-icons">lock</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Lock</h3>
+                            <p>Smart door lock controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Remote -->
+                    <div class="control-type-card" data-type="remote">
+                        <div class="control-type-icon">
+                            <i class="material-icons">settings_remote</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Remote</h3>
+                            <p>Remote control devices</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelTypeBtn">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Configuration Modal -->
+    <div class="modal-overlay" id="toggleConfigModal">
+        <div class="modal" id="toggleConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure Toggle Switch</div>
+                <div class="modal-subtitle">Set up your toggle switch settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="toggleConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="controlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="controlName" placeholder="e.g., Living Room Light" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="controlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="controlSubtitle" placeholder="e.g., Main ceiling light control">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="entityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="entityId" placeholder="e.g., light.living_room" required>
+                        <div class="form-hint">Format: domain.entity_id (light, switch, input_boolean, etc.)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="iconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="iconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="selectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="toggleConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CCT Configuration Modal -->
+    <div class="modal-overlay" id="cctConfigModal">
+        <div class="modal" id="cctConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure CCT Light</div>
+                <div class="modal-subtitle">Set up your CCT light settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="cctConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="cctControlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="cctControlName" placeholder="e.g., Living Room CCT Light" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="cctControlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="cctControlSubtitle"
+                            placeholder="e.g., Adjust brightness and color temperature">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="cctEntityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="cctEntityId" placeholder="e.g., light.living_room_cct" required>
+                        <div class="form-hint">Format: light.entity_name (must be a light entity with CCT support)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="cctIconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="cctIconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="cctSelectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelCCTConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="cctConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dimmer Configuration Modal -->
+    <div class="modal-overlay" id="dimmerConfigModal">
+        <div class="modal" id="dimmerConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure Dimmer</div>
+                <div class="modal-subtitle">Set up your dimmer settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="dimmerConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="dimmerControlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="dimmerControlName" placeholder="e.g., Living Room Dimmer" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="dimmerControlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="dimmerControlSubtitle" placeholder="e.g., Adjust brightness level">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="dimmerEntityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="dimmerEntityId" placeholder="e.g., light.living_room" required>
+                        <div class="form-hint">Format: domain.entity_id (light, switch, etc.)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="dimmerIconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="dimmerIconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="dimmerSelectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelDimmerConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="dimmerConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="firebase-config.js"></script>
+    <script src="switch.js"></script>
+    <script src="cct-light-card.js"></script>
+    <script src="dimmer.js"></script>
+    <script src="main-control.js"></script>
+    <script src="button-control.js"></script>
+    <script src="config.js"></script>
+
+    <!-- Initialize the dashboard with Firebase -->
+    <script>
+        // Admin emails (hardcoded)
+        const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
+        
+        // Check authentication and load dashboard on page load
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Control page loaded - checking authentication...');
+            
+            try {
+                // Check if user is authenticated
+                const user = await new Promise((resolve) => {
+                    firebase.auth().onAuthStateChanged(resolve);
+                });
+
+                if (!user) {
+                    console.log('No user found, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const userEmail = user.email;
+                console.log('User authenticated:', userEmail);
+                
+                // Check if user is admin
+                if (ADMIN_EMAILS.includes(userEmail)) {
+                    console.log('Admin detected, redirecting to admin panel');
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                // Get property ID from localStorage (set by index.html)
+                const propertyId = localStorage.getItem('currentPropertyId');
+                console.log('Property ID from localStorage:', propertyId);
+                
+                if (!propertyId) {
+                    console.log('No property ID found, redirecting to index for verification');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Verify access and load property data
+                const accessResult = await verifyAccess(userEmail, propertyId);
+                console.log('Access verification result:', accessResult);
+                
+                if (!accessResult.hasAccess) {
+                    showAccessDenied(accessResult.reason);
+                    return;
+                }
+
+                // Initialize main dashboard logic (this will load from Firebase)
+                if (window.initializeDashboard) {
+                    await window.initializeDashboard();
+                }
+
+                // Initialize UI components
+                if (window.initializeUI) {
+                    window.initializeUI();
+                }
+                
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showAccessDenied('Error loading dashboard: ' + error.message);
+            }
+        });
+
+        // Verify user access
+        async function verifyAccess(userEmail, propertyId) {
+            try {
+                console.log('Verifying access for user:', userEmail, 'property:', propertyId);
+                
+                // Fetch property data from Firebase
+                const doc = await db.collection('properties').doc(propertyId).get();
+                
+                if (!doc.exists) {
+                    console.error('Property document not found:', propertyId);
+                    return {
+                        hasAccess: false,
+                        reason: 'Property not found'
+                    };
+                }
+
+                const propertyData = doc.data();
+                console.log('Property data loaded:', propertyData);
+                
+                // Check if email is in authorized list
+                const authorizedEmails = [
+                    propertyData.email1,
+                    propertyData.email2,
+                    propertyData.email3
+                ].filter(email => email && email.trim() !== '');
+                
+                console.log('Authorized emails:', authorizedEmails);
+                console.log('User email match:', authorizedEmails.includes(userEmail));
+                
+                if (!authorizedEmails.includes(userEmail)) {
+                    return {
+                        hasAccess: false,
+                        reason: 'You are not authorized to access this property'
+                    };
+                }
+
+                // Check expiry
+                if (!propertyData.expiryDate || !propertyData.expiryTime) {
+                    return {
+                        hasAccess: false,
+                        reason: 'Access expiry not configured'
+                    };
+                }
+
+                const expiryDateTime = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
+                const now = new Date();
+                
+                console.log('Expiry datetime:', expiryDateTime);
+                console.log('Current datetime:', now);
+                console.log('Is expired?', expiryDateTime <= now);
+                
+                if (expiryDateTime <= now) {
+                    return {
+                        hasAccess: false,
+                        reason: 'Your access has expired'
+                    };
+                }
+
+                // Store property data
+                localStorage.setItem('currentPropertyData', JSON.stringify(propertyData));
+                
+                // Update header with property name
+                document.getElementById('headerTitle').textContent = propertyData.propertyName || 'Property Dashboard';
+                
+                // Update property banner
+                updatePropertyBanner(propertyData);
+                
+                return {
+                    hasAccess: true,
+                    propertyData: propertyData
+                };
+                
+            } catch (error) {
+                console.error('Error verifying access:', error);
+                return {
+                    hasAccess: false,
+                    reason: 'Error verifying access: ' + error.message
+                };
+            }
+        }
+
+        // Update property banner
+        function updatePropertyBanner(propertyData) {
+            const banner = document.getElementById('propertyBanner');
+            const propertyName = document.getElementById('propertyName');
+            const propertyDetails = document.getElementById('propertyDetails');
+            const propertyExpiry = document.getElementById('propertyExpiry');
+
+            if (propertyData) {
+                banner.style.display = 'flex';
+                propertyName.textContent = propertyData.propertyName || 'Property Dashboard';
+                
+                // Count non-empty emails
+                const emailCount = [
+                    propertyData.email1,
+                    propertyData.email2,
+                    propertyData.email3
+                ].filter(email => email && email.trim() !== '').length;
+                
+                propertyDetails.textContent = `Access granted to ${emailCount} user${emailCount !== 1 ? 's' : ''}`;
+                
+                // Format expiry date
+                if (propertyData.expiryDate && propertyData.expiryTime) {
+                    const expiryDate = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
+                    const now = new Date();
+                    const timeDiff = expiryDate - now;
+                    
+                    if (timeDiff > 0) {
+                        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        
+                        if (days > 0) {
+                            propertyExpiry.textContent = `Expires in ${days} day${days !== 1 ? 's' : ''}`;
+                        } else if (hours > 0) {
+                            propertyExpiry.textContent = `Expires in ${hours} hour${hours !== 1 ? 's' : ''}`;
+                        } else {
+                            propertyExpiry.textContent = 'Expires today';
+                        }
+                    } else {
+                        propertyExpiry.textContent = 'Access expired';
+                        propertyExpiry.style.background = 'rgba(244, 67, 54, 0.3)';
+                    }
+                }
+            }
+        }
+
+        // Show access denied state
+        function showAccessDenied(reason) {
+            const loadingState = document.getElementById('loadingState');
+            const accessDeniedState = document.getElementById('accessDeniedState');
+            const accessDeniedReason = document.getElementById('accessDeniedReason');
+            
+            if (loadingState) loadingState.style.display = 'none';
+            if (accessDeniedState) {
+                accessDeniedState.style.display = 'flex';
+                accessDeniedReason.textContent = reason;
+            }
+            
+            // Hide property banner
+            document.getElementById('propertyBanner').style.display = 'none';
+        }
+
+        // Navigation functions
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                localStorage.clear();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

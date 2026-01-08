@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Dashboard</title>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="./ADMIN/control.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-buttons">
+            <button class="header-btn save-btn" id="saveDashboardBtn">
+                <i class="fas fa-download"></i>
+                <span>Save</span>
+            </button>
+            <button class="header-btn edit-btn" id="editBtn">
+                <i class="fas fa-plus"></i>
+                <span>Edit</span>
+            </button>
+            <button class="header-btn admin-btn" id="adminBtn" onclick="window.location.href='admin.html';">
+                <i class="fas fa-save"></i>
+                <span>Admin</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content" id="dashboardContent">
+        <div class="dashboard-grid" id="dashboardGrid">
+            <!-- Empty state -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-plus-circle"></i>
+                <h3>No controls added yet</h3>
+                <p>Click "Add Control" to add your first control</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Control Type Selection Modal -->
+    <div class="modal-overlay" id="typeSelectionModal">
+        <div class="modal" id="typeSelection">
+            <div class="modal-header">
+                <div class="modal-title">Select Control Type</div>
+                <div class="modal-subtitle">Choose the type of control you want to add</div>
+            </div>
+
+            <div class="modal-content">
+                <div class="control-type-grid">
+                    <!-- Toggle -->
+                    <div class="control-type-card" data-type="toggle">
+                        <div class="control-type-icon">
+                            <i class="material-icons">toggle_on</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Toggle Switch</h3>
+                            <p>Simple on/off switches for lights and appliances</p>
+                        </div>
+                    </div>
+
+                    <!-- Dimmer -->
+                    <div class="control-type-card" data-type="dimmer">
+                        <div class="control-type-icon">
+                            <i class="material-icons">brightness_medium</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Dimmer</h3>
+                            <p>Adjustable light intensity controls</p>
+                        </div>
+                    </div>
+
+                    <!-- CCT Light -->
+                    <div class="control-type-card" data-type="cct">
+                        <div class="control-type-icon">
+                            <i class="material-icons">wb_incandescent</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>CCT Light</h3>
+                            <p>Color temperature adjustable lighting</p>
+                        </div>
+                    </div>
+
+                    <!-- RGB Light -->
+                    <div class="control-type-card" data-type="rgb">
+                        <div class="control-type-icon">
+                            <i class="material-icons">palette</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>RGB Light</h3>
+                            <p>Full color spectrum lighting controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Curtain -->
+                    <div class="control-type-card" data-type="curtain">
+                        <div class="control-type-icon">
+                            <i class="material-icons">blinds</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Curtain</h3>
+                            <p>Motorized curtain and blind controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Sensor -->
+                    <div class="control-type-card" data-type="sensor">
+                        <div class="control-type-icon">
+                            <i class="material-icons">sensors</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Sensor</h3>
+                            <p>Motion, temperature, and environmental sensors</p>
+                        </div>
+                    </div>
+
+                    <!-- Lock -->
+                    <div class="control-type-card" data-type="lock">
+                        <div class="control-type-icon">
+                            <i class="material-icons">lock</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Lock</h3>
+                            <p>Smart door lock controls</p>
+                        </div>
+                    </div>
+
+                    <!-- Remote -->
+                    <div class="control-type-card" data-type="remote">
+                        <div class="control-type-icon">
+                            <i class="material-icons">settings_remote</i>
+                        </div>
+                        <div class="control-type-info">
+                            <h3>Remote</h3>
+                            <p>Remote control devices</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelTypeBtn">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Configuration Modal -->
+    <div class="modal-overlay" id="toggleConfigModal">
+        <div class="modal" id="toggleConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure Toggle Switch</div>
+                <div class="modal-subtitle">Set up your toggle switch settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="toggleConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="controlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="controlName" placeholder="e.g., Living Room Light" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="controlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="controlSubtitle" placeholder="e.g., Main ceiling light control">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="entityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="entityId" placeholder="e.g., light.living_room" required>
+                        <div class="form-hint">Format: domain.entity_id (light, switch, input_boolean, etc.)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="iconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="iconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="selectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="toggleConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CCT Configuration Modal -->
+    <div class="modal-overlay" id="cctConfigModal">
+        <div class="modal" id="cctConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure CCT Light</div>
+                <div class="modal-subtitle">Set up your CCT light settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="cctConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="cctControlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="cctControlName" placeholder="e.g., Living Room CCT Light" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="cctControlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="cctControlSubtitle"
+                            placeholder="e.g., Adjust brightness and color temperature">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="cctEntityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="cctEntityId" placeholder="e.g., light.living_room_cct" required>
+                        <div class="form-hint">Format: light.entity_name (must be a light entity with CCT support)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="cctIconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="cctIconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="cctSelectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelCCTConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="cctConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Dimmer Configuration Modal -->
+    <div class="modal-overlay" id="dimmerConfigModal">
+        <div class="modal" id="dimmerConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure Dimmer</div>
+                <div class="modal-subtitle">Set up your dimmer settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="dimmerConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="dimmerControlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="dimmerControlName" placeholder="e.g., Living Room Dimmer" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="dimmerControlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="dimmerControlSubtitle" placeholder="e.g., Adjust brightness level">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="dimmerEntityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="dimmerEntityId" placeholder="e.g., light.living_room" required>
+                        <div class="form-hint">Format: domain.entity_id (light, switch, etc.)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="dimmerIconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="dimmerIconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="dimmerSelectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelDimmerConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="dimmerConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="./ADMIN/switch.js"></script>
+    <script src="./ADMIN/cct-light-card.js"></script>
+    <script src="./ADMIN/dimmer.js"></script>
+    <script src="./ADMIN/main-control.js"></script>
+    <script src="./ADMIN/button-control.js"></script>
+    <script src="config.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="admin-auth-check.js"></script>
+
+    <!-- Initialize the dashboard -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize main dashboard logic
+            if (window.initializeDashboard) {
+                window.initializeDashboard();
+            }
+
+            // Initialize UI components
+            if (window.initializeUI) {
+                window.initializeUI();
+            }
+        });
+        // Track admin location for smart redirects
+        if (firebase.auth().currentUser) {
+            const user = firebase.auth().currentUser;
+            const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
+
+            if (ADMIN_EMAILS.includes(user.email)) {
+                // Store that admin is on control panel
+                localStorage.setItem('lastAdminPage', 'admin-control');
+                console.log('Admin on control panel, setting redirect preference');
+            }
+        }
+    </script>
+</body>
+
+</html>

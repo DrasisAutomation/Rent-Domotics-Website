@@ -1,0 +1,106 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Sent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+            --card-radius: 16px;
+            --gap: 18px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: white;
+            font-family: "Inter";
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: black;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 34px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            opacity: .9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 60px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            margin-top: 20px;
+            background: var(--accent);
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #e05e1a;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header">
+            <div class="title">REQUEST SENT</div>
+            <div class="subtitle">Room <span id="roomNumber">G01</span></div>
+        </div>
+
+        <div class="card">
+            <div class="icon">✓</div>
+            <h2>Your request has been submitted!</h2>
+            <p><span id="serviceName">Make My Room</span> will be delivered shortly.</p>
+
+            <button class="button" onclick="location.href='service.html'">Back to Services</button>
+        </div>
+
+    </div>
+
+    <script>
+        const room = localStorage.getItem("roomNumber");
+        const service = localStorage.getItem("serviceRequest");
+
+        document.getElementById("roomNumber").textContent = room;
+        document.getElementById("serviceName").textContent = service;
+    </script>
+
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+
+
+</body></html>

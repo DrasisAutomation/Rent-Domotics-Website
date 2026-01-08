@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC Light Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1D1B1E;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* MC Toggle Card Styles - EXACT DESIGN */
+        .mc-toggle-card {
+            --card-width: 100%;
+            --card-height: 80px;
+            --bg-off: rgba(0, 0, 0, 0.6);
+            --accent-on: #f26f1e;
+            --muted: rgba(255, 255, 255, 0.85);
+            --corner: 14px;
+            --top-padding: 0px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .light-card {
+            width: 100%;
+            max-width: 520px;
+            height: var(--card-height) !important;
+            border-radius: var(--corner);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 16px;
+            background: var(--bg-off);
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+            margin: var(--top-padding) auto 0 auto;
+            cursor: pointer;
+        }
+
+        .light-card.on {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .icon-wrap i {
+            font-size: 25px;
+            color: #f26f1e;
+            transition: color 0.3s ease, filter 0.3s ease;
+        }
+
+        .light-card.on .icon-wrap {
+            background: rgba(242, 111, 30, 0.2);
+        }
+
+        .light-card.on .icon-wrap i {
+            color: #ff8c00 !important;
+            filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.6));
+        }
+
+        .light-card.off .icon-wrap {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .light-card.off .icon-wrap i {
+            color: #ffffff;
+            filter: none;
+        }
+
+        .icon-wrap,
+        .icon-wrap i {
+            mix-blend-mode: normal !important;
+        }
+
+        .meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .name {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1;
+            color: white;
+            transition: color 0.18s ease;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            mix-blend-mode: difference;
+            min-height: 16px;
+        }
+
+        .light-card.on .name {
+            color: var(--accent-on);
+            mix-blend-mode: normal;
+        }
+
+        .light-card.off .name {
+            color: rgba(255, 255, 255, 0.75);
+            mix-blend-mode: difference;
+        }
+
+        .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            mix-blend-mode: difference;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .light-card.on .sub {
+            color: #666;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status {
+            font-weight: 700;
+            font-size: 13px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        .light-card.on .status {
+            color: var(--accent-on);
+        }
+
+        .light-card.off .status {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Compact 3D Toggle Switch - EXACT DESIGN */
+        .switch {
+            font-size: 14px;
+            position: relative;
+            display: inline-block;
+            width: 3.8em;
+            height: 1.9em;
+            user-select: none;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .switch .cb {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .toggle {
+            position: absolute;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            background-color: #373737;
+            border-radius: 0.1em;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-weight: 700;
+            overflow: hidden;
+            box-shadow: -0.2em 0 0 0 #373737, -0.2em 0.2em 0 0 #373737,
+                0.2em 0 0 0 #373737, 0.2em 0.2em 0 0 #373737, 0 0.2em 0 0 #373737;
+        }
+
+        .toggle>.left {
+            position: absolute;
+            display: flex;
+            width: 50%;
+            height: 88%;
+            background-color: #f8f8f8;
+            color: #373737;
+            left: 0;
+            bottom: 0;
+            align-items: center;
+            justify-content: center;
+            transform-origin: right;
+            transform: rotateX(10deg);
+            transform-style: preserve-3d;
+            transition: all 0.15s;
+            font-size: 0.65em;
+            font-weight: 800;
+        }
+
+        .left::before {
+            position: absolute;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: rgb(220, 220, 220);
+            transform-origin: center left;
+            transform: rotateY(90deg);
+        }
+
+        .left::after {
+            position: absolute;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: rgb(140, 140, 140);
+            transform-origin: center bottom;
+            transform: rotateX(90deg);
+        }
+
+        .toggle>.right {
+            position: absolute;
+            display: flex;
+            width: 50%;
+            height: 88%;
+            background-color: #f8f8f8;
+            color: rgb(180, 180, 180);
+            right: 1px;
+            bottom: 0;
+            align-items: center;
+            justify-content: center;
+            transform-origin: left;
+            transform: rotateX(10deg) rotateY(-45deg);
+            transform-style: preserve-3d;
+            transition: all 0.15s;
+            font-size: 0.65em;
+            font-weight: 800;
+        }
+
+        .right::before {
+            position: absolute;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: rgb(220, 220, 220);
+            transform-origin: center right;
+            transform: rotateY(-90deg);
+        }
+
+        .right::after {
+            position: absolute;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: rgb(140, 140, 140);
+            transform-origin: center bottom;
+            transform: rotateX(90deg);
+        }
+
+        .switch input:checked+.toggle>.left {
+            transform: rotateX(10deg) rotateY(45deg);
+            color: rgb(180, 180, 180);
+        }
+
+        .switch input:checked+.toggle>.right {
+            transform: rotateX(10deg) rotateY(0deg);
+            color: #f26f1e;
+        }
+
+        .light-card.on .toggle {
+            background-color: #e0e0e0;
+            box-shadow: -0.2em 0 0 0 #e0e0e0, -0.2em 0.2em 0 0 #e0e0e0,
+                0.2em 0 0 0 #e0e0e0, 0.2em 0.2em 0 0 #e0e0e0, 0 0.2em 0 0 #e0e0e0;
+        }
+
+        @media (max-width: 600px) {
+            .light-card {
+                height: 88px;
+                padding: 10px 12px;
+            }
+
+            .left {
+                gap: 10px;
+            }
+
+            .icon-wrap {
+                width: 44px;
+                height: 44px;
+            }
+
+            .icon-wrap i {
+                font-size: 22px;
+            }
+
+            .light-card.on .icon-wrap i {
+                color: #ff8c00 !important;
+            }
+
+            .name {
+                font-size: 15px;
+            }
+
+            .sub {
+                font-size: 11px;
+            }
+
+            .status {
+                font-size: 12px;
+            }
+
+            .switch {
+                width: 3.5em;
+                height: 1.8em;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .light-card {
+                height: 88px;
+                padding: 8px 10px;
+            }
+
+            .icon-wrap {
+                width: 40px;
+                height: 40px;
+            }
+
+            .icon-wrap i {
+                font-size: 20px;
+            }
+
+            .light-card.on .icon-wrap i {
+                color: #ff8c00 !important;
+            }
+
+            .name {
+                font-size: 14px;
+            }
+
+            .sub {
+                font-size: 10px;
+            }
+
+            .status {
+                font-size: 11px;
+                min-width: 28px;
+            }
+
+            .switch {
+                width: 3.2em;
+                height: 1.6em;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .light-card {
+                height: 84px;
+                padding: 6px 8px;
+            }
+
+            .left {
+                gap: 8px;
+            }
+
+            .icon-wrap {
+                width: 36px;
+                height: 36px;
+            }
+
+            .icon-wrap i {
+                font-size: 18px;
+            }
+
+            .light-card.on .icon-wrap i {
+                color: #ff8c00 !important;
+            }
+
+            .name {
+                font-size: 13px;
+            }
+
+            .sub {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MC Toggle Card - Exact Design -->
+    <div class="mc-toggle-card">
+        <div class="light-card off" id="lightCard">
+            <div class="card-content">
+                <div class="left">
+                    <div class="icon-wrap" aria-hidden="true">
+                        <i class="fas fa-lightbulb" id="cardIcon"></i>
+                    </div>
+                    <div class="meta">
+                        <div class="name" id="cardName">Light</div>
+                        <div class="sub" id="cardSub">Toggle to on light</div>
+                    </div>
+                </div>
+
+                <div class="status-container">
+                    <div class="status" id="statusText">OFF</div>
+                    <label class="switch">
+                        <input class="cb" type="checkbox" id="toggleCheckbox" />
+                        <span class="toggle">
+                            <span class="left">off</span>
+                            <span class="right">on</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Home Assistant Integration
+        const WS_URL = "wss://demo.lumihomepro1.com/api/websocket";
+        const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzNGNlNThiNDk1Nzk0NDVmYjUxNzE2NDA0N2Q0MGNmZCIsImlhdCI6MTc2NTM0NzQ5MSwiZXhwIjoyMDgwNzA3NDkxfQ.Se5PGwx0U9aqyVRnD1uwvCv3F-aOE8H53CKA5TqsV7U";
+        
+        // CHANGE THIS TO ANY TOGGLE ENTITY
+        const ENTITY_ID = "light.row_5"; // Can be switch.fan, input_boolean.guest_mode, etc.
+
+        // DOM Elements
+        const lightCard = document.getElementById('lightCard');
+        const toggleCheckbox = document.getElementById('toggleCheckbox');
+        const switchLabel = document.querySelector('.switch');
+        const statusText = document.getElementById('statusText');
+        const cardName = document.getElementById('cardName');
+        const cardSub = document.getElementById('cardSub');
+
+        // State
+        let ws = null;
+        let isOn = false;
+        let isConnected = false;
+        let entityData = null;
+
+        // Connect to Home Assistant WebSocket
+        function connectWebSocket() {
+            console.log("Connecting to Home Assistant WebSocket...");
+
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log("WebSocket connected to Home Assistant");
+                ws.send(JSON.stringify({
+                    type: "auth",
+                    access_token: TOKEN
+                }));
+            };
+
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+
+                if (data.type === "auth_ok") {
+                    console.log("Authentication successful");
+                    isConnected = true;
+
+                    // Get initial state
+                    setTimeout(() => {
+                        ws.send(JSON.stringify({
+                            id: 1,
+                            type: "get_states"
+                        }));
+
+                        // Subscribe to changes
+                        setTimeout(() => {
+                            ws.send(JSON.stringify({
+                                id: 2,
+                                type: "subscribe_events",
+                                event_type: "state_changed"
+                            }));
+                        }, 100);
+                    }, 100);
+                }
+                else if (data.type === "result" && data.id === 1) {
+                    if (data.success && data.result) {
+                        const entity = data.result.find(e => e.entity_id === ENTITY_ID);
+                        if (entity) {
+                            entityData = entity;
+                            isOn = entity.state === "on";
+                            updateEntityUI();
+                            updateUI();
+                            console.log(`Initial state: ${isOn ? 'ON' : 'OFF'}`);
+                        }
+                    }
+                }
+                else if (data.type === "event" && data.event?.event_type === "state_changed") {
+                    if (data.event.data.entity_id === ENTITY_ID) {
+                        entityData = data.event.data.new_state;
+                        isOn = entityData.state === "on";
+                        updateEntityUI();
+                        updateUI();
+                        console.log(`State changed to: ${isOn ? 'ON' : 'OFF'}`);
+                    }
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                isConnected = false;
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected");
+                isConnected = false;
+
+                // Try to reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // Update entity UI with name and info
+        function updateEntityUI() {
+            if (entityData) {
+                // Use friendly_name if available, otherwise use entity_id
+                const friendlyName = entityData.attributes?.friendly_name || ENTITY_ID;
+                const entityDomain = ENTITY_ID.split('.')[0];
+                
+                cardName.textContent = friendlyName;
+                cardSub.textContent = `${entityDomain} entity`;
+            }
+        }
+
+        // Attach event listeners
+        function attachEventListeners() {
+            // Toggle ONLY on switch click
+            switchLabel.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                toggleEntity();
+            });
+
+            // Prevent card click from toggling
+            lightCard.addEventListener('click', (ev) => {
+                if (!ev.target.closest('.switch')) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            });
+
+            // Keyboard support only for switch
+            switchLabel.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleEntity();
+                }
+            });
+
+            // Make switch focusable
+            switchLabel.setAttribute('tabindex', '0');
+        }
+
+        // Toggle entity function - works for any toggleable entity
+        function toggleEntity() {
+            if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
+                console.log("Not connected to Home Assistant");
+                return;
+            }
+
+            if (!entityData) {
+                console.log("Entity data not available");
+                return;
+            }
+
+            // Toggle state
+            isOn = !isOn;
+            updateUI();
+
+            // Get domain from entity_id (e.g., "light" from "light.row_5")
+            const domain = ENTITY_ID.split('.')[0];
+            
+            // Determine service name based on domain
+            let service;
+            if (domain === 'cover') {
+                service = isOn ? "open_cover" : "close_cover";
+            } else if (domain === 'lock') {
+                service = isOn ? "unlock" : "lock";
+            } else if (domain === 'valve') {
+                service = isOn ? "open_valve" : "close_valve";
+            } else if (domain === 'climate') {
+                // Climate uses different services
+                service = isOn ? "turn_on" : "turn_off";
+            } else {
+                // Most entities use turn_on/turn_off
+                service = isOn ? "turn_on" : "turn_off";
+            }
+
+            // Call Home Assistant service
+            ws.send(JSON.stringify({
+                id: Date.now(),
+                type: "call_service",
+                domain: domain,
+                service: service,
+                service_data: {
+                    entity_id: ENTITY_ID
+                }
+            }));
+
+            console.log(`${ENTITY_ID} ${isOn ? 'turned ON' : 'turned OFF'}`);
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update card classes
+            if (isOn) {
+                lightCard.classList.remove('off');
+                lightCard.classList.add('on');
+                statusText.textContent = 'ON';
+            } else {
+                lightCard.classList.remove('on');
+                lightCard.classList.add('off');
+                statusText.textContent = 'OFF';
+            }
+
+            // Update toggle checkbox state
+            toggleCheckbox.checked = isOn;
+        }
+
+        // Initialize
+        function initialize() {
+            // Initialize with entity name
+            const entityDomain = ENTITY_ID.split('.')[0];
+            cardSub.textContent = `${entityDomain} entity`;
+            
+            attachEventListeners();
+            connectWebSocket();
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initialize);
+
+        // Log to console
+        console.info('MC Toggle Card with Home Assistant integration loaded!');
+        console.log(`Controlling entity: ${ENTITY_ID}`);
+    </script>
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</body>
+</html>

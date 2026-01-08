@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Facilities — Modern Design</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+            --card-radius: 16px;
+            --gap: 18px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: #000000;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 300;
+            color: white;
+            font-family: "Inter", sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: "Inter", sans-serif;
+        }
+
+        /* Facilities Grid */
+        .facilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Card */
+        .facility-card {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-radius: var(--card-radius);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .facility-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .facility-thumb {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .facility-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .facility-title {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.2;
+            margin: 0;
+            color: #000;
+        }
+
+        .facility-desc {
+            font-size: 14px;
+            margin: 0;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        /* Status Pill */
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 12px;
+            background: #ffffff;
+            color: #000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: default;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-pill.open {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-pill.soon {
+            background: #FF9800;
+            color: white;
+        }
+
+        .status-pill.premium {
+            background: #2196F3;
+            color: white;
+        }
+
+        /* Icon */
+        .facility-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .facility-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Animation */
+        .facility-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pop 0.5s forwards;
+        }
+
+        @keyframes pop {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Hours Info */
+        .hours {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .facilities-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+
+            .title {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .facilities-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .category-filter {
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .facilities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .category-filter {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">HOTEL FACILITIES</h1>
+            <div class="subtitle">World-Class Amenities & Services</div>
+        </header>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <button class="filter-btn active" data-filter="all">All Facilities</button>
+            <button class="filter-btn" data-filter="dining">Dining</button>
+            <button class="filter-btn" data-filter="wellness">Wellness</button>
+            <button class="filter-btn" data-filter="leisure">Leisure</button>
+            <button class="filter-btn" data-filter="business">Business</button>
+        </div>
+
+        <main class="facilities-grid" id="facilitiesGrid" aria-live="polite">
+            <!-- Facilities will be injected by JavaScript -->
+        </main>
+    </div>
+
+    <script>
+        // Facilities data array
+        const facilities = [
+            {
+                name: "Signature Restaurant",
+                desc: "Fine dining experience with international cuisine and curated wine selection.",
+                img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "dining",
+                status: "open",
+                hours: "6:00 AM - 11:00 PM",
+                icon: "🍽️"
+            },
+            {
+                name: "Rooftop Infinity Pool",
+                desc: "Stunning panoramic views with poolside bar and comfortable loungers.",
+                img: "https://tse3.mm.bing.net/th/id/OIP.wZSNayYbnailLEpHiC-aPgHaE7?w=1280&h=853&rs=1&pid=ImgDetMain&o=7&rm=3",
+                category: "leisure",
+                status: "open",
+                hours: "7:00 AM - 10:00 PM",
+                icon: "🏊"
+            },
+            {
+                name: "Luxury Spa & Wellness",
+                desc: "Complete relaxation with massage, sauna, steam room and therapy treatments.",
+                img: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "wellness",
+                status: "open",
+                hours: "8:00 AM - 9:00 PM",
+                icon: "🧖"
+            },
+            {
+                name: "Business Center",
+                desc: "Fully equipped workspace with meeting rooms and high-speed internet.",
+                img: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "business",
+                status: "open",
+                hours: "24 Hours",
+                icon: "💼"
+            },
+            {
+                name: "Fitness Center",
+                desc: "State-of-the-art gym with personal trainers and yoga classes.",
+                img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "wellness",
+                status: "open",
+                hours: "5:00 AM - 11:00 PM",
+                icon: "💪"
+            },
+            {
+                name: "Lobby Lounge & Bar",
+                desc: "Elegant space for cocktails, light bites and live music evenings.",
+                img: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "dining",
+                status: "open",
+                hours: "10:00 AM - 1:00 AM",
+                icon: "🍸"
+            },
+            {
+                name: "Conference Halls",
+                desc: "Versatile event spaces for meetings, weddings and corporate events.",
+                img: "https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "business",
+                status: "open",
+                hours: "By Appointment",
+                icon: "🎤"
+            },
+            {
+                name: "Kids Play Zone",
+                desc: "Safe and fun area for children with supervised activities.",
+                img: "https://www.chennaitop10.com/wp-content/uploads/2024/03/WhatsApp-Image-2024-03-15-at-17.37.17.jpeg",
+                category: "leisure",
+                status: "open",
+                hours: "9:00 AM - 7:00 PM",
+                icon: "🧸"
+            },
+            {
+                name: "Private Beach Access",
+                desc: "Exclusive beach area with cabanas, water sports and sunset views.",
+                img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                category: "leisure",
+                status: "premium",
+                hours: "Sunrise to Sunset",
+                icon: "🏖️"
+            }
+        ];
+
+        function createFacilityCard(facility, idx) {
+            const card = document.createElement('article');
+            card.className = 'facility-card';
+            card.style.animationDelay = `${idx * 0.1}s`;
+            card.dataset.category = facility.category;
+
+            // Image
+            const thumb = document.createElement('div');
+            thumb.className = 'facility-thumb';
+            thumb.style.backgroundImage = `url('${facility.img}')`;
+
+            // Content container
+            const content = document.createElement('div');
+            content.className = 'facility-content';
+
+            // Title
+            const title = document.createElement('h2');
+            title.className = 'facility-title';
+            title.textContent = facility.name;
+
+            // Description
+            const desc = document.createElement('p');
+            desc.className = 'facility-desc';
+            desc.textContent = facility.desc;
+
+            // Hours
+            const hours = document.createElement('div');
+            hours.className = 'hours';
+            hours.textContent = `🕐 ${facility.hours}`;
+
+            content.appendChild(title);
+            content.appendChild(desc);
+            content.appendChild(hours);
+
+            // Footer with status and icon
+            const footer = document.createElement('div');
+            footer.className = 'card-footer';
+
+            // Status pill
+            const statusPill = document.createElement('div');
+            statusPill.className = `status-pill ${facility.status}`;
+            statusPill.textContent = facility.status === 'open' ? 'Available' : 
+                                   facility.status === 'soon' ? 'Coming Soon' : 'Premium';
+
+            // Icon
+            const icon = document.createElement('div');
+            icon.className = 'facility-icon';
+            icon.innerHTML = facility.icon;
+
+            footer.appendChild(statusPill);
+            footer.appendChild(icon);
+
+            // Assemble card
+            card.appendChild(thumb);
+            card.appendChild(content);
+            card.appendChild(footer);
+
+            return card;
+        }
+
+        // Initialize and render all facilities
+        const grid = document.getElementById('facilitiesGrid');
+        
+        function renderFacilities(filter = 'all') {
+            grid.innerHTML = '';
+            
+            const filteredFacilities = filter === 'all' 
+                ? facilities 
+                : facilities.filter(f => f.category === filter);
+            
+            filteredFacilities.forEach((facility, i) => {
+                const card = createFacilityCard(facility, i);
+                grid.appendChild(card);
+            });
+        }
+
+        // Initial render
+        renderFacilities();
+
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Get filter value
+                const filter = button.dataset.filter;
+                
+                // Render filtered facilities
+                renderFacilities(filter);
+            });
+        });
+
+        // Add animation to cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.facility-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</body>
+
+</html>

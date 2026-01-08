@@ -1,0 +1,675 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Food Ordering</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+            --card-radius: 16px;
+            --gap: 18px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ==================================
+   HEADER + CENTER BACK BUTTON
+================================== */
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #000000;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 300;
+            color: white;
+            font-family: "Inter", sans-serif;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0;
+        }
+
+        /* Back button centered */
+        .back-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+
+            position: static !important;
+            margin-top: 6px;
+        }
+
+        .back-button:hover {
+            background: #e05e1a;
+            transform: translateY(-2px);
+        }
+
+        /* ==================================
+   SEARCH BAR
+================================== */
+
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ==================================
+   PRODUCT LIST GRID
+================================== */
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Card */
+        .card {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-radius: var(--card-radius);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            gap: 12px;
+            height: 100%;
+
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pop 0.5s forwards;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .thumb {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #000;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .product-price {
+            font-weight: 700;
+            font-size: 18px;
+            color: #000;
+            margin-top: 8px;
+        }
+
+        /* Add to cart */
+        .card-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .add-to-cart {
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            background: #fff;
+            color: #000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-to-cart:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        /* ==================================
+   FLOATING CART BUTTON
+================================== */
+
+        .floating-cart-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .floating-cart-btn:hover {
+            transform: translateX(-50%) translateY(-3px);
+        }
+
+        .cart-count {
+            background: white;
+            color: var(--accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Animation */
+        @keyframes pop {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* ==================================
+   RESPONSIVE DESIGN
+================================== */
+
+        @media (max-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+
+            .title {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .header {
+                padding: 16px;
+                gap: 8px;
+            }
+
+            .back-button {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 14px;
+                gap: 6px;
+            }
+
+            .subtitle {
+                font-size: 15px;
+            }
+
+            .back-button {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .floating-cart-btn {
+                bottom: 20px;
+                padding: 14px 28px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">HOTEL DINING</h1>
+            <div class="subtitle">Room <span id="roomNumber">G01</span> • Food Ordering</div>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search for dishes...">
+        </div>
+
+        <main class="products-grid" id="productsGrid" aria-live="polite">
+            <article class="card" style="animation-delay: 0s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVyZ2VyfGVufDB8fDB8fHww&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Classic Burger</h2>
+                    <p class="product-desc">Beef patty with lettuce, tomato, cheese and special sauce</p>
+                    <div class="product-price">₹299</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.1s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGl6emF8ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Margherita Pizza</h2>
+                    <p class="product-desc">Fresh tomatoes, mozzarella, basil and olive oil</p>
+                    <div class="product-price">₹449</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.2s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1546793665-c74683f339c1?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2Flc2FyJTIwc2FsYWR8ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Caesar Salad</h2>
+                    <p class="product-desc">Crisp romaine with parmesan, croutons and Caesar dressing</p>
+                    <div class="product-price">₹199</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.3s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGdyaWxsZWQlMjBzYWxtb258ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Grilled Salmon</h2>
+                    <p class="product-desc">Atlantic salmon with lemon butter sauce and seasonal vegetables</p>
+                    <div class="product-price">₹699</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.4s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGFzdGElMjBjYXJib25hcmF8ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Pasta Carbonara</h2>
+                    <p class="product-desc">Spaghetti with pancetta, eggs, parmesan and black pepper</p>
+                    <div class="product-price">₹349</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.5s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hvY29sYXRlJTIwbGF2YSUyMGNha2V8ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Chocolate Lava Cake</h2>
+                    <p class="product-desc">Warm chocolate cake with a molten center and vanilla ice cream</p>
+                    <div class="product-price">₹179</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.6s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2hpY2tlbiUyMHRpa2thJTIwbWFzYWxhfGVufDB8fDB8fHww&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Chicken Tikka Masala</h2>
+                    <p class="product-desc">Tender chicken in a creamy tomato and spice sauce with basmati rice</p>
+                    <div class="product-price">₹399</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+            <article class="card" style="animation-delay: 0.7s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://images.unsplash.com/photo-1505252585461-04db1a846087?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJ1aXQlMjBzbW9vdGhpZXxlbnwwfHwwfHx8MA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="product-title">Fruit Smoothie</h2>
+                    <p class="product-desc">Blend of seasonal fruits, yogurt and honey</p>
+                    <div class="product-price">₹149</div>
+                </div>
+                <div class="card-footer"><button class="add-to-cart">Add to Cart</button></div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button class="floating-cart-btn" id="floatingCartBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        View Cart
+        <span class="cart-count" id="cartCount">1</span>
+    </button>
+
+    <script>
+        // Room number - change this for different rooms
+        const roomNumber = "G01";
+
+        // Set room number
+        document.getElementById('roomNumber').textContent = roomNumber;
+
+        // Product data
+        const products = [
+            {
+                id: 1,
+                name: "Classic Burger",
+                desc: "Beef patty with lettuce, tomato, cheese and special sauce",
+                price: 299,
+                img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVyZ2VyfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 2,
+                name: "Margherita Pizza",
+                desc: "Fresh tomatoes, mozzarella, basil and olive oil",
+                price: 449,
+                img: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGl6emF8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 3,
+                name: "Caesar Salad",
+                desc: "Crisp romaine with parmesan, croutons and Caesar dressing",
+                price: 199,
+                img: "https://images.unsplash.com/photo-1546793665-c74683f339c1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2Flc2FyJTIwc2FsYWR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 4,
+                name: "Grilled Salmon",
+                desc: "Atlantic salmon with lemon butter sauce and seasonal vegetables",
+                price: 699,
+                img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGdyaWxsZWQlMjBzYWxtb258ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 5,
+                name: "Pasta Carbonara",
+                desc: "Spaghetti with pancetta, eggs, parmesan and black pepper",
+                price: 349,
+                img: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGFzdGElMjBjYXJib25hcmF8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 6,
+                name: "Chocolate Lava Cake",
+                desc: "Warm chocolate cake with a molten center and vanilla ice cream",
+                price: 179,
+                img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hvY29sYXRlJTIwbGF2YSUyMGNha2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 7,
+                name: "Chicken Tikka Masala",
+                desc: "Tender chicken in a creamy tomato and spice sauce with basmati rice",
+                price: 399,
+                img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2hpY2tlbiUyMHRpa2thJTIwbWFzYWxhfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 8,
+                name: "Fruit Smoothie",
+                desc: "Blend of seasonal fruits, yogurt and honey",
+                price: 149,
+                img: "https://images.unsplash.com/photo-1505252585461-04db1a846087?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJ1aXQlMjBzbW9vdGhpZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+            }
+        ];
+
+        // Cart state
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let filteredProducts = [...products];
+
+        // DOM Elements
+        const productsGrid = document.getElementById('productsGrid');
+        const cartCount = document.getElementById('cartCount');
+        const floatingCartBtn = document.getElementById('floatingCartBtn');
+        const searchBar = document.getElementById('searchBar');
+
+        // Create product card
+        function createProductCard(product, idx) {
+            const card = document.createElement('article');
+            card.className = 'card';
+            card.style.animationDelay = `${idx * 0.1}s`;
+
+            // Image
+            const thumb = document.createElement('div');
+            thumb.className = 'thumb';
+            thumb.style.backgroundImage = `url('${product.img}')`;
+
+            // Content container
+            const content = document.createElement('div');
+            content.className = 'content';
+
+            // Title
+            const title = document.createElement('h2');
+            title.className = 'product-title';
+            title.textContent = product.name;
+
+            // Description
+            const desc = document.createElement('p');
+            desc.className = 'product-desc';
+            desc.textContent = product.desc;
+
+            // Price
+            const price = document.createElement('div');
+            price.className = 'product-price';
+            price.textContent = `₹${product.price}`;
+
+            content.appendChild(title);
+            content.appendChild(desc);
+            content.appendChild(price);
+
+            // Footer with add to cart
+            const footer = document.createElement('div');
+            footer.className = 'card-footer';
+
+            // Add to cart button
+            const addToCartBtn = document.createElement('button');
+            addToCartBtn.className = 'add-to-cart';
+            addToCartBtn.textContent = 'Add to Cart';
+            addToCartBtn.addEventListener('click', () => addToCart(product.id));
+
+            footer.appendChild(addToCartBtn);
+
+            // Assemble card
+            card.appendChild(thumb);
+            card.appendChild(content);
+            card.appendChild(footer);
+
+            return card;
+        }
+
+        // Render products
+        function renderProducts() {
+            productsGrid.innerHTML = '';
+            filteredProducts.forEach((product, index) => {
+                const card = createProductCard(product, index);
+                productsGrid.appendChild(card);
+            });
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    price: product.price,
+                    img: product.img,
+                    quantity: 1
+                });
+            }
+
+            updateCart();
+        }
+
+        // Update cart
+        function updateCart() {
+            // Update cart count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+
+            // Save to localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('roomNumber', roomNumber);
+        }
+
+        // Filter products based on search
+        function filterProducts() {
+            const searchTerm = searchBar.value.toLowerCase();
+
+            if (searchTerm === '') {
+                filteredProducts = [...products];
+            } else {
+                filteredProducts = products.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.desc.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            renderProducts();
+        }
+
+        // Event Listeners
+        floatingCartBtn.addEventListener('click', () => {
+            if (cart.length > 0) {
+                window.location.href = 'cart.html';
+            } else {
+                alert('Your cart is empty. Please add some items first.');
+            }
+        });
+
+        searchBar.addEventListener('input', filterProducts);
+
+        // Initialize
+        renderProducts();
+        updateCart();
+    </script>
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+
+</body>
+
+</html>

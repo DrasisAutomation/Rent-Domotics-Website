@@ -1,0 +1,505 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Projects — Responsive Design</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+            --card-radius: 16px;
+            --gap: 18px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            background-color: #000000;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 300;
+            color: white;
+            font-family: "Inter", sans-serif;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: "Inter", sans-serif;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Card */
+        .card {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-radius: var(--card-radius);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .thumb {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .project-title {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.2;
+            margin: 0;
+            color: #000;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            margin: 0;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        /* Coming Soon Pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 12px;
+            background: #ffffff;
+            color: #000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: default;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Calendar icon */
+        .calendar-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Animation */
+        .card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pop 0.5s forwards;
+        }
+
+        @keyframes pop {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+
+            .title {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">UPCOMING PROJECTS</h1>
+            <div class="subtitle">Building Layout</div>
+        </header>
+
+        <main class="projects-grid" id="projectsGrid" aria-live="polite">
+            <!-- Cards will be injected by JavaScript -->
+            <article class="card" style="animation-delay: 0s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2e/b2/c5/15/caption.jpg?w=900&amp;h=500&amp;s=1&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Rooftop Lounge</h2>
+                    <p class="project-desc">An elevated lounge with panoramic city views and signature cocktails.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.1s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://img4.nbstatic.in/tr:w-500/636b52c722b317000b6381fb.jpg&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">New Spa Extension</h2>
+                    <p class="project-desc">Expanded treatment rooms, hydrotherapy pools and private suites.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.2s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://partyslate.imgix.net/companies-cover-image/44832/image-09b4d6af-9b4e-4046-b4be-ac4b83ffbded.avif?ixlib=js-3.8.0&amp;auto=compress%2Cformat&amp;bg=fff&amp;w=750&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Pool &amp; Atrium</h2>
+                    <p class="project-desc">Indoor-outdoor pool with skylight and lounge cabanas.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.3s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/cc/64/c5/best-restaurant.jpg?w=1000&amp;h=600&amp;s=1&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Signature Restaurant</h2>
+                    <p class="project-desc">A fine dining experience with curated tasting menus.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.4s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAsvxJsAlwDe-IiBhCmLiNeQOQMOzdsFESkA&amp;s&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Conference Wing</h2>
+                    <p class="project-desc">New multi-purpose rooms with advanced AV and hospitality support.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.5s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxIh4UI94FXg2vaIsWrCsQMaSJZJuNHPq_aA&amp;s&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Wellness Center</h2>
+                    <p class="project-desc">State-of-the-art fitness facilities with personal training services.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.6s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://static.wixstatic.com/media/a886b0_ec983b071fce4634bb0ad168cc281ea1~mv2.jpeg/v1/fill/w_640,h_468,al_c,q_80,usm_1.20_1.00_0.01,enc_avif,quality_auto/a886b0_ec983b071fce4634bb0ad168cc281ea1~mv2.jpeg&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Garden Terrace</h2>
+                    <p class="project-desc">Lush outdoor space with dining areas and fire pits.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card" style="animation-delay: 0.7s;">
+                <div class="thumb"
+                    style="background-image: url(&quot;https://coworklab.net/wp-content/uploads/2024/02/what-is-a-business-center.jpg&quot;);">
+                </div>
+                <div class="content">
+                    <h2 class="project-title">Business Center</h2>
+                    <p class="project-desc">Modern workspace with meeting rooms and high-speed internet.</p>
+                </div>
+                <div class="card-footer">
+                    <div class="pill">Upcoming</div>
+                    <div class="calendar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script>
+        // Data array with 8 projects
+        const projects = [
+            {
+                name: "Rooftop Lounge",
+                desc: "An elevated lounge with panoramic city views and signature cocktails.",
+                img: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2e/b2/c5/15/caption.jpg?w=900&h=500&s=1"
+            },
+            {
+                name: "New Spa Extension",
+                desc: "Expanded treatment rooms, hydrotherapy pools and private suites.",
+                img: "https://img4.nbstatic.in/tr:w-500/636b52c722b317000b6381fb.jpg"
+            },
+            {
+                name: "Pool & Atrium",
+                desc: "Indoor-outdoor pool with skylight and lounge cabanas.",
+                img: "https://partyslate.imgix.net/companies-cover-image/44832/image-09b4d6af-9b4e-4046-b4be-ac4b83ffbded.avif?ixlib=js-3.8.0&auto=compress%2Cformat&bg=fff&w=750"
+            },
+            {
+                name: "Signature Restaurant",
+                desc: "A fine dining experience with curated tasting menus.",
+                img: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/cc/64/c5/best-restaurant.jpg?w=1000&h=600&s=1"
+            },
+            {
+                name: "Conference Wing",
+                desc: "New multi-purpose rooms with advanced AV and hospitality support.",
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAsvxJsAlwDe-IiBhCmLiNeQOQMOzdsFESkA&s"
+            },
+            {
+                name: "Wellness Center",
+                desc: "State-of-the-art fitness facilities with personal training services.",
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxIh4UI94FXg2vaIsWrCsQMaSJZJuNHPq_aA&s"
+            },
+            {
+                name: "Garden Terrace",
+                desc: "Lush outdoor space with dining areas and fire pits.",
+                img: "https://static.wixstatic.com/media/a886b0_ec983b071fce4634bb0ad168cc281ea1~mv2.jpeg/v1/fill/w_640,h_468,al_c,q_80,usm_1.20_1.00_0.01,enc_avif,quality_auto/a886b0_ec983b071fce4634bb0ad168cc281ea1~mv2.jpeg"
+            },
+            {
+                name: "Business Center",
+                desc: "Modern workspace with meeting rooms and high-speed internet.",
+                img: "https://coworklab.net/wp-content/uploads/2024/02/what-is-a-business-center.jpg"
+            }
+        ];
+
+        function createCard(project, idx) {
+            const card = document.createElement('article');
+            card.className = 'card';
+            card.style.animationDelay = `${idx * 0.1}s`;
+
+            // Image
+            const thumb = document.createElement('div');
+            thumb.className = 'thumb';
+            thumb.style.backgroundImage = `url('${project.img}')`;
+
+            // Content container
+            const content = document.createElement('div');
+            content.className = 'content';
+
+            // Title
+            const title = document.createElement('h2');
+            title.className = 'project-title';
+            title.textContent = project.name;
+
+            // Description
+            const desc = document.createElement('p');
+            desc.className = 'project-desc';
+            desc.textContent = project.desc;
+
+            content.appendChild(title);
+            content.appendChild(desc);
+
+            // Footer with upcoming tag and calendar
+            const footer = document.createElement('div');
+            footer.className = 'card-footer';
+
+            // Upcoming pill
+            const pill = document.createElement('div');
+            pill.className = 'pill';
+            pill.textContent = 'Upcoming';
+
+            // Calendar icon
+            const calendar = document.createElement('div');
+            calendar.className = 'calendar-icon';
+            calendar.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+            `;
+
+            footer.appendChild(pill);
+            footer.appendChild(calendar);
+
+            // Assemble card
+            card.appendChild(thumb);
+            card.appendChild(content);
+            card.appendChild(footer);
+
+            return card;
+        }
+
+        // Append cards
+        const grid = document.getElementById('projectsGrid');
+        projects.forEach((p, i) => {
+            const c = createCard(p, i);
+            grid.appendChild(c);
+        });
+    </script>
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</body>
+
+</html>

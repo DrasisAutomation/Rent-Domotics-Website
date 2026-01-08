@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC Light Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1D1B1E;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* MC Light Card Styles - NO WARMTH CONTROL */
+        .mc-light-card {
+            --card-width: 100%;
+            --card-height: 96px;
+            --bg-off: rgba(0, 0, 0, 0.6);
+            --accent-on: #f26f1e;
+            --muted: rgba(255, 255, 255, 0.85);
+            --corner: 14px;
+            --brightness: 0%;
+            --gradient-color-1: rgba(255, 255, 255, 0.95);
+            --gradient-color-2: rgba(0, 0, 0, 0.85);
+            --top-padding: 0px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .light-card {
+            width: 100%;
+            max-width: 520px;
+            height: var(--card-height);
+            border-radius: var(--corner);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            transition: box-shadow 0.22s ease, transform 0.12s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 16px;
+            background:
+                linear-gradient(90deg,
+                    var(--gradient-color-1) 0%,
+                    var(--gradient-color-1) var(--brightness),
+                    var(--gradient-color-2) var(--brightness),
+                    var(--gradient-color-2) 100%);
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+            margin: var(--top-padding) auto 0 auto;
+            will-change: background;
+            transform: translateZ(0);
+        }
+
+        .light-card.off {
+            background: var(--bg-off);
+        }
+
+        .light-card:active {
+            transform: translateY(1px);
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            transition: background 0.18s ease;
+            box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .icon-wrap i {
+            display: block;
+            font-size: 25px;
+            color: #f26f1e;
+        }
+
+        .meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .name {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1;
+            color: white;
+            transition: color 0.18s ease;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            mix-blend-mode: difference;
+            min-height: 16px;
+        }
+
+        .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            mix-blend-mode: difference;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status {
+            font-weight: 700;
+            font-size: 13px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        .bright-percent {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            pointer-events: none;
+            min-width: 32px;
+            text-align: right;
+            mix-blend-mode: difference;
+        }
+
+        .light-card.on .icon-wrap {
+            background: rgba(242, 111, 30, 0.2);
+        }
+
+        .light-card.on .icon-wrap i {
+            color: #ff8c00 !important;
+            filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.9));
+        }
+
+        .light-card.on .name {
+            color: var(--accent-on);
+            mix-blend-mode: normal;
+        }
+
+        .light-card.on .status {
+            color: var(--accent-on);
+        }
+
+
+        .light-card.off .icon-wrap {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .light-card.off .icon-wrap i {
+            color: #ffffff;
+            filter: none;
+        }
+
+        .light-card.off .name {
+            color: rgba(255, 255, 255, 0.75);
+            mix-blend-mode: difference;
+        }
+
+        .light-card.off .status {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .light-card.off .bright-percent {
+            opacity: 0.3;
+        }
+
+        .icon-wrap,
+        .icon-wrap i {
+            mix-blend-mode: normal !important;
+        }
+
+        @media (max-width: 600px) {
+            .light-card {
+                height: 88px;
+                padding: 10px 12px;
+            }
+
+            .left {
+                gap: 10px;
+            }
+
+            .icon-wrap {
+                width: 44px;
+                height: 44px;
+            }
+
+            .icon-wrap i {
+                font-size: 22px;
+            }
+
+            .name {
+                font-size: 15px;
+            }
+
+            .sub {
+                font-size: 11px;
+            }
+
+            .status,
+            .bright-percent {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .mc-light-card {
+                --card-height: 88px;
+            }
+
+            .light-card {
+                padding: 8px 10px;
+            }
+
+            .icon-wrap {
+                width: 40px;
+                height: 40px;
+            }
+
+            .icon-wrap i {
+                font-size: 20px;
+            }
+
+            .name {
+                font-size: 14px;
+            }
+
+            .sub {
+                font-size: 10px;
+            }
+
+            .status,
+            .bright-percent {
+                font-size: 11px;
+                min-width: 28px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .mc-light-card {
+                --card-height: 84px;
+            }
+
+            .light-card {
+                padding: 6px 8px;
+            }
+
+            .left {
+                gap: 8px;
+            }
+
+            .icon-wrap {
+                width: 36px;
+                height: 36px;
+            }
+
+            .icon-wrap i {
+                font-size: 18px;
+            }
+
+            .name {
+                font-size: 13px;
+            }
+
+            .sub {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MC Light Card - No Warmth Control -->
+    <div class="mc-light-card">
+        <div class="light-card off" id="lightCard" role="button" aria-pressed="false" aria-label="Light control card"
+            tabindex="0">
+            <div class="card-content">
+                <div class="left">
+                    <div class="icon-wrap" aria-hidden="true">
+                        <i class="fas fa-lightbulb" id="cardIcon"></i>
+                    </div>
+                    <div class="meta">
+                        <div class="name" id="cardName">Light</div>
+                        <div class="sub" id="cardSub">Drag to adjust brightness</div>
+                    </div>
+                </div>
+
+                <div class="status-container">
+                    <div class="status" id="statusText">OFF</div>
+                    <div class="bright-percent" id="percentText">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Home Assistant Integration
+        const WS_URL = "wss://demo.lumihomepro1.com/api/websocket";
+        const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzNGNlNThiNDk1Nzk0NDVmYjUxNzE2NDA0N2Q0MGNmZCIsImlhdCI6MTc2NTM0NzQ5MSwiZXhwIjoyMDgwNzA3NDkxfQ.Se5PGwx0U9aqyVRnD1uwvCv3F-aOE8H53CKA5TqsV7U";
+        const LIGHT_ENTITY = "light.pantry_cct_lighr_exp_room_entrance_light";
+
+        // DOM Elements
+        const lightCard = document.getElementById('lightCard');
+        const statusText = document.getElementById('statusText');
+        const percentText = document.getElementById('percentText');
+        const cardName = document.getElementById('cardName');
+        const cardSub = document.getElementById('cardSub');
+
+        // State
+        let ws = null;
+        let isOn = false;
+        let isConnected = false;
+        let brightness = 0;
+        let pointerDown = false;
+        let startX = 0;
+        let startY = 0;
+        let moved = false;
+        let pointerId = null;
+        const dragThreshold = 8;
+        let isDragging = false;
+        let lastBrightness = 50;
+        let lastServiceCall = 0;
+        let ignoreNextUpdate = false;
+
+        // Connect to Home Assistant WebSocket
+        function connectWebSocket() {
+            console.log("Connecting to Home Assistant WebSocket...");
+
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log("WebSocket connected to Home Assistant");
+                ws.send(JSON.stringify({
+                    type: "auth",
+                    access_token: TOKEN
+                }));
+            };
+
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+
+                if (data.type === "auth_ok") {
+                    console.log("Authentication successful");
+                    isConnected = true;
+
+                    // Get initial state
+                    setTimeout(() => {
+                        ws.send(JSON.stringify({
+                            id: 1,
+                            type: "get_states"
+                        }));
+
+                        // Subscribe to changes
+                        setTimeout(() => {
+                            ws.send(JSON.stringify({
+                                id: 2,
+                                type: "subscribe_events",
+                                event_type: "state_changed"
+                            }));
+                        }, 100);
+                    }, 100);
+                }
+                else if (data.type === "result" && data.id === 1) {
+                    if (data.success && data.result) {
+                        const light = data.result.find(e => e.entity_id === LIGHT_ENTITY);
+                        if (light) {
+                            updateFromEntityState(light);
+                            updateUI(true);
+                            console.log(`Initial state loaded: ${isOn ? 'ON' : 'OFF'}, Brightness: ${brightness}%`);
+                        }
+                    }
+                }
+                else if (data.type === "event" && data.event?.event_type === "state_changed") {
+                    if (data.event.data.entity_id === LIGHT_ENTITY) {
+                        updateFromEntityState(data.event.data.new_state);
+                        updateUI(true);
+                        console.log(`State updated: ${isOn ? 'ON' : 'OFF'}, Brightness: ${brightness}%`);
+                    }
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                isConnected = false;
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected");
+                isConnected = false;
+
+                // Try to reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // Update state from Home Assistant entity
+        function updateFromEntityState(entity) {
+            if (!entity) return;
+
+            isOn = entity.state === "on";
+
+            // Get brightness
+            if (entity.attributes && entity.attributes.brightness) {
+                brightness = Math.round((entity.attributes.brightness / 255) * 100);
+            } else {
+                brightness = isOn ? 100 : 0;
+            }
+
+            // Update name if available
+            if (entity.attributes && entity.attributes.friendly_name) {
+                cardName.textContent = entity.attributes.friendly_name;
+            }
+        }
+
+        // Update UI
+        function updateUI(skipServiceCall = false) {
+            // Don't update UI while dragging brightness
+            if (isDragging) {
+                skipServiceCall = true;
+            }
+
+            // Clamp values
+            brightness = Math.max(0, Math.min(100, Math.round(brightness)));
+
+            // Set CSS variables
+            lightCard.style.setProperty('--brightness', brightness + '%');
+
+            // Update text
+            percentText.textContent = brightness + '%';
+
+            // Update sub text based on state
+            if (isOn) {
+                cardSub.textContent = `Brightness: ${brightness}%`;
+            } else {
+                cardSub.textContent = 'Drag to adjust brightness';
+            }
+
+            // Toggle classes
+            if (isOn) {
+                lightCard.classList.remove('off');
+                lightCard.classList.add('on');
+                lightCard.setAttribute('aria-pressed', 'true');
+                statusText.textContent = 'ON';
+                percentText.style.opacity = '1';
+            } else {
+                lightCard.classList.remove('on');
+                lightCard.classList.add('off');
+                lightCard.setAttribute('aria-pressed', 'false');
+                statusText.textContent = 'OFF';
+                percentText.style.opacity = '0.3';
+            }
+
+            // Call service if connected and not skipping
+            if (isConnected && ws && ws.readyState === WebSocket.OPEN && !skipServiceCall && !ignoreNextUpdate) {
+                callService();
+            }
+        }
+
+        // Set brightness from X coordinate
+        function setBrightnessFromX(clientX) {
+            if (!lightCard) return;
+
+            const rect = lightCard.getBoundingClientRect();
+            const x = clientX - rect.left;
+            let pct = (x / rect.width) * 100;
+            pct = Math.max(0, Math.min(100, pct));
+            const newBrightness = Math.round(pct);
+
+            if (newBrightness !== brightness) {
+                brightness = newBrightness;
+
+                // Turn on if sliding
+                if (brightness > 0) {
+                    isOn = true;
+                    lastBrightness = brightness;
+                }
+
+                // Smooth update
+                lightCard.style.setProperty('--brightness', brightness + '%');
+                percentText.textContent = brightness + '%';
+                percentText.style.opacity = isOn ? "1" : "0.3";
+            }
+        }
+
+        // Event Handlers
+        function handlePointerDown(ev) {
+            ev.preventDefault();
+            pointerDown = true;
+            pointerId = ev.pointerId;
+            startX = ev.clientX;
+            startY = ev.clientY;
+            moved = false;
+            isDragging = true;
+
+            lightCard.setPointerCapture(pointerId);
+        }
+
+        function handlePointerMove(ev) {
+            if (!pointerDown || ev.pointerId !== pointerId) return;
+            ev.preventDefault();
+
+            const dx = Math.abs(ev.clientX - startX);
+            const dy = Math.abs(ev.clientY - startY);
+
+            // Allow scrolling
+            if (dy > dx) return;
+
+            if (!moved && dx < dragThreshold) {
+                return;
+            }
+
+            moved = true;
+            setBrightnessFromX(ev.clientX);
+        }
+
+        function handlePointerUp(ev) {
+            if (ev.pointerId !== pointerId) return;
+
+            const isTap = !moved;
+
+            pointerDown = false;
+            isDragging = false;
+
+            try { lightCard.releasePointerCapture(pointerId); } catch (e) { }
+            pointerId = null;
+
+            if (isTap) {
+                // TAP → Only toggle ON/OFF
+                if (isOn) {
+                    lastBrightness = brightness;
+                    isOn = false;
+                } else {
+                    isOn = true;
+                    brightness = lastBrightness || 50;
+                }
+                updateUI();
+                return;
+            }
+
+            // DRAG → send final brightness
+            updateUI();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                isOn = true;
+                brightness = Math.min(100, brightness + 5);
+                updateUI();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                brightness = Math.max(0, brightness - 5);
+                if (brightness === 0) {
+                    isOn = false;
+                }
+                updateUI();
+            }
+        }
+
+        // Call Home Assistant service
+        function callService() {
+            if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+            // Throttle service calls
+            const now = Date.now();
+            if (now - lastServiceCall < 50) {
+                return;
+            }
+            lastServiceCall = now;
+
+            try {
+                ignoreNextUpdate = true;
+                setTimeout(() => { ignoreNextUpdate = false; }, 300);
+
+                if (isOn) {
+                    ws.send(JSON.stringify({
+                        id: Date.now(),
+                        type: "call_service",
+                        domain: "light",
+                        service: "turn_on",
+                        service_data: {
+                            entity_id: LIGHT_ENTITY,
+                            brightness_pct: brightness,
+                        }
+                    }));
+                    console.log(`Service call: turn_on, Brightness: ${brightness}%`);
+                } else {
+                    ws.send(JSON.stringify({
+                        id: Date.now(),
+                        type: "call_service",
+                        domain: "light",
+                        service: "turn_off",
+                        service_data: {
+                            entity_id: LIGHT_ENTITY
+                        }
+                    }));
+                    console.log("Service call: turn_off");
+                }
+            } catch (error) {
+                console.error('Error calling service:', error);
+                ignoreNextUpdate = false;
+            }
+        }
+
+        // Attach Event Listeners
+        function attachEventListeners() {
+            // Card interactions
+            lightCard.addEventListener('pointerdown', handlePointerDown);
+            lightCard.addEventListener('pointermove', handlePointerMove);
+            lightCard.addEventListener('pointerup', handlePointerUp);
+            lightCard.addEventListener('pointercancel', () => {
+                pointerDown = false;
+                isDragging = false;
+                if (lightCard) {
+                    try {
+                        lightCard.releasePointerCapture(pointerId);
+                    } catch (e) { }
+                }
+                pointerId = null;
+            });
+
+            // Keyboard support
+            lightCard.addEventListener('keydown', handleKeyDown);
+            lightCard.addEventListener('contextmenu', (ev) => ev.preventDefault());
+
+            // Make card focusable
+            lightCard.setAttribute('tabindex', '0');
+        }
+
+        // Initialize
+        function initialize() {
+            attachEventListeners();
+            connectWebSocket();
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initialize);
+
+        // Log to console
+        console.info('MC Light Card (No Warmth Control) with Home Assistant integration loaded!');
+    </script>
+</body>
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</html>

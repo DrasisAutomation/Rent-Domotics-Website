@@ -1,0 +1,336 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - Hotel Food Ordering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+            --card-radius: 16px;
+            --gap: 18px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #000000;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            /* same as cart page */
+        }
+
+
+        .title {
+            font-size: 48px;
+            font-weight: 300;
+            color: white;
+            font-family: "Inter", sans-serif;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: "Inter", sans-serif;
+            margin-top: 8px;
+        }
+
+        .back-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+
+            /* Forces centering inside flex header */
+            position: static !important;
+            margin-top: 8px;
+        }
+
+
+        .back-button:hover {
+            background: #e05e1a;
+            transform: translateY(-50%) translateY(-2px);
+        }
+
+        /* Confirmation Message */
+        .confirmation-message {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .confirmation-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .confirmation-title {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .confirmation-details {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .summary-total {
+            font-weight: 700;
+            font-size: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+
+        .back-to-menu {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-menu:hover {
+            background: #e05e1a;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .back-button {
+                position: static;
+                transform: none;
+                margin-bottom: 10px;
+                align-self: center;
+            }
+
+            .header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 28px;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .confirmation-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+
+            <h1 class="title">ORDER CONFIRMED</h1>
+            <div class="subtitle">Room <span id="confirmRoomNumber">G01</span></div>
+            <button class="back-button" id="backToOrder">
+                Back To Menu
+            </button>
+        </header>
+
+        <div class="confirmation-message">
+            <div class="confirmation-icon">✓</div>
+            <h2 class="confirmation-title">Thank You For Your Order!</h2>
+            <p>Your food will be delivered to your room shortly.</p>
+            <p>You will be redirected to the menu in <span id="countdown">3</span> seconds.</p>
+        </div>
+
+        <div class="confirmation-details" id="orderDetails"><div><div class="summary-row"><span>1x Classic Burger</span><span>₹299</span></div></div><div class="summary-row"><span>Subtotal:</span><span>₹299</span></div><div class="summary-row summary-total"><span>Total:</span><span>₹299</span></div></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="back-to-menu" id="backToMenu">Back to Menu</button>
+    </div>
+
+    <script>
+        // Get cart data from localStorage
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const roomNumber = localStorage.getItem('roomNumber') || 'G01';
+
+        // Set room number
+        document.getElementById('confirmRoomNumber').textContent = roomNumber;
+
+        // DOM Elements
+        const orderDetails = document.getElementById('orderDetails');
+        const countdownElement = document.getElementById('countdown');
+        const backToOrder = document.getElementById('backToOrder');
+        const backToMenu = document.getElementById('backToMenu');
+
+        // Render order details
+        function renderOrderDetails() {
+            orderDetails.innerHTML = '';
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal;
+
+            const orderList = document.createElement('div');
+
+            if (cart.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.textContent = 'No items in order';
+                emptyMessage.style.textAlign = 'center';
+                emptyMessage.style.padding = '20px';
+                emptyMessage.style.color = 'rgba(255,255,255,0.7)';
+                orderDetails.appendChild(emptyMessage);
+                return;
+            }
+
+            cart.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'summary-row';
+
+                const itemName = document.createElement('span');
+                itemName.textContent = `${item.quantity}x ${item.name}`;
+
+                const itemTotal = document.createElement('span');
+                itemTotal.textContent = `₹${(item.price * item.quantity)}`;
+
+                itemRow.appendChild(itemName);
+                itemRow.appendChild(itemTotal);
+                orderList.appendChild(itemRow);
+            });
+
+            const subtotalRow = document.createElement('div');
+            subtotalRow.className = 'summary-row';
+            subtotalRow.innerHTML = '<span>Subtotal:</span><span>₹' + subtotal + '</span>';
+
+            const totalRow = document.createElement('div');
+            totalRow.className = 'summary-row summary-total';
+            totalRow.innerHTML = '<span>Total:</span><span>₹' + total + '</span>';
+
+            orderDetails.appendChild(orderList);
+            orderDetails.appendChild(subtotalRow);
+            orderDetails.appendChild(totalRow);
+        }
+
+        // Start countdown
+        function startCountdown() {
+            let countdown = 5;
+            countdownElement.textContent = countdown;
+
+            const timer = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    // Clear cart and return to order page
+                    localStorage.removeItem('cart');
+                    window.location.href = 'order.html';
+                }
+            }, 1000);
+        }
+
+        // Event Listeners
+        backToOrder.addEventListener('click', () => {
+            localStorage.removeItem('cart');
+            window.location.href = 'order.html';
+        });
+
+        backToMenu.addEventListener('click', () => {
+            localStorage.removeItem('cart');
+            window.location.href = 'order.html';
+        });
+
+        // Initialize
+        renderOrderDetails();
+        startCountdown();
+    </script>
+
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</body></html>

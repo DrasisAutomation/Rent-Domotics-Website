@@ -1,0 +1,397 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Complaints</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-dark: #1D1B1E;
+    --accent: #F26F1E;
+    --card-radius: 16px;
+    --shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+
+body {
+    background: var(--bg-dark);
+    color: white;
+    font-family: "Inter";
+    padding: 20px;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* HEADER */
+.header {
+    text-align: center;
+    padding: 20px;
+    background: black;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 35px;
+    font-weight: 300;
+}
+
+.subtitle {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* SEARCH */
+.search-container {
+    margin: 18px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    outline: none;
+}
+
+/* CATEGORY CHIPS */
+.chip-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.chip {
+    padding: 10px 18px;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.1);
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.chip.active {
+    background: var(--accent);
+}
+
+/* DIFFERENT STYLE COMPLAINT CARDS */
+.complaint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.complaint-card {
+     background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.complaint-card:hover {
+    transform: translateY(-5px);
+    background: var(--accent);
+}
+
+.card-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color:black;
+}
+.card-desc {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 6px;
+    color:black;
+}
+
+
+/* MODAL */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #2A2A2A;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow);
+}
+
+.modal-title {
+    font-size: 22px;
+    margin-bottom: 14px;
+}
+
+textarea {
+    width: 90%;
+    height: 120px;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    outline: none;
+    resize: none;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.cancel-btn {
+    background: rgba(255,255,255,0.15);
+    padding: 12px 20px;
+    border-radius: 50px;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-btn {
+    background: var(--accent);
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="title">COMPLAINTS</div>
+        <div class="subtitle">Room <span id="roomNo">G01</span> • Report a Problem</div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input type="text" class="search-bar" id="searchBar" placeholder="Search complaints...">
+    </div>
+
+    <!-- Category Chips -->
+    <div class="chip-row" id="chipRow">
+        <div class="chip active" data-category="all">All</div>
+        <div class="chip" data-category="plumbing">Plumbing</div>
+        <div class="chip" data-category="electrical">Electrical</div>
+        <div class="chip" data-category="ac">AC / Cooling</div>
+        <div class="chip" data-category="bathroom">Bathroom</div>
+        <div class="chip" data-category="wifi">TV / WiFi</div>
+        <div class="chip" data-category="furniture">Furniture</div>
+        <div class="chip" data-category="other">Others</div>
+    </div>
+
+    <!-- Complaint Cards -->
+    <div class="complaint-grid" id="complaintGrid"><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:water"></ha-icon></div>
+            <div class="card-title">Water Leakage</div>
+            <div class="card-desc">Leaking taps, pipes, bathroom lines.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:water-off"></ha-icon></div>
+            <div class="card-title">No Water Flow</div>
+            <div class="card-desc">Low pressure or no water supply.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:toilet"></ha-icon></div>
+            <div class="card-title">Toilet Flush Issue</div>
+            <div class="card-desc">Flush not working properly.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:lightbulb-alert-outline"></ha-icon></div>
+            <div class="card-title">Light Not Working</div>
+            <div class="card-desc">Bulbs, switches not functioning.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:power-socket-eu"></ha-icon></div>
+            <div class="card-title">Power Socket Issue</div>
+            <div class="card-desc">Charging point not working.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:air-conditioner"></ha-icon></div>
+            <div class="card-title">AC Not Cooling</div>
+            <div class="card-desc">Cooling issue or noise.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:remote"></ha-icon></div>
+            <div class="card-title">AC Remote Issue</div>
+            <div class="card-desc">Remote not responding.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:shower"></ha-icon></div>
+            <div class="card-title">Shower Issue</div>
+            <div class="card-desc">Low pressure / broken shower.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:water-sync"></ha-icon></div>
+            <div class="card-title">Drain Blockage</div>
+            <div class="card-desc">Bathroom water not draining.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:wifi-alert"></ha-icon></div>
+            <div class="card-title">WiFi Not Working</div>
+            <div class="card-desc">Internet connectivity issue.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:television-off"></ha-icon></div>
+            <div class="card-title">TV Not Working</div>
+            <div class="card-desc">Black screen / no sound.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:chair-rolling"></ha-icon></div>
+            <div class="card-title">Broken Chair</div>
+            <div class="card-desc">Furniture issue.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:desk"></ha-icon></div>
+            <div class="card-title">Loose Table</div>
+            <div class="card-desc">Shaking or unstable table.</div>
+        </div><div class="complaint-card">
+            <div class="card-icon"><ha-icon icon="mdi:alert-circle-outline"></ha-icon></div>
+            <div class="card-title">Other Complaint</div>
+            <div class="card-desc">Any problem not listed here.</div>
+        </div></div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <div class="modal-title" id="modalTitle"></div>
+        <textarea id="note" placeholder="Describe your problem (optional)..."></textarea>
+
+        <div class="modal-buttons">
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            <button class="submit-btn" onclick="submitComplaint()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* Room number — CHANGE ONLY HERE */
+const roomNumber = "G01";
+document.getElementById("roomNo").textContent = roomNumber;
+
+/* Complaint Database */
+const complaints = [
+    { title: "Water Leakage", desc: "Leaking taps, pipes, bathroom lines.", icon: "mdi:water", category: "plumbing" },
+    { title: "No Water Flow", desc: "Low pressure or no water supply.", icon: "mdi:water-off", category: "plumbing" },
+    { title: "Toilet Flush Issue", desc: "Flush not working properly.", icon: "mdi:toilet", category: "plumbing" },
+
+    { title: "Light Not Working", desc: "Bulbs, switches not functioning.", icon: "mdi:lightbulb-alert-outline", category: "electrical" },
+    { title: "Power Socket Issue", desc: "Charging point not working.", icon: "mdi:power-socket-eu", category: "electrical" },
+
+    { title: "AC Not Cooling", desc: "Cooling issue or noise.", icon: "mdi:air-conditioner", category: "ac" },
+    { title: "AC Remote Issue", desc: "Remote not responding.", icon: "mdi:remote", category: "ac" },
+
+    { title: "Shower Issue", desc: "Low pressure / broken shower.", icon: "mdi:shower", category: "bathroom" },
+    { title: "Drain Blockage", desc: "Bathroom water not draining.", icon: "mdi:water-sync", category: "bathroom" },
+
+    { title: "WiFi Not Working", desc: "Internet connectivity issue.", icon: "mdi:wifi-alert", category: "wifi" },
+    { title: "TV Not Working", desc: "Black screen / no sound.", icon: "mdi:television-off", category: "wifi" },
+
+    { title: "Broken Chair", desc: "Furniture issue.", icon: "mdi:chair-rolling", category: "furniture" },
+    { title: "Loose Table", desc: "Shaking or unstable table.", icon: "mdi:desk", category: "furniture" },
+
+    { title: "Other Complaint", desc: "Any problem not listed here.", icon: "mdi:alert-circle-outline", category: "other" }
+];
+
+const grid = document.getElementById("complaintGrid");
+const searchBar = document.getElementById("searchBar");
+const chipRow = document.getElementById("chipRow");
+
+let selectedComplaint = "";
+
+/* Render complaints */
+function render(filter = "all", search = "") {
+    grid.innerHTML = "";
+
+    const filtered = complaints.filter(c =>
+        (filter === "all" || c.category === filter) &&
+        (c.title.toLowerCase().includes(search) || c.desc.toLowerCase().includes(search))
+    );
+
+    filtered.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "complaint-card";
+        card.innerHTML = `
+            <div class="card-icon"><ha-icon icon="${c.icon}"></ha-icon></div>
+            <div class="card-title">${c.title}</div>
+            <div class="card-desc">${c.desc}</div>
+        `;
+        card.onclick = () => openModal(c.title);
+        grid.appendChild(card);
+    });
+}
+
+/* Modal functions */
+function openModal(complaintTitle) {
+    selectedComplaint = complaintTitle;
+    document.getElementById("modalTitle").textContent = complaintTitle;
+    document.getElementById("note").value = "";
+    document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+/* Submit complaint */
+function submitComplaint() {
+    const description = document.getElementById("note").value;
+
+    localStorage.setItem("complaintName", selectedComplaint);
+    localStorage.setItem("complaintNote", description);
+    localStorage.setItem("roomNumber", roomNumber);
+
+    window.location.href = "complaint-success.html";
+}
+
+/* Category filter */
+chipRow.addEventListener("click", e => {
+    if (e.target.classList.contains("chip")) {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        e.target.classList.add("active");
+
+        render(e.target.dataset.category, searchBar.value.toLowerCase());
+    }
+});
+
+/* Search */
+searchBar.addEventListener("input", () => {
+    const active = document.querySelector(".chip.active").dataset.category;
+    render(active, searchBar.value.toLowerCase());
+});
+
+/* Init */
+render();
+</script>
+
+
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+
+</body></html>

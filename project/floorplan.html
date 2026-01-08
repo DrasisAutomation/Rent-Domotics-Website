@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floor Plans - Building Layout</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: #1D1B1E;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        /* Header Card */
+        .header-card {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0px;
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .header-title {
+            position: absolute;
+            left: 50%;
+            top: 35%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: 300;
+            color: white;
+            text-align: center;
+        }
+        
+        .header-subtitle {
+            position: absolute;
+            left: 50%;
+            top: 73%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+        }
+        
+        /* Floor Cards Container */
+        .floor-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        /* Floor Card Styling */
+        .floor-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .floor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .floor-card:active {
+            transform: translateY(-1px);
+        }
+        
+        .floor-card-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .floor-primary {
+            font-weight: 600;
+            font-size: 18px;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+        
+        .floor-secondary {
+            font-weight: 400;
+            font-size: 14px;
+            color: #000000;
+            opacity: 0.8;
+        }
+        
+        .floor-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.05);
+            color: #000000;
+            font-size: 20px;
+        }
+        
+        /* Individual floor colors */
+        .floor-card[data-floor="0"] { background: #ffffff; }
+        .floor-card[data-floor="1"] { background: #fef7f2; }
+        .floor-card[data-floor="2"] { background: #fdecd9; }
+        .floor-card[data-floor="3"] { background: #fddfca; }
+        .floor-card[data-floor="4"] { background: #fcd3b8; }
+        .floor-card[data-floor="5"] { background: #fbcba7; }
+        .floor-card[data-floor="6"] { background: #fbb88b; }
+        .floor-card[data-floor="7"] { background: #f9a771; }
+        .floor-card[data-floor="8"] { background: #f69654; }
+        .floor-card[data-floor="9"] { background: #f58339; }
+        .floor-card[data-floor="10"] { background: #f26f1e; }
+        
+        /* Icon colors for specific floors */
+        .floor-card[data-floor="10"] .floor-icon {
+            color: #000000;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .header-title {
+                font-size: 22px;
+            }
+            
+            .header-subtitle {
+                font-size: 16px;
+            }
+            
+            .floor-primary {
+                font-size: 16px;
+            }
+            
+            .floor-secondary {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 380px) {
+            .header-title {
+                font-size: 22px;
+            }
+            
+            .header-subtitle {
+                font-size: 14px;
+            }
+            
+            .floor-card {
+                padding: 14px;
+            }
+            
+            .floor-primary {
+                font-size: 15px;
+            }
+            
+            .floor-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 330px) {
+            .header-title {
+                font-size: 17px;
+            }
+            
+            .floor-card {
+                padding: 12px;
+            }
+        }
+        
+        /* Loading animation */
+        .floor-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Card -->
+        <div class="header-card">
+            <div class="header-title">FLOOR PLANS</div>
+            <div class="header-subtitle">Building Layout</div>
+        </div>
+        
+        <!-- Floor Cards -->
+        <div class="floor-cards-container">
+            <!-- Ground Floor -->
+            <a href="/hotel-dashboard/floor-plan-view" class="floor-card" data-floor="0" style="animation-delay: 0.1s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Ground Floor</div>
+                    <div class="floor-secondary">Parking</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-parking"></i>
+                </div>
+            </a>
+            
+            <!-- Floor 1 -->
+            <div class="floor-card" data-floor="1" style="animation-delay: 0.15s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 1</div>
+                    <div class="floor-secondary">Gym</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 2 -->
+            <div class="floor-card" data-floor="2" style="animation-delay: 0.2s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 2</div>
+                    <div class="floor-secondary">Food Court</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 3 -->
+            <div class="floor-card" data-floor="3" style="animation-delay: 0.25s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 3</div>
+                    <div class="floor-secondary">Office</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 4 -->
+            <div class="floor-card" data-floor="4" style="animation-delay: 0.3s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 4</div>
+                    <div class="floor-secondary">Apartments</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 5 -->
+            <div class="floor-card" data-floor="5" style="animation-delay: 0.35s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 5</div>
+                    <div class="floor-secondary">Storage</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 6 -->
+            <div class="floor-card" data-floor="6" style="animation-delay: 0.4s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 6</div>
+                    <div class="floor-secondary">Pool</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-swimming-pool"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 7 -->
+            <div class="floor-card" data-floor="7" style="animation-delay: 0.45s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 7</div>
+                    <div class="floor-secondary">Lounge</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-couch"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 8 -->
+            <div class="floor-card" data-floor="8" style="animation-delay: 0.5s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 8</div>
+                    <div class="floor-secondary">Conference Room</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 9 -->
+            <div class="floor-card" data-floor="9" style="animation-delay: 0.55s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 9</div>
+                    <div class="floor-secondary">Tennis Court</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-baseball-ball"></i>
+                </div>
+            </div>
+            
+            <!-- Floor 10 -->
+            <div class="floor-card" data-floor="10" style="animation-delay: 0.6s;">
+                <div class="floor-card-content">
+                    <div class="floor-primary">Floor 10</div>
+                    <div class="floor-secondary">Indoor Games</div>
+                </div>
+                <div class="floor-icon">
+                    <i class="fas fa-table-tennis"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Floor card click handlers
+        document.querySelectorAll('.floor-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!this.hasAttribute('href')) {
+                    // Only for non-linked cards
+                    e.preventDefault();
+                    
+                    const floorNum = this.getAttribute('data-floor');
+                    const floorText = this.querySelector('.floor-primary').textContent;
+                    const facilityText = this.querySelector('.floor-secondary').textContent;
+                    
+                    // Visual feedback
+                    this.style.transform = 'translateY(-3px) scale(0.98)';
+                    this.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
+                    
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.boxShadow = '';
+                    }, 200);
+                    
+                    // Show alert with floor information
+                    alert(`Selected: ${floorText}\nFacility: ${facilityText}\n\nIn a real implementation, this would show detailed floor plan.`);
+                    
+                    // In a real Home Assistant implementation, you would call a service here
+                    // Example: hass.callService('floor_plan', 'show_floor', { floor: floorNum });
+                }
+            });
+        });
+        
+        // Add keyboard navigation support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.activeElement.classList.contains('floor-card')) {
+                document.activeElement.click();
+            }
+        });
+        
+        // Add animation delay to each card
+        document.querySelectorAll('.floor-card').forEach((card, index) => {
+            card.style.animationDelay = `${(index + 1) * 0.05}s`;
+        });
+    </script>
+    
+<script src="firebase-config.js"></script>
+<script src="auth-check.js"></script>
+</body>
+</html>
