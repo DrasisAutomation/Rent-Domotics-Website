@@ -97,14 +97,11 @@ async function loadDashboardFromFirebase() {
         // Load dashboard data
         if (propertyDataFromDB.dashboardData && propertyDataFromDB.dashboardData.data) {
             dashboardData = propertyDataFromDB.dashboardData.data;
-            console.log("Dashboard data loaded from Firebase:", dashboardData);
             renderDashboard();
-            showNotification("Dashboard loaded successfully", "success");
         } else {
             // No dashboard data configured yet
             dashboardData = [];
             renderDashboard();
-            console.log("No dashboard configuration found for this property");
         }
         
         // Start expiration check
