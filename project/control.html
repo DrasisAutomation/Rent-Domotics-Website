@@ -533,11 +533,85 @@
         </div>
     </div>
 
+        <!-- Lock Configuration Modal -->
+    <div class="modal-overlay" id="lockConfigModal">
+        <div class="modal" id="lockConfig">
+            <div class="modal-header">
+                <div class="modal-title">Configure Lock</div>
+                <div class="modal-subtitle">Set up your smart lock settings</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Configuration Form -->
+                <form id="lockConfigForm" class="config-form">
+                    <!-- Control Name -->
+                    <div class="form-group">
+                        <label for="lockControlName">
+                            <i class="material-icons">title</i>
+                            Control Name
+                        </label>
+                        <input type="text" id="lockControlName" placeholder="e.g., Front Door Lock" required>
+                        <div class="form-hint">This will be displayed as the main title</div>
+                    </div>
+
+                    <!-- Subtitle -->
+                    <div class="form-group">
+                        <label for="lockControlSubtitle">
+                            <i class="material-icons">description</i>
+                            Subtitle/Description
+                        </label>
+                        <input type="text" id="lockControlSubtitle" placeholder="e.g., Smart door lock control">
+                        <div class="form-hint">Brief description shown below the name</div>
+                    </div>
+
+                    <!-- Entity ID -->
+                    <div class="form-group">
+                        <label for="lockEntityId">
+                            <i class="material-icons">link</i>
+                            Home Assistant Entity ID
+                        </label>
+                        <input type="text" id="lockEntityId" placeholder="e.g., lock.front_door" required>
+                        <div class="form-hint">Format: lock.entity_name (must be a lock entity)</div>
+                    </div>
+
+                    <!-- Icon Selection -->
+                    <div class="form-group">
+                        <label>
+                            <i class="material-icons">insert_emoticon</i>
+                            Select Icon
+                        </label>
+                        <div class="icon-search">
+                            <input type="text" id="lockIconSearch" placeholder="Search icons...">
+                        </div>
+                        <div class="icon-preview-grid" id="lockIconGrid">
+                            <!-- Google Material Icons will be dynamically populated -->
+                        </div>
+                        <div class="selected-icon-display" id="lockSelectedIconDisplay">
+                            <span>No icon selected</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn close-modal-btn" id="cancelLockConfigBtn">
+                    <i class="material-icons">arrow_back</i>
+                    Back
+                </button>
+                <button type="submit" form="lockConfigForm" class="modal-btn save-modal-btn">
+                    <i class="material-icons">check</i>
+                    Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Load JavaScript -->
     <script src="firebase-config.js"></script>
     <script src="switch.js"></script>
     <script src="cct-light-card.js"></script>
     <script src="dimmer.js"></script>
+    <script src="lock.js"></script>
     <script src="main-control.js"></script>
     <script src="button-control.js"></script>
     <script src="config.js"></script>

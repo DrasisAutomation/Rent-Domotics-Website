@@ -260,6 +260,24 @@ function createControlFromData(control, index) {
                 }
                 break;
                 
+            case 'lock':
+                if (typeof window.createLockCard === 'function') {
+                    console.log("Creating lock card...");
+                    controlElement = window.createLockCard({
+                        entityId: control.entityId,
+                        name: control.name,
+                        subtitle: control.subtitle,
+                        icon: control.icon,
+                        accentLocked: control.color || '#4CAF50',
+                        accentUnlocked: '#F44336',
+                        accentProcessing: '#FFC107'
+                    });
+                } else {
+                    console.error("createLockCard function not found!");
+                    controlElement = createFallbackControl(control);
+                }
+                break;
+                
             default:
                 console.warn(`Unknown control type: ${control.type}, creating fallback`);
                 controlElement = createFallbackControl(control);
@@ -320,7 +338,7 @@ function createFallbackControl(control) {
     return fallbackDiv;
 }
 
-// Add control functions (these should work with your existing form logic)
+// Add control functions
 function addControlFromForm(e) {
     e.preventDefault();
     console.log("Adding control from form...");
@@ -407,6 +425,37 @@ function addDimmerControlFromForm(e) {
     };
     
     console.log("Adding dimmer control data:", controlData);
+    dashboardData.push(controlData);
+    saveDashboard();
+    renderDashboard();
+    resetForm();
+    closeAllModals();
+}
+
+function addLockControlFromForm(e) {
+    e.preventDefault();
+    console.log("Adding lock control from form...");
+    
+    const controlName = document.getElementById('lockControlName').value.trim();
+    const controlSubtitle = document.getElementById('lockControlSubtitle').value.trim();
+    const entityId = document.getElementById('lockEntityId').value.trim();
+    
+    if (!controlName || !entityId) {
+        showNotification("Please fill in all required fields", "error");
+        return;
+    }
+    
+    const controlData = {
+        type: 'lock',
+        name: controlName,
+        subtitle: controlSubtitle,
+        entityId: entityId,
+        icon: window.selectedIcon ? `material-icons:${window.selectedIcon}` : 'material-icons:lock',
+        color: '#4CAF50',
+        timestamp: Date.now()
+    };
+    
+    console.log("Adding lock control data:", controlData);
     dashboardData.push(controlData);
     saveDashboard();
     renderDashboard();
@@ -667,6 +716,7 @@ window.exportDashboardData = exportDashboardData;
 window.addControlFromForm = addControlFromForm;
 window.addCCTControlFromForm = addCCTControlFromForm;
 window.addDimmerControlFromForm = addDimmerControlFromForm;
+window.addLockControlFromForm = addLockControlFromForm;
 window.closeAllModals = closeAllModals;
 window.resetForm = resetForm;
 window.showNotification = showNotification;

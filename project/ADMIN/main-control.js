@@ -113,6 +113,18 @@ function createControlElement(control, index) {
             });
             break;
             
+        case 'lock':
+            controlElement = window.createLockCard({
+                entityId: control.entityId,
+                name: control.name,
+                subtitle: control.subtitle,
+                icon: control.icon,
+                accentLocked: control.color || '#4CAF50',
+                accentUnlocked: '#F44336',
+                accentProcessing: '#FFC107'
+            });
+            break;
+            
         default:
             // Fallback for unsupported types
             controlElement = document.createElement('div');
@@ -211,6 +223,36 @@ function addDimmerControlFromForm(e) {
         entityId: entityId,
         icon: window.selectedIcon ? `material-icons:${window.selectedIcon}` : 'material-icons:lightbulb',
         color: '#f26f1e',
+        timestamp: Date.now()
+    };
+    
+    dashboardData.push(controlData);
+    saveDashboard();
+    renderDashboard();
+    resetForm();
+    closeAllModals();
+}
+
+// Add a lock control from form
+function addLockControlFromForm(e) {
+    e.preventDefault();
+    
+    const controlName = document.getElementById('lockControlName').value.trim();
+    const controlSubtitle = document.getElementById('lockControlSubtitle').value.trim();
+    const entityId = document.getElementById('lockEntityId').value.trim();
+    
+    if (!controlName || !entityId) {
+        showNotification("Please fill in all required fields", "error");
+        return;
+    }
+    
+    const controlData = {
+        type: 'lock',
+        name: controlName,
+        subtitle: controlSubtitle,
+        entityId: entityId,
+        icon: window.selectedIcon ? `material-icons:${window.selectedIcon}` : 'material-icons:lock',
+        color: '#4CAF50',
         timestamp: Date.now()
     };
     
@@ -444,6 +486,89 @@ function ensureDimmerConfigModal() {
     }
 }
 
+// Add lock config modal to HTML if it doesn't exist
+function ensureLockConfigModal() {
+    if (!document.getElementById('lockConfigModal')) {
+        // Create and append the lock config modal
+        const modalHTML = `
+            <div class="modal-overlay" id="lockConfigModal">
+                <div class="modal" id="lockConfig">
+                    <div class="modal-header">
+                        <div class="modal-title">Configure Lock</div>
+                        <div class="modal-subtitle">Set up your smart lock settings</div>
+                    </div>
+                    
+                    <div class="modal-content">
+                        <!-- Configuration Form -->
+                        <form id="lockConfigForm" class="config-form">
+                            <!-- Control Name -->
+                            <div class="form-group">
+                                <label for="lockControlName">
+                                    <i class="material-icons">title</i>
+                                    Control Name
+                                </label>
+                                <input type="text" id="lockControlName" placeholder="e.g., Front Door Lock" required>
+                                <div class="form-hint">This will be displayed as the main title</div>
+                            </div>
+                            
+                            <!-- Subtitle -->
+                            <div class="form-group">
+                                <label for="lockControlSubtitle">
+                                    <i class="material-icons">description</i>
+                                    Subtitle/Description
+                                </label>
+                                <input type="text" id="lockControlSubtitle" placeholder="e.g., Smart door lock control">
+                                <div class="form-hint">Brief description shown below the name</div>
+                            </div>
+                            
+                            <!-- Entity ID -->
+                            <div class="form-group">
+                                <label for="lockEntityId">
+                                    <i class="material-icons">link</i>
+                                    Home Assistant Entity ID
+                                </label>
+                                <input type="text" id="lockEntityId" placeholder="e.g., lock.front_door" required>
+                                <div class="form-hint">Format: lock.entity_name (must be a lock entity)</div>
+                            </div>
+                            
+                            <!-- Icon Selection -->
+                            <div class="form-group">
+                                <label>
+                                    <i class="material-icons">insert_emoticon</i>
+                                    Select Icon
+                                </label>
+                                <div class="icon-search">
+                                    <input type="text" id="lockIconSearch" placeholder="Search icons...">
+                                </div>
+                                <div class="icon-preview-grid" id="lockIconGrid">
+                                    <!-- Google Material Icons will be dynamically populated -->
+                                </div>
+                                <div class="selected-icon-display" id="lockSelectedIconDisplay">
+                                    <span>No icon selected</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="modal-btn close-modal-btn" id="cancelLockConfigBtn">
+                            <i class="material-icons">arrow_back</i>
+                            Back
+                        </button>
+                        <button type="submit" form="lockConfigForm" class="modal-btn save-modal-btn">
+                            <i class="material-icons">check</i>
+                            Add to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert modal before the closing body tag
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+}
+
 // Export functions for use in other modules
 window.initializeDashboard = initializeDashboard;
 window.saveDashboard = saveDashboard;
@@ -451,6 +576,7 @@ window.exportDashboardData = exportDashboardData;
 window.addControlFromForm = addControlFromForm;
 window.addCCTControlFromForm = addCCTControlFromForm;
 window.addDimmerControlFromForm = addDimmerControlFromForm;
+window.addLockControlFromForm = addLockControlFromForm;
 window.closeAllModals = closeAllModals;
 window.resetForm = resetForm;
 window.showNotification = showNotification;

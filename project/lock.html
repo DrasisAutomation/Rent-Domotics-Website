@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC Lock Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1D1B1E;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* MC Toggle Card Styles - EXACT DESIGN */
+        .mc-toggle-card {
+            --card-width: 100%;
+            --card-height: 80px;
+            --bg-off: rgba(0, 0, 0, 0.6);
+            --accent-on: #4CAF50;
+            --accent-off: #F44336;
+            --muted: rgba(255, 255, 255, 0.85);
+            --corner: 14px;
+            --top-padding: 0px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .light-card {
+            width: 100%;
+            max-width: 520px;
+            height: var(--card-height) !important;
+            border-radius: var(--corner);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 16px;
+            background: var(--bg-off);
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+            margin: var(--top-padding) auto 0 auto;
+            cursor: pointer;
+        }
+
+        /* LOCKED = WHITE BG + GREEN THEME */
+        .light-card.locked {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        /* UNLOCKED = BLACK BG + RED THEME */
+        .light-card.unlocked {
+            background: rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .icon-wrap i {
+            font-size: 25px;
+            transition: all 0.3s ease;
+        }
+
+        /* LOCKED = GREEN ICON */
+        .light-card.locked .icon-wrap {
+            background: rgba(76, 175, 80, 0.2) !important;
+        }
+
+        .light-card.locked .icon-wrap i {
+            color: #4CAF50 !important;
+            filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.6));
+        }
+
+        /* UNLOCKED = RED ICON */
+        .light-card.unlocked .icon-wrap {
+            background: rgba(244, 67, 54, 0.1) !important;
+        }
+
+        .light-card.unlocked .icon-wrap i {
+            color: #F44336 !important;
+            filter: none;
+        }
+
+        /* PROCESSING = YELLOW/GRAY ICON */
+        .light-card.processing .icon-wrap {
+            background: rgba(255, 193, 7, 0.1) !important;
+        }
+
+        .light-card.processing .icon-wrap i {
+            color: #FFC107 !important;
+            filter: none;
+        }
+
+        .icon-wrap,
+        .icon-wrap i {
+            mix-blend-mode: normal !important;
+        }
+
+        .meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .name {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1;
+            color: white;
+            transition: color 0.18s ease;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            mix-blend-mode: difference;
+            min-height: 16px;
+        }
+
+        /* LOCKED = GREEN TEXT */
+        .light-card.locked .name {
+            color: #4CAF50 !important;
+            mix-blend-mode: normal;
+        }
+
+        /* UNLOCKED = RED TEXT */
+        .light-card.unlocked .name {
+            color: #F44336 !important;
+            mix-blend-mode: normal;
+        }
+
+        /* PROCESSING = YELLOW TEXT */
+        .light-card.processing .name {
+            color: #FFC107 !important;
+            mix-blend-mode: normal;
+        }
+
+        .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            mix-blend-mode: difference;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .light-card.locked .sub {
+            color: #666 !important;
+        }
+
+        .light-card.unlocked .sub {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .light-card.processing .sub {
+            color: #FFC107 !important;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status {
+            font-weight: 700;
+            font-size: 13px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* LOCKED = GREEN STATUS */
+        .light-card.locked .status {
+            color: #4CAF50 !important;
+        }
+
+        /* UNLOCKED = RED STATUS */
+        .light-card.unlocked .status {
+            color: #F44336 !important;
+        }
+
+        /* PROCESSING = YELLOW STATUS */
+        .light-card.processing .status {
+            color: #FFC107 !important;
+        }
+
+        /* Lock Toggle Switch - New Style */
+        .lock-toggle {
+            font-size: 14px;
+            position: relative;
+            display: inline-block;
+            user-select: none;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .lock-toggle .cb {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .lock-label {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lock-wrapper {
+            width: fit-content;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-10deg);
+        }
+
+        .shackle {
+            background-color: transparent;
+            height: 9px;
+            width: 14px;
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            border-right: 3px solid white;
+            transition: all 0.3s;
+            transform-origin: right;
+            transform: rotateY(0deg) translateX(0px);
+        }
+
+        /* UNLOCKED STATE - Shackle stays open */
+        .light-card.unlocked .lock-wrapper .shackle {
+            transform: rotateY(150deg) translateX(3px) !important;
+        }
+
+        .lock-body {
+            width: 15px;
+        }
+
+        /* LOCKED = GREEN LOCK TOGGLE */
+        .light-card.locked .lock-label {
+            background-color: #4CAF50 !important;
+        }
+
+        /* UNLOCKED = RED LOCK TOGGLE */
+        .light-card.unlocked .lock-label {
+            background-color: #F44336 !important;
+        }
+
+        /* PROCESSING = YELLOW LOCK TOGGLE */
+        .light-card.processing .lock-label {
+            background-color: #FFC107 !important;
+        }
+
+        /* Simple click animation */
+        .lock-label:active {
+            transform: scale(0.9);
+        }
+
+        /* Loading state - simple */
+        .light-card.processing .lock-label {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        @media (max-width: 600px) {
+            .light-card {
+                height: 88px;
+                padding: 10px 12px;
+            }
+
+            .left {
+                gap: 10px;
+            }
+
+            .icon-wrap {
+                width: 44px;
+                height: 44px;
+            }
+
+            .icon-wrap i {
+                font-size: 22px;
+            }
+
+            .name {
+                font-size: 15px;
+            }
+
+            .sub {
+                font-size: 11px;
+            }
+
+            .status {
+                font-size: 12px;
+            }
+
+            .lock-label {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .light-card {
+                height: 88px;
+                padding: 8px 10px;
+            }
+
+            .icon-wrap {
+                width: 40px;
+                height: 40px;
+            }
+
+            .icon-wrap i {
+                font-size: 20px;
+            }
+
+            .name {
+                font-size: 14px;
+            }
+
+            .sub {
+                font-size: 10px;
+            }
+
+            .status {
+                font-size: 11px;
+                min-width: 55px;
+            }
+
+            .lock-label {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .light-card {
+                height: 84px;
+                padding: 6px 8px;
+            }
+
+            .left {
+                gap: 8px;
+            }
+
+            .icon-wrap {
+                width: 36px;
+                height: 36px;
+            }
+
+            .icon-wrap i {
+                font-size: 18px;
+            }
+
+            .name {
+                font-size: 13px;
+            }
+
+            .sub {
+                font-size: 9px;
+            }
+
+            .lock-label {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MC Toggle Card - Modified for Lock -->
+    <div class="mc-toggle-card">
+        <div class="light-card" id="lightCard">
+            <div class="card-content">
+                <div class="left">
+                    <div class="icon-wrap" aria-hidden="true">
+                        <i class="fas fa-lock" id="cardIcon"></i>
+                    </div>
+                    <div class="meta">
+                        <div class="name" id="cardName">Lock</div>
+                        <div class="sub" id="cardSub">Connecting to Home Assistant...</div>
+                    </div>
+                </div>
+
+                <div class="status-container">
+                    <div class="status" id="statusText">-</div>
+                    <label class="lock-toggle">
+                        <input class="cb" type="checkbox" id="toggleCheckbox" />
+                        <span class="lock-label">
+                            <span class="lock-wrapper">
+                                <span class="shackle"></span>
+                                <svg
+                                    class="lock-body"
+                                    width=""
+                                    height=""
+                                    viewBox="0 0 28 28"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        clip-rule="evenodd"
+                                        d="M0 5C0 2.23858 2.23858 0 5 0H23C25.7614 0 28 2.23858 28 5V23C28 25.7614 25.7614 28 23 28H5C2.23858 28 0 25.7614 0 23V5ZM16 13.2361C16.6137 12.6868 17 11.8885 17 11C17 9.34315 15.6569 8 14 8C12.3431 8 11 9.34315 11 11C11 11.8885 11.3863 12.6868 12 13.2361V18C12 19.1046 12.8954 20 14 20C15.1046 20 16 19.1046 16 18V13.2361Z"
+                                        fill="white"
+                                    ></path>
+                                </svg>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Home Assistant Integration
+        const WS_URL = "wss://demo.lumihomepro1.com/api/websocket";
+        const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzNGNlNThiNDk1Nzk0NDVmYjUxNzE2NDA0N2Q0MGNmZCIsImlhdCI6MTc2NTM0NzQ5MSwiZXhwIjoyMDgwNzA3NDkxfQ.Se5PGwx0U9aqyVRnD1uwvCv3F-aOE8H53CKA5TqsV7U";
+        
+        // Your lock entity ID
+        const ENTITY_ID = "lock.m302_b6e10c_2";
+
+        // DOM Elements
+        const lightCard = document.getElementById('lightCard');
+        const toggleCheckbox = document.getElementById('toggleCheckbox');
+        const lockToggle = document.querySelector('.lock-toggle');
+        const statusText = document.getElementById('statusText');
+        const cardName = document.getElementById('cardName');
+        const cardSub = document.getElementById('cardSub');
+        const cardIcon = document.getElementById('cardIcon');
+
+        // State
+        let ws = null;
+        let isConnected = false;
+        let entityData = null;
+        let isToggling = false;
+        const TOGGLE_DEBOUNCE_MS = 1000;
+
+        // Connect to Home Assistant WebSocket
+        function connectWebSocket() {
+            console.log("Connecting to Home Assistant WebSocket...");
+
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log("WebSocket connected to Home Assistant");
+                cardSub.textContent = "Authenticating...";
+                ws.send(JSON.stringify({
+                    type: "auth",
+                    access_token: TOKEN
+                }));
+            };
+
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+
+                if (data.type === "auth_ok") {
+                    console.log("Authentication successful");
+                    isConnected = true;
+                    cardSub.textContent = "Connected, fetching state...";
+
+                    // Get initial state
+                    setTimeout(() => {
+                        ws.send(JSON.stringify({
+                            id: 1,
+                            type: "get_states"
+                        }));
+
+                        // Subscribe to changes
+                        setTimeout(() => {
+                            ws.send(JSON.stringify({
+                                id: 2,
+                                type: "subscribe_events",
+                                event_type: "state_changed"
+                            }));
+                        }, 100);
+                    }, 100);
+                }
+                else if (data.type === "result" && data.id === 1) {
+                    if (data.success && data.result) {
+                        const entity = data.result.find(e => e.entity_id === ENTITY_ID);
+                        if (entity) {
+                            entityData = entity;
+                            updateEntityUI();
+                            updateUI();
+                            console.log(`Initial state: ${entity.state}`);
+                        } else {
+                            cardSub.textContent = "Entity not found";
+                            console.error(`Entity ${ENTITY_ID} not found`);
+                        }
+                    }
+                }
+                else if (data.type === "event" && data.event?.event_type === "state_changed") {
+                    if (data.event.data.entity_id === ENTITY_ID) {
+                        entityData = data.event.data.new_state;
+                        updateEntityUI();
+                        updateUI();
+                        console.log(`State changed to: ${entityData.state}`);
+                        
+                        // Reset toggling flag when state update is received
+                        isToggling = false;
+                        lightCard.classList.remove('processing');
+                    }
+                }
+                else if (data.type === "result" && data.id && data.id > 10) {
+                    // This is likely a service call result
+                    if (data.success) {
+                        console.log("Service call successful");
+                    } else {
+                        console.error("Service call failed:", data.error);
+                        // Reset toggling flag on failure
+                        isToggling = false;
+                        lightCard.classList.remove('processing');
+                        cardSub.textContent = "Error, please try again";
+                        // Revert to actual state
+                        if (entityData) {
+                            updateUI();
+                        }
+                    }
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                isConnected = false;
+                cardSub.textContent = "Connection error";
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected");
+                isConnected = false;
+                cardSub.textContent = "Disconnected, reconnecting...";
+
+                // Try to reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // Update entity UI with name and info
+        function updateEntityUI() {
+            if (entityData) {
+                // Use friendly_name if available, otherwise use entity_id
+                const friendlyName = entityData.attributes?.friendly_name || ENTITY_ID.replace('lock.', '');
+                
+                cardName.textContent = friendlyName;
+                cardSub.textContent = `Connected to Home Assistant`;
+            }
+        }
+
+        // Update UI based on actual state from Home Assistant
+        function updateUI() {
+            if (!entityData) return;
+            
+            const state = entityData.state;
+            
+            // Update everything based on actual state
+            if (state === "locked") {
+                lightCard.className = 'light-card locked';
+                statusText.textContent = 'LOCKED';
+                cardIcon.className = 'fas fa-lock';
+            } else if (state === "unlocked") {
+                lightCard.className = 'light-card unlocked';
+                statusText.textContent = 'UNLOCKED';
+                cardIcon.className = 'fas fa-unlock';
+            } else {
+                // Other states like jammed, locking, unlocking
+                // Keep lock icon but with processing class
+                lightCard.className = 'light-card locked';
+                statusText.textContent = 'PROCESSING';
+                cardIcon.className = 'fas fa-lock';
+            }
+
+            // Update toggle checkbox state
+            toggleCheckbox.checked = state === "unlocked";
+            
+            // Update subtitle
+            if (state === "locked" || state === "unlocked") {
+                cardSub.textContent = `Connected to Home Assistant`;
+            }
+        }
+
+        // Show processing state
+        function showProcessingState() {
+            // Show processing state with lock icon
+            lightCard.className = 'light-card processing';
+            statusText.textContent = 'PROCESSING';
+            cardIcon.className = 'fas fa-lock';
+            cardSub.textContent = 'Processing command...';
+            
+            // Keep current shackle position (don't change it)
+            // Update toggle checkbox based on current target state
+            const currentState = entityData ? entityData.state : 'locked';
+            toggleCheckbox.checked = currentState === "locked"; // Will toggle to opposite
+        }
+
+        // Attach event listeners
+        function attachEventListeners() {
+            // Toggle ONLY on lock toggle click
+            lockToggle.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                toggleLock();
+            });
+
+            // Prevent card click from toggling
+            lightCard.addEventListener('click', (ev) => {
+                if (!ev.target.closest('.lock-toggle')) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            });
+
+            // Keyboard support only for lock toggle
+            lockToggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleLock();
+                }
+            });
+
+            // Make lock toggle focusable
+            lockToggle.setAttribute('tabindex', '0');
+        }
+
+        // Toggle lock function
+        function toggleLock() {
+            if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
+                console.log("Not connected to Home Assistant");
+                cardSub.textContent = "Not connected";
+                return;
+            }
+
+            if (!entityData) {
+                console.log("Entity data not available");
+                cardSub.textContent = "Entity data unavailable";
+                return;
+            }
+
+            // Prevent rapid toggling
+            if (isToggling) {
+                console.log("Toggle in progress, please wait...");
+                return;
+            }
+            
+            isToggling = true;
+            
+            // Show processing state with lock icon
+            showProcessingState();
+            
+            // Determine what service to call based on CURRENT state
+            const currentState = entityData.state;
+            const service = currentState === "locked" ? "unlock" : "lock";
+            
+            // Call Home Assistant service to lock/unlock
+            ws.send(JSON.stringify({
+                id: Date.now(),
+                type: "call_service",
+                domain: "lock",
+                service: service,
+                service_data: {
+                    entity_id: ENTITY_ID
+                }
+            }));
+
+            console.log(`Sending ${service} command for ${ENTITY_ID}`);
+            
+            // Set a timeout to reset the toggling flag if no response
+            setTimeout(() => {
+                if (isToggling) {
+                    console.log("Toggle timeout, resetting flag");
+                    isToggling = false;
+                    lightCard.classList.remove('processing');
+                    if (entityData) {
+                        updateUI();
+                        cardSub.textContent = `Connected to Home Assistant`;
+                    }
+                }
+            }, 3000);
+        }
+
+        // Initialize
+        function initialize() {
+            attachEventListeners();
+            connectWebSocket();
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initialize);
+
+        // Log to console
+        console.info('MC Lock Card with Home Assistant integration loaded!');
+        console.log(`Controlling entity: ${ENTITY_ID}`);
+    </script>
+</body>
+</html>

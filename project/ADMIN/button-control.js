@@ -1,11 +1,11 @@
 // button-control.js - UI Button and Modal Logic (Updated with Dimmer Support)
 
 // DOM Elements
-let editBtn, saveDashboardBtn, typeSelectionModal, toggleConfigModal, cctConfigModal, dimmerConfigModal;
-let cancelTypeBtn, cancelConfigBtn, cancelCCTConfigBtn, cancelDimmerConfigBtn;
-let toggleConfigForm, cctConfigForm, dimmerConfigForm;
-let iconGrid, cctIconGrid, dimmerIconGrid;
-let iconSearch, cctIconSearch, dimmerIconSearch;
+let editBtn, saveDashboardBtn, typeSelectionModal, toggleConfigModal, cctConfigModal, dimmerConfigModal, lockConfigModal;
+let cancelTypeBtn, cancelConfigBtn, cancelCCTConfigBtn, cancelDimmerConfigBtn, cancelLockConfigBtn;
+let toggleConfigForm, cctConfigForm, dimmerConfigForm, lockConfigForm;
+let iconGrid, cctIconGrid, dimmerIconGrid, lockIconGrid;
+let iconSearch, cctIconSearch, dimmerIconSearch, lockIconSearch;
 
 // Google Material Icons - Commonly used free icons
 const materialIcons = [
@@ -278,6 +278,63 @@ function updateDimmerIconGrid(searchTerm) {
     }
 }
 
+// Initialize lock icon grid
+function initLockIconGrid() {
+    updateLockIconGrid('');
+    
+    // Search functionality
+    if (lockIconSearch) {
+        lockIconSearch.addEventListener('input', (e) => {
+            updateLockIconGrid(e.target.value);
+        });
+    }
+}
+
+// Update lock icon grid
+function updateLockIconGrid(searchTerm) {
+    if (!lockIconGrid) return;
+    
+    lockIconGrid.innerHTML = '';
+    
+    const filteredIcons = searchTerm ? filterIcons(searchTerm) : materialIcons.slice(0, 200);
+    
+    filteredIcons.forEach(iconName => {
+        const iconOption = document.createElement('div');
+        iconOption.className = 'icon-option';
+        iconOption.title = iconName;
+        iconOption.innerHTML = `<i class="material-icons">${iconName}</i>`;
+        
+        iconOption.addEventListener('click', () => {
+            // Remove selected class from all icons
+            document.querySelectorAll('#lockIconGrid .icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked icon
+            iconOption.classList.add('selected');
+            
+            // Update selected icon
+            window.selectedIcon = iconName;
+            
+            // Update display
+            const lockSelectedIconDisplay = document.getElementById('lockSelectedIconDisplay');
+            if (lockSelectedIconDisplay) {
+                lockSelectedIconDisplay.innerHTML = `
+                    <i class="material-icons">${iconName}</i>
+                    <span>${iconName.replace(/_/g, ' ')}</span>
+                `;
+            }
+        });
+        
+        lockIconGrid.appendChild(iconOption);
+    });
+    
+    // Select first icon by default if none selected
+    if (lockIconGrid.firstChild && !lockIconGrid.querySelector('.selected')) {
+        lockIconGrid.firstChild.click();
+    }
+}
+
 // Modal functions
 function openTypeSelection() {
     if (typeSelectionModal) {
@@ -318,6 +375,15 @@ function openDimmerConfig() {
     }
 }
 
+function openLockConfig() {
+    if (lockConfigModal) {
+        lockConfigModal.classList.add('active');
+        initLockIconGrid();
+        const controlName = document.getElementById('lockControlName');
+        if (controlName) controlName.focus();
+    }
+}
+
 // Initialize UI components
 function initializeUI() {
     // Cache DOM elements
@@ -327,19 +393,24 @@ function initializeUI() {
     toggleConfigModal = document.getElementById('toggleConfigModal');
     cctConfigModal = document.getElementById('cctConfigModal');
     dimmerConfigModal = document.getElementById('dimmerConfigModal');
+    lockConfigModal = document.getElementById('lockConfigModal');
     cancelTypeBtn = document.getElementById('cancelTypeBtn');
     cancelConfigBtn = document.getElementById('cancelConfigBtn');
     cancelCCTConfigBtn = document.getElementById('cancelCCTConfigBtn');
     cancelDimmerConfigBtn = document.getElementById('cancelDimmerConfigBtn');
+    cancelLockConfigBtn = document.getElementById('cancelLockConfigBtn');
     toggleConfigForm = document.getElementById('toggleConfigForm');
     cctConfigForm = document.getElementById('cctConfigForm');
     dimmerConfigForm = document.getElementById('dimmerConfigForm');
+    lockConfigForm = document.getElementById('lockConfigForm');
     iconGrid = document.getElementById('iconGrid');
     cctIconGrid = document.getElementById('cctIconGrid');
     dimmerIconGrid = document.getElementById('dimmerIconGrid');
+    lockIconGrid = document.getElementById('lockIconGrid');
     iconSearch = document.getElementById('iconSearch');
     cctIconSearch = document.getElementById('cctIconSearch');
     dimmerIconSearch = document.getElementById('dimmerIconSearch');
+    lockIconSearch = document.getElementById('lockIconSearch');
     
     // Remove color picker and size options from HTML if they exist
     const colorPickers = document.querySelectorAll('.color-picker, .color-presets, .size-options');
@@ -388,6 +459,13 @@ function initializeUI() {
         });
     }
     
+    if (cancelLockConfigBtn) {
+        cancelLockConfigBtn.addEventListener('click', () => {
+            if (lockConfigModal) lockConfigModal.classList.remove('active');
+            if (typeSelectionModal) typeSelectionModal.classList.add('active');
+        });
+    }
+    
     // Save/Export button
     if (saveDashboardBtn) {
         saveDashboardBtn.addEventListener('click', window.exportDashboardData);
@@ -406,6 +484,10 @@ function initializeUI() {
         dimmerConfigForm.addEventListener('submit', window.addDimmerControlFromForm);
     }
     
+    if (lockConfigForm) {
+        lockConfigForm.addEventListener('submit', window.addLockControlFromForm);
+    }
+    
     // Control type selection
     const controlTypeCards = document.querySelectorAll('.control-type-card');
     controlTypeCards.forEach(card => {
@@ -422,6 +504,9 @@ function initializeUI() {
             } else if (window.selectedControlType === 'dimmer') {
                 if (typeSelectionModal) typeSelectionModal.classList.remove('active');
                 openDimmerConfig();
+            } else if (window.selectedControlType === 'lock') {
+                if (typeSelectionModal) typeSelectionModal.classList.remove('active');
+                openLockConfig();
             } else {
                 window.showNotification(`${window.typeNames[window.selectedControlType]} support coming soon!`, 'info');
             }
@@ -465,6 +550,15 @@ function initializeUI() {
         });
     }
     
+    if (lockConfigModal) {
+        lockConfigModal.addEventListener('click', (e) => {
+            if (e.target === lockConfigModal) {
+                window.closeAllModals();
+                window.resetForm();
+            }
+        });
+    }
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -485,6 +579,7 @@ function initializeUI() {
     const entityIdInput = document.getElementById('entityId');
     const cctEntityIdInput = document.getElementById('cctEntityId');
     const dimmerEntityIdInput = document.getElementById('dimmerEntityId');
+    const lockEntityIdInput = document.getElementById('lockEntityId');
     
     const examples = [
         'light.living_room',
@@ -510,9 +605,18 @@ function initializeUI() {
         'light.porch'
     ];
     
+    const lockExamples = [
+        'lock.front_door',
+        'lock.back_door',
+        'lock.garage',
+        'lock.gate',
+        'lock.main_entrance'
+    ];
+    
     let exampleIndex = 0;
     let cctExampleIndex = 0;
     let dimmerExampleIndex = 0;
+    let lockExampleIndex = 0;
     
     if (entityIdInput) {
         setInterval(() => {
@@ -532,6 +636,13 @@ function initializeUI() {
         setInterval(() => {
             dimmerEntityIdInput.placeholder = `e.g., ${dimmerExamples[dimmerExampleIndex]}`;
             dimmerExampleIndex = (dimmerExampleIndex + 1) % dimmerExamples.length;
+        }, 3000);
+    }
+    
+    if (lockEntityIdInput) {
+        setInterval(() => {
+            lockEntityIdInput.placeholder = `e.g., ${lockExamples[lockExampleIndex]}`;
+            lockExampleIndex = (lockExampleIndex + 1) % lockExamples.length;
         }, 3000);
     }
     
@@ -627,12 +738,103 @@ function ensureDimmerConfigModal() {
     }
 }
 
+// Ensure lock config modal exists in DOM (if not already in HTML)
+function ensureLockConfigModal() {
+    if (!document.getElementById('lockConfigModal')) {
+        console.warn('Lock config modal not found in HTML, creating dynamically...');
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="lockConfigModal">
+                <div class="modal" id="lockConfig">
+                    <div class="modal-header">
+                        <div class="modal-title">Configure Lock</div>
+                        <div class="modal-subtitle">Set up your smart lock settings</div>
+                    </div>
+                    
+                    <div class="modal-content">
+                        <!-- Configuration Form -->
+                        <form id="lockConfigForm" class="config-form">
+                            <!-- Control Name -->
+                            <div class="form-group">
+                                <label for="lockControlName">
+                                    <i class="material-icons">title</i>
+                                    Control Name
+                                </label>
+                                <input type="text" id="lockControlName" placeholder="e.g., Front Door Lock" required>
+                                <div class="form-hint">This will be displayed as the main title</div>
+                            </div>
+                            
+                            <!-- Subtitle -->
+                            <div class="form-group">
+                                <label for="lockControlSubtitle">
+                                    <i class="material-icons">description</i>
+                                    Subtitle/Description
+                                </label>
+                                <input type="text" id="lockControlSubtitle" placeholder="e.g., Smart door lock control">
+                                <div class="form-hint">Brief description shown below the name</div>
+                            </div>
+                            
+                            <!-- Entity ID -->
+                            <div class="form-group">
+                                <label for="lockEntityId">
+                                    <i class="material-icons">link</i>
+                                    Home Assistant Entity ID
+                                </label>
+                                <input type="text" id="lockEntityId" placeholder="e.g., lock.front_door" required>
+                                <div class="form-hint">Format: lock.entity_name (must be a lock entity)</div>
+                            </div>
+                            
+                            <!-- Icon Selection -->
+                            <div class="form-group">
+                                <label>
+                                    <i class="material-icons">insert_emoticon</i>
+                                    Select Icon
+                                </label>
+                                <div class="icon-search">
+                                    <input type="text" id="lockIconSearch" placeholder="Search icons...">
+                                </div>
+                                <div class="icon-preview-grid" id="lockIconGrid">
+                                    <!-- Google Material Icons will be dynamically populated -->
+                                </div>
+                                <div class="selected-icon-display" id="lockSelectedIconDisplay">
+                                    <span>No icon selected</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="modal-btn close-modal-btn" id="cancelLockConfigBtn">
+                            <i class="material-icons">arrow_back</i>
+                            Back
+                        </button>
+                        <button type="submit" form="lockConfigForm" class="modal-btn save-modal-btn">
+                            <i class="material-icons">check</i>
+                            Add to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert modal before the closing body tag
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Re-initialize to cache new elements
+        initializeUI();
+    }
+}
+
 // Export UI functions
 window.openTypeSelection = openTypeSelection;
 window.openToggleConfig = openToggleConfig;
 window.openCCTConfig = openCCTConfig;
 window.openDimmerConfig = openDimmerConfig;
+window.openLockConfig = openLockConfig;
 window.initializeUI = initializeUI;
 window.ensureDimmerConfigModal = ensureDimmerConfigModal;
+window.ensureLockConfigModal = ensureLockConfigModal;
 window.initDimmerIconGrid = initDimmerIconGrid;
 window.updateDimmerIconGrid = updateDimmerIconGrid;
+window.initLockIconGrid = initLockIconGrid;
+window.updateLockIconGrid = updateLockIconGrid;
