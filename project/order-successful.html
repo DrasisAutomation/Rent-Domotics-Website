@@ -328,6 +328,14 @@
         // Initialize
         renderOrderDetails();
         startCountdown();
+
+        // Add this to all three files (order.html, cart.html, order-successful.html)
+window.onpopstate = function(event) {
+    window.location.href = 'order.html';
+};
+
+// Push dashboard to history stack
+history.pushState({page: 'order'}, '', 'order.html');
     </script>
 
 

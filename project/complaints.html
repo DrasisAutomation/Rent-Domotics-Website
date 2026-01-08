@@ -388,6 +388,13 @@ searchBar.addEventListener("input", () => {
 
 /* Init */
 render();
+
+window.onpopstate = function(event) {
+    window.location.href = 'dashboard.html';
+};
+
+// Push dashboard to history stack
+history.pushState({page: 'dashboard'}, '', 'dashboard.html');
 </script>
 
 
