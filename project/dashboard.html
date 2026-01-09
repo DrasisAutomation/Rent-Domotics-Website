@@ -616,22 +616,27 @@
             }
         });
     </script>
-   <script>
+  <script>
 (function () {
     const url = location.href;
 
-    // Create a wall of history entries
-    for (let i = 0; i < 10; i++) {
+    // Reset current entry
+    history.replaceState(null, '', url);
+
+    // Build a deep history wall
+    for (let i = 0; i < 20; i++) {
         history.pushState(null, '', url);
     }
 
     window.addEventListener('popstate', function () {
+        // Replace instead of only push (important)
+        history.replaceState(null, '', url);
         history.pushState(null, '', url);
     });
 
-    // Prevent BFCache restore
+    // Handle bfcache restore (Safari / mobile)
     window.addEventListener('pageshow', function (e) {
-        if (e.persisted) location.reload();
+        if (e.persisted) location.replace(url);
     });
 })();
 </script>
