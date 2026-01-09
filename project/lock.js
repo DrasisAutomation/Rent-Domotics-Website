@@ -563,6 +563,12 @@ function initializeLock(cardContainer, config) {
     const cardIcon = cardContainer.querySelector('.icon-wrap i');
     const entityId = config.entityId;
     
+    // Store the user's subtitle - NEVER CHANGE THIS
+    const userSubtitle = config.subtitle;
+    
+    // Initialize with user's subtitle
+    cardSub.textContent = userSubtitle;
+    
     // State
     let ws = null;
     let isConnected = false;
@@ -573,7 +579,7 @@ function initializeLock(cardContainer, config) {
     function connectWebSocket() {
         if (!window.HA_CONFIG || !window.HA_CONFIG.WS_URL || !window.HA_CONFIG.TOKEN) {
             console.error("Home Assistant configuration not found. Please set window.HA_CONFIG");
-            cardSub.textContent = "Configuration error";
+            // Keep showing user subtitle even on error
             return;
         }
         
@@ -584,7 +590,6 @@ function initializeLock(cardContainer, config) {
 
             ws.onopen = () => {
                 console.log("WebSocket connected to Home Assistant");
-                cardSub.textContent = "Authenticating...";
                 ws.send(JSON.stringify({
                     type: "auth",
                     access_token: window.HA_CONFIG.TOKEN
@@ -598,7 +603,6 @@ function initializeLock(cardContainer, config) {
                     if (data.type === "auth_ok") {
                         console.log("Authentication successful");
                         isConnected = true;
-                        cardSub.textContent = "Connected, fetching state...";
 
                         // Get initial state
                         setTimeout(() => {
@@ -626,7 +630,6 @@ function initializeLock(cardContainer, config) {
                                 updateUI();
                                 console.log(`Initial state: ${entity.state}`);
                             } else {
-                                cardSub.textContent = "Entity not found";
                                 console.error(`Entity ${entityId} not found`);
                             }
                         }
@@ -645,15 +648,11 @@ function initializeLock(cardContainer, config) {
                     }
                     else if (data.type === "result" && data.id && data.id > 10) {
                         // This is likely a service call result
-                        if (data.success) {
-                            console.log("Service call successful");
-                        } else {
+                        if (!data.success) {
                             console.error("Service call failed:", data.error);
                             // Reset toggling flag on failure
                             isToggling = false;
                             lightCard.classList.remove('processing');
-                            cardSub.textContent = "Error, please try again";
-                            // Revert to actual state
                             if (entityData) {
                                 updateUI();
                             }
@@ -667,68 +666,59 @@ function initializeLock(cardContainer, config) {
             ws.onerror = (error) => {
                 console.error("WebSocket error:", error);
                 isConnected = false;
-                cardSub.textContent = "Connection error";
             };
 
             ws.onclose = () => {
                 console.log("WebSocket disconnected");
                 isConnected = false;
-                cardSub.textContent = "Disconnected, reconnecting...";
 
                 // Try to reconnect after 3 seconds
                 setTimeout(connectWebSocket, 3000);
             };
         } catch (error) {
             console.error("Error connecting to WebSocket:", error);
-            cardSub.textContent = "Connection failed";
         }
     }
     
     // Update entity UI with name and info
-function updateEntityUI() {
-    if (entityData) {
-        // Use friendly_name if available, otherwise use entity_id
-        const friendlyName = entityData.attributes?.friendly_name || entityId.replace('lock.', '');
-        
-        // Use the subtitle from config if available, otherwise fallback
-        const subtitleText = config.subtitle || `Connected to Home Assistant`;
-        
-        cardName.textContent = friendlyName;
-        cardSub.textContent = subtitleText;
+    function updateEntityUI() {
+        if (entityData) {
+            // Use friendly_name if available, otherwise use entity_id
+            const friendlyName = entityData.attributes?.friendly_name || entityId.replace('lock.', '');
+            
+            cardName.textContent = friendlyName;
+            // DO NOT update subtitle - keep it as user configured
+        }
     }
-}
     
     // Update UI based on actual state from Home Assistant
- function updateUI() {
-    if (!entityData) return;
-    
-    const state = entityData.state;
-    
-    // Update everything based on actual state
-    if (state === "locked") {
-        lightCard.className = 'light-card locked';
-        statusText.textContent = 'LOCKED';
-        cardIcon.textContent = 'lock';
-    } else if (state === "unlocked") {
-        lightCard.className = 'light-card unlocked';
-        statusText.textContent = 'UNLOCKED';
-        cardIcon.textContent = 'lock_open';
-    } else {
-        // Other states like jammed, locking, unlocking
-        lightCard.className = 'light-card processing';
-        statusText.textContent = 'PROCESSING';
-        cardIcon.textContent = 'lock';
-    }
+    function updateUI() {
+        if (!entityData) return;
+        
+        const state = entityData.state;
+        
+        // Update everything based on actual state
+        if (state === "locked") {
+            lightCard.className = 'light-card locked';
+            statusText.textContent = 'LOCKED';
+            cardIcon.textContent = 'lock';
+        } else if (state === "unlocked") {
+            lightCard.className = 'light-card unlocked';
+            statusText.textContent = 'UNLOCKED';
+            cardIcon.textContent = 'lock_open';
+        } else {
+            // Other states like jammed, locking, unlocking
+            lightCard.className = 'light-card processing';
+            statusText.textContent = 'PROCESSING';
+            cardIcon.textContent = 'lock';
+        }
 
-    // Update toggle checkbox state
-    toggleCheckbox.checked = state === "unlocked";
-    
-    // Update subtitle - use the config subtitle
-    if (state === "locked" || state === "unlocked") {
-        const subtitleText = config.subtitle || `Connected to Home Assistant`;
-        cardSub.textContent = subtitleText;
+        // Update toggle checkbox state
+        toggleCheckbox.checked = state === "unlocked";
+        
+        // ALWAYS keep the user subtitle, never change it
+        cardSub.textContent = userSubtitle;
     }
-}
     
     // Show processing state
     function showProcessingState() {
@@ -736,7 +726,7 @@ function updateEntityUI() {
         lightCard.className = 'light-card processing';
         statusText.textContent = 'PROCESSING';
         cardIcon.textContent = 'lock';
-        cardSub.textContent = 'Processing command...';
+        // DO NOT change subtitle - keep user's subtitle
         
         // Update toggle checkbox based on current target state
         const currentState = entityData ? entityData.state : 'locked';
@@ -747,13 +737,11 @@ function updateEntityUI() {
     function toggleLock() {
         if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
             console.log("Not connected to Home Assistant");
-            cardSub.textContent = "Not connected";
             return;
         }
 
         if (!entityData) {
             console.log("Entity data not available");
-            cardSub.textContent = "Entity data unavailable";
             return;
         }
 
@@ -793,7 +781,6 @@ function updateEntityUI() {
                 lightCard.classList.remove('processing');
                 if (entityData) {
                     updateUI();
-                    cardSub.textContent = `Connected to Home Assistant`;
                 }
             }
         }, 3000);

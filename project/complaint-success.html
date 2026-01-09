@@ -1,100 +1,114 @@
-<html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Complaint Submitted</title>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+<html lang="en">
 
-<style>
-:root {
-    --bg-dark: #1D1B1E;
-    --accent: #F26F1E;
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Submitted</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap"
+        rel="stylesheet">
 
-body {
-    background: var(--bg-dark);
-    color: white;
-    font-family: "Inter";
-    padding: 20px;
-}
+    <style>
+        :root {
+            --bg-dark: #1D1B1E;
+            --accent: #F26F1E;
+        }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-}
+        body {
+            background: var(--bg-dark);
+            color: white;
+            font-family: "Inter";
+            padding: 20px;
+        }
 
-.header {
-    background: black;
-    padding: 20px;
-    text-align: center;
-}
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
 
-.title {
-    font-size: 24px;
-    font-weight: 300;
-}
-.room {
-    font-size: 14px;
-    font-weight: 300;
-}
-.card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 28px;
-    margin-top: 20px;
-    text-align: center;
-}
+        .header {
+            background: black;
+            padding: 20px;
+            text-align: center;
+        }
 
-.icon {
-    font-size: 60px;
-    color: var(--accent);
-    margin-bottom: 20px;
-}
+        .title {
+            font-size: 24px;
+            font-weight: 300;
+        }
 
-.button {
-    margin-top: 20px;
-    background: var(--accent);
-    padding: 12px 28px;
-    border-radius: 50px;
-    color: white;
-    cursor: pointer;
-    border: none;
-}
+        .room {
+            font-size: 14px;
+            font-weight: 300;
+        }
 
-</style>
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 28px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 60px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            margin-top: 20px;
+            background: var(--accent);
+            padding: 12px 28px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="header">
-        <div class="title">COMPLAINT SUBMITTED</div>
-        <div class="room">Room <span id="roomNo">G01</span></div>
+        <div class="header">
+            <div class="title">COMPLAINT SUBMITTED</div>
+            <div class="room">Room <span id="roomNo">G01</span></div>
+        </div>
+
+        <div class="card">
+            <div class="icon">✓</div>
+            <h2>Your complaint has been received!</h2>
+            <p><b><span id="complaintName">No Water Flow</span></b></p>
+            <p id="complaintNote">Note: kn</p>
+
+            <button class="button" onclick="location.href='complaints.html'">Back to Complaints</button>
+        </div>
+
     </div>
 
-    <div class="card">
-        <div class="icon">✓</div>
-        <h2>Your complaint has been received!</h2>
-        <p><b><span id="complaintName">No Water Flow</span></b></p>
-        <p id="complaintNote">Note: kn</p>
+    <script>
+        document.getElementById("roomNo").textContent = localStorage.getItem("roomNumber");
+        document.getElementById("complaintName").textContent = localStorage.getItem("complaintName");
 
-        <button class="button" onclick="location.href='complaints.html'">Back to Complaints</button>
-    </div>
+        let note = localStorage.getItem("complaintNote");
+        document.getElementById("complaintNote").textContent = note && note.trim() !== ""
+            ? "Note: " + note
+            : "No additional description was provided.";
 
-</div>
+        window.onpopstate = function (event) {
+            window.location.href = 'complaints.html';
+        };
 
-<script>
-document.getElementById("roomNo").textContent = localStorage.getItem("roomNumber");
-document.getElementById("complaintName").textContent = localStorage.getItem("complaintName");
-
-let note = localStorage.getItem("complaintNote");
-document.getElementById("complaintNote").textContent = note && note.trim() !== "" 
-  ? "Note: " + note 
-  : "No additional description was provided.";
-</script>
+        // Push dashboard to history stack
+        history.pushState({ page: 'complaints' }, '', 'complaints.html');
+    </script>
 
 
-<!-- <script src="firebase-config.js"></script>
+    <!-- <script src="firebase-config.js"></script>
 <script src="auth-check.js"></script> -->
 
-</body></html>
+</body>
+
+</html>

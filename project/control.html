@@ -28,43 +28,19 @@
             background-color: #d32f2f;
         }
         
-        .property-banner {
-            background: rgba(255, 255, 255, 0.199);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            display: none; /* Hidden by default */
-        }
-        
-        .property-info {
-            flex: 1;
-        }
-        
-        .property-name {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: white;
-        }
-        
-        .property-details {
-            font-size: 14px;
-            opacity: 0.9;
-            color: white;
-        }
-        .logout-btn{
-            display: none !important;
-        }
         .property-expiry {
             background: rgba(0, 0, 0, 0.2);
             padding: 8px 16px;
             border-radius: 8px;
             font-size: 14px;
             color: white;
+            margin-left: 20px;
+            padding-right: 0;
+        }
+        
+        .header-buttons {
+            display: flex;
+            align-items: center;
         }
         
         .loading {
@@ -140,8 +116,10 @@
             background: #e05c1a;
             transform: translateY(-1px);
         }
-        .property-details{
-            display: none;
+
+        #headerTitle{
+            font-size: 15px !important;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -150,33 +128,13 @@
     <!-- Header -->
     <header class="header">
         <div class="header-title">
-            <i class="fas fa-home"></i>
-            <span id="headerTitle">Property Dashboard</span>
+            <span id="headerTitle">Property</span>
         </div>
         <div class="header-buttons">
-            <button class="header-btn logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-            <button class="header-btn save-btn" id="saveDashboardBtn" style="display: none;">
-                <i class="fas fa-download"></i>
-                <span>Save</span>
-            </button>
-            <button class="header-btn edit-btn" id="editBtn"  style="display: none;">
-                <i class="fas fa-plus"></i>
-                <span>Edit</span>
-            </button>
+            <div class="property-expiry" id="propertyExpiry"></div>
+  
         </div>
     </header>
-
-    <!-- Property Info Banner -->
-    <div class="property-banner" id="propertyBanner">
-        <div class="property-info">
-            <div class="property-name" id="propertyName">Loading...</div>
-            <div class="property-details" id="propertyDetails"></div>
-        </div>
-        <div class="property-expiry" id="propertyExpiry"></div>
-    </div>
 
     <!-- Dashboard Content -->
     <main class="dashboard-content" id="dashboardContent">
@@ -674,8 +632,8 @@
                 // Update header with property name
                 document.getElementById('headerTitle').textContent = propertyData.propertyName || 'Property Dashboard';
                 
-                // Update property banner
-                updatePropertyBanner(propertyData);
+                // Update property expiry in header
+                updatePropertyExpiry(propertyData);
                 
                 return {
                     hasAccess: true,
@@ -691,48 +649,31 @@
             }
         }
 
-        // Update property banner
-        function updatePropertyBanner(propertyData) {
-            const banner = document.getElementById('propertyBanner');
-            const propertyName = document.getElementById('propertyName');
-            const propertyDetails = document.getElementById('propertyDetails');
+        // Update property expiry in header
+        function updatePropertyExpiry(propertyData) {
             const propertyExpiry = document.getElementById('propertyExpiry');
 
-            if (propertyData) {
-                banner.style.display = 'flex';
-                propertyName.textContent = propertyData.propertyName || 'Property Dashboard';
+            if (propertyData && propertyData.expiryDate && propertyData.expiryTime) {
+                const expiryDate = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
+                const now = new Date();
+                const timeDiff = expiryDate - now;
                 
-                // Count non-empty emails
-                const emailCount = [
-                    propertyData.email1,
-                    propertyData.email2,
-                    propertyData.email3
-                ].filter(email => email && email.trim() !== '').length;
-                
-                propertyDetails.textContent = `Access granted to ${emailCount} user${emailCount !== 1 ? 's' : ''}`;
-                
-                // Format expiry date
-                if (propertyData.expiryDate && propertyData.expiryTime) {
-                    const expiryDate = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
-                    const now = new Date();
-                    const timeDiff = expiryDate - now;
+                if (timeDiff > 0) {
+                    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     
-                    if (timeDiff > 0) {
-                        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        
-                        if (days > 0) {
-                            propertyExpiry.textContent = `Expires in ${days} day${days !== 1 ? 's' : ''}`;
-                        } else if (hours > 0) {
-                            propertyExpiry.textContent = `Expires in ${hours} hour${hours !== 1 ? 's' : ''}`;
-                        } else {
-                            propertyExpiry.textContent = 'Expires today';
-                        }
+                    if (days > 0) {
+                        propertyExpiry.textContent = `Expires in ${days} day${days !== 1 ? 's' : ''}`;
+                    } else if (hours > 0) {
+                        propertyExpiry.textContent = `Expires in ${hours} hour${hours !== 1 ? 's' : ''}`;
                     } else {
-                        propertyExpiry.textContent = 'Access expired';
-                        propertyExpiry.style.background = 'rgba(244, 67, 54, 0.3)';
+                        propertyExpiry.textContent = 'Expires soon';
                     }
+                } else {
+                    propertyExpiry.textContent = 'Access expired';
+                    propertyExpiry.style.background = 'rgba(244, 67, 54, 0.3)';
                 }
+                propertyExpiry.style.display = 'block';
             }
         }
 
@@ -747,9 +688,6 @@
                 accessDeniedState.style.display = 'flex';
                 accessDeniedReason.textContent = reason;
             }
-            
-            // Hide property banner
-            document.getElementById('propertyBanner').style.display = 'none';
         }
 
         // Navigation functions

@@ -96,6 +96,12 @@
 
         document.getElementById("roomNumber").textContent = room;
         document.getElementById("serviceName").textContent = service;
+                window.onpopstate = function(event) {
+    window.location.href = 'dashboard.html';
+};
+
+// Push dashboard to history stack
+history.pushState({page: 'dashboard'}, '', 'dashboard.html');
     </script>
 
 
