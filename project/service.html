@@ -1,8 +1,11 @@
-<html lang="en"><head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Service Requests</title>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
         :root {
@@ -41,7 +44,6 @@
             margin-bottom: 20px;
             padding: 20px;
             background-color: #000000;
-
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -131,6 +133,13 @@
         .service-icon {
             font-size: 36px;
             color: #000;
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .service-icon i {
+            font-size: 36px;
         }
 
         .service-title {
@@ -155,6 +164,7 @@
             width: 100%;
             transition: 0.2s ease;
             text-align: center;
+            margin-top: auto;
         }
 
         .request-btn:hover {
@@ -167,11 +177,83 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* SUCCESS OVERLAY */
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 1);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            max-width: 800px;
+            width: 100%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .success-header {
+            text-align: center;
+            padding: 20px;
+            background: black;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 34px;
+            font-weight: 300;
+        }
+
+        .success-subtitle {
+            opacity: .9;
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+        }
+
+        .success-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .success-button {
+            margin-top: 20px;
+            background: var(--accent);
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .success-button:hover {
+            background: #e05e1a;
+        }
     </style>
 
 </head>
 
 <body>
+    <!-- Main Service Page -->
     <div class="container">
         <header class="header">
             <h1 class="title">SERVICE REQUEST</h1>
@@ -191,139 +273,64 @@
             <div class="chip" data-category="guest">Guest Services</div>
         </div>
 
-        <main class="services-grid" id="servicesGrid"><div class="card">
-                    <ha-icon icon="mdi:broom" class="service-icon"></ha-icon>
-                    <div class="service-title">Room Cleaning</div>
-                    <div class="service-desc">Complete housekeeping service.</div>
-                    <button class="request-btn" onclick="sendRequest('Room Cleaning')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:spray-bottle" class="service-icon"></ha-icon>
-                    <div class="service-title">Make My Room</div>
-                    <div class="service-desc">Prepare room while you're away.</div>
-                    <button class="request-btn" onclick="sendRequest('Make My Room')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:bed-double-outline" class="service-icon"></ha-icon>
-                    <div class="service-title">Extra Bedsheet</div>
-                    <div class="service-desc">Request fresh bedsheet.</div>
-                    <button class="request-btn" onclick="sendRequest('Extra Bedsheet')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:pillow" class="service-icon"></ha-icon>
-                    <div class="service-title">Extra Pillow</div>
-                    <div class="service-desc">Additional pillow for comfort.</div>
-                    <button class="request-btn" onclick="sendRequest('Extra Pillow')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:hand-clap" class="service-icon"></ha-icon>
-                    <div class="service-title">Towel Replacement</div>
-                    <div class="service-desc">Fresh towels delivered.</div>
-                    <button class="request-btn" onclick="sendRequest('Towel Replacement')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:washing-machine" class="service-icon"></ha-icon>
-                    <div class="service-title">Laundry Pickup</div>
-                    <div class="service-desc">We will collect your laundry.</div>
-                    <button class="request-btn" onclick="sendRequest('Laundry Pickup')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:bottle-soda" class="service-icon"></ha-icon>
-                    <div class="service-title">Water Bottle</div>
-                    <div class="service-desc">Get packaged drinking water.</div>
-                    <button class="request-btn" onclick="sendRequest('Water Bottle')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:tooth-outline" class="service-icon"></ha-icon>
-                    <div class="service-title">Dental Kit</div>
-                    <div class="service-desc">Toothbrush &amp; toothpaste.</div>
-                    <button class="request-btn" onclick="sendRequest('Dental Kit')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:razor-double-edge" class="service-icon"></ha-icon>
-                    <div class="service-title">Shaving Kit</div>
-                    <div class="service-desc">Razor &amp; shaving cream.</div>
-                    <button class="request-btn" onclick="sendRequest('Shaving Kit')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:shower" class="service-icon"></ha-icon>
-                    <div class="service-title">Soap/Shampoo</div>
-                    <div class="service-desc">Bathing essentials.</div>
-                    <button class="request-btn" onclick="sendRequest('Soap/Shampoo')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:coffee" class="service-icon"></ha-icon>
-                    <div class="service-title">Tea/Coffee Refill</div>
-                    <div class="service-desc">Refill beverage packets.</div>
-                    <button class="request-btn" onclick="sendRequest('Tea/Coffee Refill')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:air-conditioner" class="service-icon"></ha-icon>
-                    <div class="service-title">AC Not Cooling</div>
-                    <div class="service-desc">Technician will check AC.</div>
-                    <button class="request-btn" onclick="sendRequest('AC Not Cooling')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:lightbulb-alert-outline" class="service-icon"></ha-icon>
-                    <div class="service-title">Light Not Working</div>
-                    <div class="service-desc">Electrician will fix issue.</div>
-                    <button class="request-btn" onclick="sendRequest('Light Not Working')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:television-off" class="service-icon"></ha-icon>
-                    <div class="service-title">TV Not Working</div>
-                    <div class="service-desc">Technician will inspect TV.</div>
-                    <button class="request-btn" onclick="sendRequest('TV Not Working')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:silverware-fork-knife" class="service-icon"></ha-icon>
-                    <div class="service-title">Cutlery</div>
-                    <div class="service-desc">Spoon, fork, knives, etc.</div>
-                    <button class="request-btn" onclick="sendRequest('Cutlery')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:plate-outline" class="service-icon"></ha-icon>
-                    <div class="service-title">Plates</div>
-                    <div class="service-desc">Serving plates delivery.</div>
-                    <button class="request-btn" onclick="sendRequest('Plates')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:snowflake" class="service-icon"></ha-icon>
-                    <div class="service-title">Ice Cubes</div>
-                    <div class="service-desc">Ice delivery to your room.</div>
-                    <button class="request-btn" onclick="sendRequest('Ice Cubes')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:alarm" class="service-icon"></ha-icon>
-                    <div class="service-title">Wake-Up Call</div>
-                    <div class="service-desc">We will wake you on time.</div>
-                    <button class="request-btn" onclick="sendRequest('Wake-Up Call')">Request</button>
-                </div><div class="card">
-                    <ha-icon icon="mdi:bag-suitcase" class="service-icon"></ha-icon>
-                    <div class="service-title">Luggage Assistance</div>
-                    <div class="service-desc">Staff will assist you.</div>
-                    <button class="request-btn" onclick="sendRequest('Luggage Assistance')">Request</button>
-                </div></main>
+        <main class="services-grid" id="servicesGrid">
+            <!-- Services will be rendered here -->
+        </main>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-container">
+            <div class="success-header">
+                <div class="success-title">REQUEST SENT</div>
+                <div class="success-subtitle">Room <span id="successRoomNumber">G01</span></div>
+            </div>
+
+            <div class="success-card">
+                <div class="success-icon">✓</div>
+                <h2>Your request has been submitted!</h2>
+                <p><span id="successServiceName">Make My Room</span> will be delivered shortly.</p>
+                <button class="success-button" onclick="closeSuccess()">Back to Services</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        /* ---------- ROOM NUMBER (CHANGE HERE ONCE) ---------- */
+        /* ---------- ROOM NUMBER ---------- */
         const roomNumber = "G01";
         document.getElementById("roomNumber").textContent = roomNumber;
 
-        /* ---------- SERVICE DATA ---------- */
+        /* ---------- SERVICE DATA WITH MATERIAL ICONS ---------- */
         const services = [
-            { id: 1, title: "Room Cleaning", desc: "Complete housekeeping service.", icon: "mdi:broom", category: "housekeeping" },
-            { id: 2, title: "Make My Room", desc: "Prepare room while you're away.", icon: "mdi:spray-bottle", category: "housekeeping" },
-            { id: 3, title: "Extra Bedsheet", desc: "Request fresh bedsheet.", icon: "mdi:bed-double-outline", category: "housekeeping" },
-            { id: 4, title: "Extra Pillow", desc: "Additional pillow for comfort.", icon: "mdi:pillow", category: "housekeeping" },
-            { id: 5, title: "Towel Replacement", desc: "Fresh towels delivered.", icon: "mdi:hand-clap", category: "housekeeping" },
-            { id: 6, title: "Laundry Pickup", desc: "We will collect your laundry.", icon: "mdi:washing-machine", category: "housekeeping" },
+            { id: 1, title: "Room Cleaning", desc: "Complete housekeeping service.", icon: "cleaning_services", category: "housekeeping" },
+            { id: 2, title: "Make My Room", desc: "Prepare room while you're away.", icon: "bed", category: "housekeeping" },
+            { id: 3, title: "Extra Bedsheet", desc: "Request fresh bedsheet.", icon: "bed", category: "housekeeping" },
+            { id: 4, title: "Extra Pillow", desc: "Additional pillow for comfort.", icon: "nightlight_round", category: "housekeeping" },
+            { id: 5, title: "Towel Replacement", desc: "Fresh towels delivered.", icon: "bathtub", category: "housekeeping" },
+            { id: 6, title: "Laundry Pickup", desc: "We will collect your laundry.", icon: "local_laundry_service", category: "housekeeping" },
 
-            { id: 7, title: "Water Bottle", desc: "Get packaged drinking water.", icon: "mdi:bottle-soda", category: "essentials" },
-            { id: 8, title: "Dental Kit", desc: "Toothbrush & toothpaste.", icon: "mdi:tooth-outline", category: "essentials" },
-            { id: 9, title: "Shaving Kit", desc: "Razor & shaving cream.", icon: "mdi:razor-double-edge", category: "essentials" },
-            { id: 10, title: "Soap/Shampoo", desc: "Bathing essentials.", icon: "mdi:shower", category: "essentials" },
-            { id: 11, title: "Tea/Coffee Refill", desc: "Refill beverage packets.", icon: "mdi:coffee", category: "essentials" },
+            { id: 7, title: "Water Bottle", desc: "Get packaged drinking water.", icon: "water_drop", category: "essentials" },
+            { id: 10, title: "Soap/Shampoo", desc: "Bathing essentials.", icon: "shower", category: "essentials" },
+            { id: 11, title: "Tea/Coffee Refill", desc: "Refill beverage packets.", icon: "coffee", category: "essentials" },
 
-            { id: 12, title: "AC Not Cooling", desc: "Technician will check AC.", icon: "mdi:air-conditioner", category: "maintenance" },
-            { id: 13, title: "Light Not Working", desc: "Electrician will fix issue.", icon: "mdi:lightbulb-alert-outline", category: "maintenance" },
-            { id: 14, title: "TV Not Working", desc: "Technician will inspect TV.", icon: "mdi:television-off", category: "maintenance" },
+            { id: 12, title: "AC Not Cooling", desc: "Technician will check AC.", icon: "ac_unit", category: "maintenance" },
+            { id: 13, title: "Light Not Working", desc: "Electrician will fix issue.", icon: "lightbulb", category: "maintenance" },
+            { id: 14, title: "TV Not Working", desc: "Technician will inspect TV.", icon: "tv", category: "maintenance" },
 
-            { id: 15, title: "Cutlery", desc: "Spoon, fork, knives, etc.", icon: "mdi:silverware-fork-knife", category: "dining" },
-            { id: 16, title: "Plates", desc: "Serving plates delivery.", icon: "mdi:plate-outline", category: "dining" },
-            { id: 17, title: "Ice Cubes", desc: "Ice delivery to your room.", icon: "mdi:snowflake", category: "dining" },
+            { id: 15, title: "Cutlery", desc: "Spoon, fork, knives, etc.", icon: "restaurant", category: "dining" },
+            { id: 16, title: "Plates", desc: "Serving plates delivery.", icon: "dinner_dining", category: "dining" },
+            { id: 17, title: "Ice Cubes", desc: "Ice delivery to your room.", icon: "ac_unit", category: "dining" },
 
-            { id: 18, title: "Wake-Up Call", desc: "We will wake you on time.", icon: "mdi:alarm", category: "guest" },
-            { id: 19, title: "Luggage Assistance", desc: "Staff will assist you.", icon: "mdi:bag-suitcase", category: "guest" }
+            { id: 18, title: "Wake-Up Call", desc: "We will wake you on time.", icon: "alarm", category: "guest" },
+            { id: 19, title: "Luggage Assistance", desc: "Staff will assist you.", icon: "luggage", category: "guest" }
         ];
 
         const servicesGrid = document.getElementById("servicesGrid");
         const searchBar = document.getElementById("searchBar");
         const chipRow = document.getElementById("chipRow");
+        const successOverlay = document.getElementById("successOverlay");
+        const successRoomNumber = document.getElementById("successRoomNumber");
+        const successServiceName = document.getElementById("successServiceName");
 
         /* ---------- RENDER FUNCTION ---------- */
         function renderServices(filter = "all", search = "") {
@@ -339,7 +346,9 @@
                 card.className = "card";
 
                 card.innerHTML = `
-                    <ha-icon icon="${s.icon}" class="service-icon"></ha-icon>
+                    <div class="service-icon">
+                        <i class="material-icons">${s.icon}</i>
+                    </div>
                     <div class="service-title">${s.title}</div>
                     <div class="service-desc">${s.desc}</div>
                     <button class="request-btn" onclick="sendRequest('${s.title}')">Request</button>
@@ -353,7 +362,20 @@
         function sendRequest(serviceName) {
             localStorage.setItem("serviceRequest", serviceName);
             localStorage.setItem("roomNumber", roomNumber);
-            window.location.href = "service-successful.html";
+            
+            // Show success overlay
+            successRoomNumber.textContent = roomNumber;
+            successServiceName.textContent = serviceName;
+            successOverlay.style.display = "flex";
+            
+            // Optional: Disable scroll when overlay is shown
+            document.body.style.overflow = "hidden";
+        }
+
+        /* ---------- CLOSE SUCCESS OVERLAY ---------- */
+        function closeSuccess() {
+            successOverlay.style.display = "none";
+            document.body.style.overflow = "auto";
         }
 
         /* ---------- CATEGORY FILTER ---------- */
@@ -375,18 +397,22 @@
             renderServices(active, searchBar.value.toLowerCase());
         });
 
+        /* ---------- CLOSE OVERLAY ON CLICK OUTSIDE ---------- */
+        successOverlay.addEventListener("click", function(e) {
+            if (e.target === successOverlay) {
+                closeSuccess();
+            }
+        });
+
+        /* ---------- CLOSE OVERLAY WITH ESC KEY ---------- */
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && successOverlay.style.display === "flex") {
+                closeSuccess();
+            }
+        });
+
+        /* ---------- INITIAL RENDER ---------- */
         renderServices();
-        window.onpopstate = function(event) {
-    window.location.href = 'dashboard.html';
-};
-
-// Push dashboard to history stack
-history.pushState({page: 'dashboard'}, '', 'dashboard.html');
     </script>
-
-
-<!-- <script src="firebase-config.js"></script>
-<script src="auth-check.js"></script> -->
-
-
-</body></html>
+</body>
+</html>
