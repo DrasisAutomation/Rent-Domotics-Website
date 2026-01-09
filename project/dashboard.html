@@ -616,23 +616,26 @@
             }
         });
     </script>
-    <script>
+   <script>
 (function () {
-    history.replaceState(null, '', location.href);
-    history.pushState(null, '', location.href);
+    const url = location.href;
+
+    // Create a wall of history entries
+    for (let i = 0; i < 10; i++) {
+        history.pushState(null, '', url);
+    }
 
     window.addEventListener('popstate', function () {
-        history.pushState(null, '', location.href);
+        history.pushState(null, '', url);
     });
 
-    // Prevent bfcache restore
+    // Prevent BFCache restore
     window.addEventListener('pageshow', function (e) {
-        if (e.persisted) {
-            location.reload();
-        }
+        if (e.persisted) location.reload();
     });
 })();
 </script>
+
 
 </body>
 </html>
