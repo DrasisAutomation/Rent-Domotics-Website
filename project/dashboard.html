@@ -616,6 +616,23 @@
             }
         });
     </script>
-    
+    <script>
+(function () {
+    history.replaceState(null, '', location.href);
+    history.pushState(null, '', location.href);
+
+    window.addEventListener('popstate', function () {
+        history.pushState(null, '', location.href);
+    });
+
+    // Prevent bfcache restore
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) {
+            location.reload();
+        }
+    });
+})();
+</script>
+
 </body>
 </html>

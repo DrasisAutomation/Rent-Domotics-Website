@@ -329,13 +329,7 @@
         renderOrderDetails();
         startCountdown();
 
-// Replace current history entry (no back history)
-history.replaceState(null, '', 'order.html');
 
-// Block back button
-window.onpopstate = function () {
-    history.replaceState(null, '', 'order.html');
-};
 
     </script>
 

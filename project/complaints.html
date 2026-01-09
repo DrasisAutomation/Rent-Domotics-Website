@@ -389,13 +389,12 @@ searchBar.addEventListener("input", () => {
 /* Init */
 render();
 
-// Replace current history entry (no back history)
-history.replaceState(null, '', 'dashboard.html');
-
-// Block back button
-window.onpopstate = function () {
-    history.replaceState(null, '', 'dashboard.html');
+       window.onpopstate = function(event) {
+    window.location.href = 'dashboard.html';
 };
+
+// Push dashboard to history stack
+history.pushState({page: 'dashboard'}, '', 'dashboard.html');
 
 </script>
 
