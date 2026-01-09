@@ -330,12 +330,14 @@
         startCountdown();
 
         // Add this to all three files (order.html, cart.html, order-successful.html)
-window.onpopstate = function(event) {
-    window.location.href = 'order.html';
+// Replace current history entry (no back history)
+history.replaceState(null, '', 'order.html');
+
+// Block back button
+window.onpopstate = function () {
+    history.replaceState(null, '', 'order.html');
 };
 
-// Push dashboard to history stack
-history.pushState({page: 'order'}, '', 'order.html');
     </script>
 
 

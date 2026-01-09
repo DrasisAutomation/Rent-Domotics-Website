@@ -97,12 +97,14 @@
             ? "Note: " + note
             : "No additional description was provided.";
 
-        window.onpopstate = function (event) {
-            window.location.href = 'complaints.html';
-        };
+// Replace current history entry (no back history)
+history.replaceState(null, '', 'dashboard.html');
 
-        // Push dashboard to history stack
-        history.pushState({ page: 'complaints' }, '', 'complaints.html');
+// Block back button
+window.onpopstate = function () {
+    history.replaceState(null, '', 'dashboard.html');
+};
+
     </script>
 
 
