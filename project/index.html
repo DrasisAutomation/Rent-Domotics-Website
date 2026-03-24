@@ -5,23 +5,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <!-- In login.html head section, update to: -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Keep all your existing login.html styles exactly as they are */
-    *,
-    *::before,
-    *::after {
+    /* Your existing styles remain the same */
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       height: 100%;
     }
@@ -32,6 +35,13 @@
       --muted-foreground: 240 5% 64.9%;
       --glow-primary: 280 100% 70%;
       --glow-secondary: 200 100% 60%;
+      --card-bg: 240 10% 8%;
+      --input-bg: 240 10% 12%;
+      --border-color: 240 5% 18%;
+      --accent: 280 100% 70%;
+      --accent-secondary: 200 100% 60%;
+      --success: 142 76% 36%;
+      --error: 0 84% 60%;
     }
 
     body {
@@ -53,6 +63,23 @@
       z-index: 0;
     }
 
+    .otp-box {
+      display: inline-block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      background: hsla(var(--input-bg), 0.5) !important;
+      border: 1px solid hsla(var(--border-color), 0.5) !important;
+      color: hsl(var(--foreground)) !important;
+      text-align: center !important;
+    }
+
+    .otp-boxes {
+      display: flex !important;
+      gap: 0.625rem !important;
+      justify-content: center !important;
+      margin-bottom: 1.25rem !important;
+    }
+    
     .page {
       min-height: 100vh;
       min-height: 100dvh;
@@ -68,79 +95,59 @@
     .orb {
       position: absolute;
       border-radius: 50%;
-      background: radial-gradient(circle at center,
-          hsla(280, 100%, 70%, 0.15) 0%,
-          hsla(200, 100%, 60%, 0.08) 40%,
-          transparent 70%);
-      filter: blur(60px);
+      filter: blur(80px);
+      opacity: 0.6;
     }
 
     .orb-1 {
       width: 600px;
       height: 600px;
-      top: 25%;
-      left: 25%;
-      transform: translate(-50%, -50%);
+      top: -10%;
+      left: -10%;
+      background: radial-gradient(circle at center,
+          hsla(280, 100%, 70%, 0.25) 0%,
+          hsla(200, 100%, 60%, 0.1) 40%,
+          transparent 70%);
       animation: float1 20s ease-in-out infinite;
     }
 
     .orb-2 {
       width: 500px;
       height: 500px;
-      bottom: 25%;
-      right: 25%;
-      transform: translate(50%, 50%);
+      bottom: -10%;
+      right: -10%;
+      background: radial-gradient(circle at center,
+          hsla(200, 100%, 60%, 0.2) 0%,
+          hsla(280, 100%, 70%, 0.08) 40%,
+          transparent 70%);
       animation: float2 15s ease-in-out infinite;
-      animation-delay: 2s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at center,
+          hsla(260, 100%, 65%, 0.15) 0%,
+          transparent 60%);
+      animation: pulse 8s ease-in-out infinite;
     }
 
     @keyframes float1 {
-
-      0%,
-      100% {
-        transform: translate(-50%, -50%) translate(0, 0);
-      }
-
-      50% {
-        transform: translate(-50%, -50%) translate(50px, -30px);
-      }
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(50px, -30px); }
     }
 
     @keyframes float2 {
-
-      0%,
-      100% {
-        transform: translate(50%, 50%) translate(0, 0);
-      }
-
-      50% {
-        transform: translate(50%, 50%) translate(-40px, 40px);
-      }
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, 40px); }
     }
 
-    @keyframes pulse-glow {
-
-      0%,
-      100% {
-        opacity: 0.6;
-      }
-
-      50% {
-        opacity: 1;
-      }
-    }
-
-    .orb-1,
-    .orb-2 {
-      animation-name: float1, pulse-glow;
-      animation-duration: 20s, 4s;
-      animation-timing-function: ease-in-out, ease-in-out;
-      animation-iteration-count: infinite, infinite;
-    }
-
-    .orb-2 {
-      animation-name: float2, pulse-glow;
-      animation-duration: 15s, 4s;
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.1); }
     }
 
     .grid-pattern {
@@ -153,11 +160,21 @@
       background-size: 60px 60px;
     }
 
+    .bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 8rem;
+      background: linear-gradient(to top, hsl(var(--background)), transparent);
+      pointer-events: none;
+    }
+
     .container {
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 28rem;
+      max-width: 26rem;
       margin: 0 auto;
       animation: fadeInUp 0.6s ease-out;
     }
@@ -173,7 +190,6 @@
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -181,82 +197,127 @@
     }
 
     .glass-card {
-      background: hsla(240, 10%, 10%, 0.6);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: hsla(var(--card-bg), 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border: 1px solid hsla(0, 0%, 100%, 0.08);
-      border-radius: 1rem;
-      padding: 1.5rem;
+      border-radius: 1.25rem;
+      padding: 2rem;
       box-shadow:
+        0 0 0 1px hsla(0, 0%, 100%, 0.05) inset,
         0 25px 50px -12px rgba(0, 0, 0, 0.5),
         0 0 80px -20px hsla(280, 100%, 70%, 0.15);
     }
 
-    @media (min-width: 480px) {
+    @media (max-width: 480px) {
       .glass-card {
-        padding: 2rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
       }
     }
 
-    @media (min-width: 768px) {
-      .glass-card {
-        padding: 2.5rem;
-      }
-    }
-
+    /* Header */
     .header {
       text-align: center;
-      margin-bottom: 2.5rem;
-      animation: fadeInUp 0.5s ease-out 0.2s both;
+      margin-bottom: 2rem;
     }
 
     .icon-container {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 3.5rem;
-      height: 3.5rem;
-      border-radius: 0.75rem;
-      background: linear-gradient(135deg, hsla(280, 100%, 70%, 0.2), hsla(200, 100%, 60%, 0.2));
+      width: 4rem;
+      height: 4rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, hsla(280, 100%, 70%, 0.15), hsla(200, 100%, 60%, 0.15));
       border: 1px solid hsla(280, 100%, 70%, 0.2);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .icon-container::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, hsla(280, 100%, 70%, 0.3), hsla(200, 100%, 60%, 0.1));
+      z-index: -1;
+      filter: blur(8px);
+      opacity: 0.5;
     }
 
     .icon-container svg {
       width: 1.75rem;
       height: 1.75rem;
       color: hsl(var(--foreground));
+      stroke-width: 1.5;
     }
 
     .title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--muted-foreground)) 100%);
+      font-size: 1.625rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsla(var(--foreground), 0.7) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin-bottom: 0.5rem;
     }
 
-    @media (min-width: 768px) {
-      .title {
-        font-size: 1.875rem;
-      }
-    }
-
     .subtitle {
       color: hsl(var(--muted-foreground));
+      font-size: 0.9375rem;
+    }
+
+    /* Login Method Toggle */
+    .login-methods {
+      display: flex;
+      gap: 0.375rem;
+      margin-bottom: 1.75rem;
+      padding: 0.25rem;
+      background: hsla(var(--input-bg), 0.6);
+      border-radius: 0.75rem;
+      border: 1px solid hsla(var(--border-color), 0.5);
+    }
+
+    .method-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      color: hsl(var(--muted-foreground));
+      font-family: inherit;
       font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
     }
 
-    @media (min-width: 768px) {
-      .subtitle {
-        font-size: 1rem;
-      }
+    .method-btn svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      stroke-width: 2;
     }
 
+    .method-btn.active {
+      background: hsla(0, 0%, 100%, 0.1);
+      color: hsl(var(--foreground));
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .method-btn:hover:not(.active) {
+      background: hsla(0, 0%, 100%, 0.05);
+      color: hsl(var(--foreground));
+    }
+
+    /* Google Button */
     .google-btn-wrapper {
-      animation: fadeInUp 0.5s ease-out 0.4s both;
+      animation: fadeIn 0.3s ease-out;
     }
 
     .google-btn {
@@ -265,7 +326,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      padding: 0.875rem 1.5rem;
+      padding: 0.9375rem 1.5rem;
       background: hsla(0, 0%, 100%, 0.05);
       border: 1px solid hsla(0, 0%, 100%, 0.1);
       border-radius: 0.75rem;
@@ -304,8 +365,8 @@
     }
 
     .google-btn svg {
-      width: 1.125rem;
-      height: 1.125rem;
+      width: 1.25rem;
+      height: 1.25rem;
       position: relative;
       z-index: 1;
     }
@@ -315,73 +376,393 @@
       z-index: 1;
     }
 
+    /* Phone Login Styles */
+    .phone-input-group {
+      margin-bottom: 1rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 0.5rem;
+    }
+
+    .phone-number-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: hsla(var(--input-bg), 0.5);
+      border: 1px solid hsla(var(--border-color), 0.5);
+      border-radius: 0.75rem;
+      padding: 0 1rem;
+      transition: all 0.25s ease;
+    }
+
+    .phone-number-wrapper:focus-within {
+      border-color: hsla(var(--accent), 0.5);
+      box-shadow: 0 0 0 3px hsla(var(--accent), 0.1);
+      background: hsla(var(--input-bg), 0.8);
+    }
+
+    .country-code {
+      font-size: 0.9375rem;
+      color: hsl(var(--foreground));
+      font-weight: 600;
+      padding: 0.9375rem 0;
+      border-right: 1px solid hsla(var(--border-color), 0.5);
+      padding-right: 0.75rem;
+    }
+
+    .phone-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.9375rem 0;
+      color: hsl(var(--foreground));
+      font-size: 0.9375rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .phone-input::placeholder {
+      color: hsla(var(--muted-foreground), 0.6);
+    }
+
+    /* Primary Button */
+    .send-otp-btn,
+    .verify-otp-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 1.5rem;
+      background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-secondary)));
+      border: none;
+      border-radius: 0.75rem;
+      color: hsl(var(--background));
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+    }
+
+    .send-otp-btn:hover:not(:disabled),
+    .verify-otp-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px -10px hsla(var(--accent), 0.5);
+    }
+
+    .send-otp-btn:active:not(:disabled),
+    .verify-otp-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .send-otp-btn:disabled,
+    .verify-otp-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .send-otp-btn svg,
+    .verify-otp-btn svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      stroke-width: 2.5;
+    }
+
+    /* OTP Section */
+    .otp-section {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .otp-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .otp-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.375rem;
+    }
+
+    .otp-subtitle {
+      font-size: 0.8125rem;
+      color: hsl(var(--muted-foreground));
+      line-height: 1.5;
+    }
+
+    .otp-phone {
+      color: hsl(var(--foreground));
+      font-weight: 600;
+    }
+
+    .otp-container {
+      margin: 1.5rem 0;
+    }
+
+    .otp-boxes {
+      display: flex;
+      gap: 0.625rem;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .otp-box {
+      width: 2.875rem;
+      height: 3.25rem;
+      background: hsla(var(--input-bg), 0.5);
+      border: 1px solid white !important;
+      border-radius: 0.625rem;
+      text-align: center;
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      outline: none;
+      transition: all 0.2s ease;
+      caret-color: hsl(var(--accent));
+    }
+
+    .otp-box:focus {
+      border-color: hsl(var(--accent));
+      box-shadow: 0 0 0 3px hsla(var(--accent), 0.15);
+      background: hsla(var(--input-bg), 0.8);
+    }
+
+    .otp-box.filled {
+      border-color: hsla(var(--accent), 0.5);
+      background: hsla(var(--accent), 0.05);
+    }
+
+    .otp-box:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 400px) {
+      .otp-boxes {
+        gap: 0.5rem;
+      }
+      .otp-box {
+        width: 2.5rem;
+        height: 3rem;
+        font-size: 1.125rem;
+      }
+    }
+
+    /* Timer */
+    .timer-container {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .timer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: hsla(var(--accent), 0.1);
+      border: 1px solid hsla(var(--accent), 0.2);
+      border-radius: 2rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: hsl(var(--accent));
+    }
+
+    .timer-badge svg {
+      width: 0.9375rem;
+      height: 0.9375rem;
+      stroke-width: 2;
+    }
+
+    .timer-badge.expired {
+      background: hsla(var(--error), 0.1);
+      border-color: hsla(var(--error), 0.2);
+      color: hsl(var(--error));
+    }
+
+    /* Resend Section */
+    .resend-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid hsla(var(--border-color), 0.3);
+    }
+
+    .resend-text {
+      font-size: 0.8125rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    .resend-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      border-radius: 0.5rem;
+      color: hsl(var(--accent));
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .resend-btn:hover:not(:disabled) {
+      background: hsla(var(--accent), 0.1);
+    }
+
+    .resend-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .resend-btn svg {
+      width: 0.9375rem;
+      height: 0.9375rem;
+      stroke-width: 2;
+    }
+
+    /* Back Button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.625rem 1rem;
+      background: transparent;
+      border: 1px solid hsla(var(--border-color), 0.5);
+      border-radius: 0.5rem;
+      color: hsl(var(--muted-foreground));
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0.75rem;
+    }
+
+    .back-btn:hover {
+      background: hsla(0, 0%, 100%, 0.05);
+      color: hsl(var(--foreground));
+      border-color: hsla(var(--border-color), 0.8);
+    }
+
+    .back-btn svg {
+      width: 1rem;
+      height: 1rem;
+      stroke-width: 2;
+    }
+
+    /* Action Row */
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .action-row .back-btn {
+      margin-top: 0;
+      flex-shrink: 0;
+    }
+
+    .action-row .verify-otp-btn {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    /* Messages */
+    .error-message,
+    .success-message {
+      display: none;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.8125rem;
+      margin-top: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .error-message.show,
+    .success-message.show {
+      display: flex;
+    }
+
+    .error-message {
+      background: hsla(var(--error), 0.1);
+      border: 1px solid hsla(var(--error), 0.2);
+      color: hsl(var(--error));
+    }
+
+    .success-message {
+      background: hsla(var(--success), 0.1);
+      border: 1px solid hsla(var(--success), 0.2);
+      color: hsl(var(--success));
+    }
+
+    .error-message svg,
+    .success-message svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+      stroke-width: 2;
+    }
+
+    .message-content {
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    /* Terms */
     .terms {
       text-align: center;
       font-size: 0.75rem;
       color: hsl(var(--muted-foreground));
-      margin-top: 2rem;
-      animation: fadeIn 0.5s ease-out 0.6s both;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
+      margin-top: 1.75rem;
+      line-height: 1.6;
     }
 
     .terms a {
       color: hsl(var(--foreground));
       text-decoration: none;
-      text-underline-offset: 2px;
+      font-weight: 500;
+      transition: color 0.2s ease;
     }
 
     .terms a:hover {
-      text-decoration: underline;
+      color: hsl(var(--accent));
     }
 
-    .bottom-link {
-      text-align: center;
-      margin-top: 2rem;
-      font-size: 0.875rem;
-      color: hsl(var(--muted-foreground));
-      animation: fadeIn 0.5s ease-out 0.8s both;
-    }
-
-    .bottom-link a {
-      color: hsl(var(--foreground));
-      font-weight: 500;
-      text-decoration: none;
-      text-underline-offset: 2px;
-    }
-
-    .bottom-link a:hover {
-      text-decoration: underline;
-    }
-
-    .bottom-fade {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 8rem;
-      background: linear-gradient(to top, hsl(var(--background)), transparent);
-      pointer-events: none;
-    }
-
-    .google-btn.loading {
-      pointer-events: none;
-      opacity: 0.7;
-    }
-
+    /* Loading Spinner */
     .spinner {
       width: 1.125rem;
       height: 1.125rem;
-      border: 2px solid hsla(0, 0%, 100%, 0.3);
-      border-top-color: hsl(var(--foreground));
+      border: 2px solid transparent;
+      border-top-color: currentColor;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -392,21 +773,32 @@
       }
     }
 
-    /* Error message styling */
-    .error-message {
-      background: rgba(244, 67, 54, 0.1);
-      border: 1px solid rgba(244, 67, 54, 0.3);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 16px;
-      font-size: 14px;
-      color: #ff6b6b;
-      display: none;
+    .google-btn.loading .spinner,
+    .send-otp-btn.loading .spinner,
+    .verify-otp-btn.loading .spinner {
+      border-top-color: currentColor;
     }
 
-    .error-message.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
+    .send-otp-btn.loading .spinner,
+    .verify-otp-btn.loading .spinner {
+      border-top-color: hsl(var(--background));
+    }
+
+    .google-btn.loading,
+    .send-otp-btn.loading,
+    .verify-otp-btn.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
     }
   </style>
 </head>
@@ -415,6 +807,7 @@
   <div class="bg">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="grid-pattern"></div>
     <div class="bottom-fade"></div>
   </div>
@@ -424,39 +817,122 @@
       <div class="glass-card">
         <div class="header">
           <div class="icon-container">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-            </svg>
+            <i data-lucide="fingerprint"></i>
           </div>
-          <h1 class="title">Welcome</h1>
+          <h1 class="title">Welcome Back</h1>
           <p class="subtitle">Sign in to continue to your account</p>
         </div>
 
-        <div class="google-btn-wrapper">
-          <button class="google-btn" id="googleBtn" onclick="handleGoogleLogin()">
-            <svg viewBox="0 0 24 24">
-              <path fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            <span>Continue with Google</span>
+        <!-- Login Method Toggle -->
+        <div class="login-methods">
+          <button class="method-btn active" id="googleMethodBtn">
+            <i data-lucide="mail"></i>
+            <span>Google</span>
           </button>
+          <button class="method-btn" id="phoneMethodBtn">
+            <i data-lucide="smartphone"></i>
+            <span>Phone</span>
+          </button>
+        </div>
 
-          <!-- Error message container -->
-          <div class="error-message" id="errorMessage"></div>
+        <!-- Google Login Container -->
+        <div id="googleLoginContainer">
+          <div class="google-btn-wrapper">
+            <button class="google-btn" id="googleBtn">
+              <svg viewBox="0 0 24 24">
+                <path fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Phone Login Container (Hidden by default) -->
+        <div id="phoneLoginContainer" style="display: none;">
+          <div id="phoneNumberView">
+            <div class="phone-input-group">
+              <label class="input-label">Mobile Number</label>
+              <div class="phone-number-wrapper">
+                <span class="country-code">+91</span>
+                <input type="tel" class="phone-input" id="phoneNumber" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
+              </div>
+            </div>
+            <button class="send-otp-btn" id="sendOtpBtn">
+              <span>Send OTP</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
+
+          <div id="otpVerificationView" style="display: none;">
+            <div class="otp-section">
+              <div class="otp-header">
+                <h3 class="otp-title">Verify OTP</h3>
+                <p class="otp-subtitle">
+                  Enter the 6-digit code sent to<br>
+                  <span class="otp-phone" id="displayPhoneNumber">+91 XXXXXXXXXX</span>
+                </p>
+              </div>
+
+              <div class="otp-container">
+                <div class="otp-boxes" id="otpBoxes">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp1">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp2">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp3">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp4">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp5">
+                  <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp6">
+                </div>
+
+                <div class="timer-container">
+                  <div class="timer-badge" id="timerBadge">
+                    <i data-lucide="clock"></i>
+                    <span id="timerText">05:00</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button class="back-btn" id="backToPhoneBtn">
+                  <i data-lucide="arrow-left"></i>
+                  <span>Back</span>
+                </button>
+                <button class="verify-otp-btn" id="verifyOtpBtn">
+                  <span>Verify OTP</span>
+                  <i data-lucide="check"></i>
+                </button>
+              </div>
+
+              <div class="resend-section" id="resendSection">
+                <span class="resend-text">Didn't receive the code?</span>
+                <button class="resend-btn" id="resendBtn" disabled>
+                  <i data-lucide="refresh-cw"></i>
+                  <span>Resend OTP</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error message container -->
+        <div class="error-message" id="errorMessage">
+          <i data-lucide="alert-circle"></i>
+          <span class="message-content"></span>
+        </div>
+        <div class="success-message" id="successMessage">
+          <i data-lucide="check-circle"></i>
+          <span class="message-content"></span>
         </div>
 
         <p class="terms">
-          By continuing, you agree to our
-          <a href="#">Terms of Service</a>
-          and
-          <a href="#">Privacy Policy</a>
+          By continuing, you agree to our<br>
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
         </p>
       </div>
     </div>
@@ -466,76 +942,809 @@
   <script src="firebase-config.js"></script>
 
   <script>
-// Admin emails (hardcoded)
-const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
-
-// Show error message
-function showError(message) {
-  const errorDiv = document.getElementById('errorMessage');
-  errorDiv.textContent = message;
-  errorDiv.classList.add('show');
-
-  // Auto-hide after 5 seconds
-  setTimeout(() => {
-    errorDiv.classList.remove('show');
-  }, 5000);
-}
-
-// Hide error message
-function hideError() {
-  document.getElementById('errorMessage').classList.remove('show');
-}
-
-async function handleGoogleLogin() {
-  const btn = document.getElementById('googleBtn');
-  btn.classList.add('loading');
-  btn.innerHTML = '<div class="spinner"></div><span>Signing in...</span>';
-  hideError();
-
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    const result = await firebase.auth().signInWithPopup(provider);
-
-    console.log('Login successful for:', result.user.email);
-
-    // Check if user is admin
-    const userEmail = result.user.email;
-
-    if (ADMIN_EMAILS.includes(userEmail)) {
-      // Redirect admin to admin.html
-      console.log('Admin detected, redirecting to admin panel');
-      window.location.href = 'admin.html';
-      return;
-    }
-
-    // Check if user has access to any property
-    console.log('Checking access for user:', userEmail);
-    const accessResult = await checkUserAccess(userEmail);
-    console.log('Access result:', accessResult);
-
-    if (accessResult.hasAccess) {
-      console.log('Access granted, storing data and redirecting');
-      // Store property data in localStorage
-      localStorage.setItem('currentPropertyId', accessResult.propertyId);
-      localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
-
-      // Redirect to index page for verification
-      window.location.href = 'dashboard.html';
-    } else {
-      let message = 'You do not have access to any properties.';
-      if (accessResult.reason === 'expired') {
-        message = 'Your access has expired. Please contact the administrator.';
-      } else if (accessResult.reason === 'not_authorized') {
-        message = 'Your email is not authorized by the administrator.';
-      } else if (accessResult.reason === 'firebase_error') {
-        message = 'Database access error. Please try again or contact administrator.';
+    // Wait for DOM and Firebase to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Lucide icons after DOM is loaded
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
       }
+    });
+// Helper function to get client IP (add this near the top with other functions)
+async function getClientIP() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.log('Could not get IP:', error);
+        return 'unknown';
+    }
+}
+    // Configuration
+    const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
+const API_BASE_URL = 'http://52.77.124.138:3000';
+    
+    let currentPhoneNumber = '';
+    let currentOtp = '';
+    let otpTimerInterval = null;
+    let resendCooldown = 0;
+    
+    // DOM Elements
+    let googleLoginContainer, phoneLoginContainer;
+    let googleMethodBtn, phoneMethodBtn;
+    
+    // Helper function to get client IP (optional)
+    async function getClientIP() {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+      } catch (error) {
+        console.log('Could not get IP:', error);
+        return 'unknown';
+      }
+    }
+    
+    // Initialize DOM references
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get DOM elements
+      googleLoginContainer = document.getElementById('googleLoginContainer');
+      phoneLoginContainer = document.getElementById('phoneLoginContainer');
+      googleMethodBtn = document.getElementById('googleMethodBtn');
+      phoneMethodBtn = document.getElementById('phoneMethodBtn');
+      
+      // Add event listeners
+      googleMethodBtn.addEventListener('click', () => switchLoginMethod('google'));
+      phoneMethodBtn.addEventListener('click', () => switchLoginMethod('phone'));
+      
+      const googleBtn = document.getElementById('googleBtn');
+      if (googleBtn) {
+        googleBtn.addEventListener('click', handleGoogleLogin);
+      }
+      
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      if (sendOtpBtn) {
+        sendOtpBtn.addEventListener('click', sendOTP);
+      }
+      
+      const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+      if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener('click', verifyOTP);
+      }
+      
+      const backToPhoneBtn = document.getElementById('backToPhoneBtn');
+      if (backToPhoneBtn) {
+        backToPhoneBtn.addEventListener('click', backToPhoneNumber);
+      }
+      
+      const resendBtn = document.getElementById('resendBtn');
+      if (resendBtn) {
+        resendBtn.addEventListener('click', resendOTP);
+      }
+      
+      // Setup OTP input handlers
+      for (let i = 1; i <= 6; i++) {
+        const box = document.getElementById(`otp${i}`);
+        if (box) {
+          box.addEventListener('input', (e) => handleOtpInput(i, e));
+          box.addEventListener('keydown', (e) => handleOtpKeydown(i, e));
+          box.addEventListener('paste', handleOtpPaste);
+          box.addEventListener('focus', () => box.select());
+        }
+      }
+      
+      // Setup phone number input validation
+      const phoneInput = document.getElementById('phoneNumber');
+      if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+        });
+        phoneInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') sendOTP();
+        });
+      }
+    });
+    
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      if (errorDiv) {
+        errorDiv.querySelector('.message-content').textContent = message;
+        errorDiv.classList.add('show');
+      }
+      
+      const successDiv = document.getElementById('successMessage');
+      if (successDiv) {
+        successDiv.classList.remove('show');
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+      
+      setTimeout(() => {
+        if (errorDiv) errorDiv.classList.remove('show');
+      }, 5000);
+    }
+    
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      if (successDiv) {
+        successDiv.querySelector('.message-content').textContent = message;
+        successDiv.classList.add('show');
+      }
+      
+      const errorDiv = document.getElementById('errorMessage');
+      if (errorDiv) {
+        errorDiv.classList.remove('show');
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+      
+      setTimeout(() => {
+        if (successDiv) successDiv.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Hide all messages
+    function hideMessages() {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      if (errorDiv) errorDiv.classList.remove('show');
+      if (successDiv) successDiv.classList.remove('show');
+    }
+    
+    // Switch between Google and Phone login
+    function switchLoginMethod(method) {
+      hideMessages();
+      
+      if (method === 'google') {
+        googleMethodBtn.classList.add('active');
+        phoneMethodBtn.classList.remove('active');
+        if (googleLoginContainer) googleLoginContainer.style.display = 'block';
+        if (phoneLoginContainer) phoneLoginContainer.style.display = 'none';
+      } else {
+        googleMethodBtn.classList.remove('active');
+        phoneMethodBtn.classList.add('active');
+        if (googleLoginContainer) googleLoginContainer.style.display = 'none';
+        if (phoneLoginContainer) phoneLoginContainer.style.display = 'block';
+        resetPhoneLoginState();
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+    
+    // Reset phone login state
+    function resetPhoneLoginState() {
+      const phoneNumberView = document.getElementById('phoneNumberView');
+      const otpVerificationView = document.getElementById('otpVerificationView');
+      const phoneNumber = document.getElementById('phoneNumber');
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      
+      if (phoneNumberView) phoneNumberView.style.display = 'block';
+      if (otpVerificationView) otpVerificationView.style.display = 'none';
+      if (phoneNumber) {
+        phoneNumber.value = '';
+        phoneNumber.disabled = false;
+      }
+      if (sendOtpBtn) {
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.innerHTML = '<span>Send OTP</span><i data-lucide="arrow-right"></i>';
+      }
+      
+      clearOtpBoxes();
+      stopTimer();
+      
+      const resendBtn = document.getElementById('resendBtn');
+      if (resendBtn) {
+        resendBtn.disabled = true;
+        resendBtn.innerHTML = '<i data-lucide="refresh-cw"></i><span>Resend OTP</span>';
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+    
+    // Clear OTP input boxes
+    function clearOtpBoxes() {
+      for (let i = 1; i <= 6; i++) {
+        const box = document.getElementById(`otp${i}`);
+        if (box) {
+          box.value = '';
+          box.disabled = false;
+          box.classList.remove('filled');
+        }
+      }
+    }
+    
+    // Handle OTP input with auto-focus
+    function handleOtpInput(index, event) {
+      const box = document.getElementById(`otp${index}`);
+      if (!box) return;
+      let value = box.value.replace(/[^0-9]/g, '');
+      box.value = value;
+      
+      if (value) {
+        box.classList.add('filled');
+        if (index < 6) {
+          const nextBox = document.getElementById(`otp${index + 1}`);
+          if (nextBox) nextBox.focus();
+        }
+      } else {
+        box.classList.remove('filled');
+      }
+    }
+    
+    // Handle OTP keydown for backspace
+    function handleOtpKeydown(index, event) {
+      if (event.key === 'Backspace') {
+        const box = document.getElementById(`otp${index}`);
+        if (box && !box.value && index > 1) {
+          const prevBox = document.getElementById(`otp${index - 1}`);
+          if (prevBox) {
+            prevBox.focus();
+            prevBox.value = '';
+            prevBox.classList.remove('filled');
+          }
+        }
+      }
+      if (event.key === 'Enter') {
+        verifyOTP();
+      }
+    }
+    
+    // Handle OTP paste
+    function handleOtpPaste(event) {
+      event.preventDefault();
+      const pastedData = event.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+      
+      pastedData.split('').forEach((char, i) => {
+        const box = document.getElementById(`otp${i + 1}`);
+        if (box) {
+          box.value = char;
+          box.classList.add('filled');
+        }
+      });
+      
+      const focusIndex = Math.min(pastedData.length, 6);
+      const focusBox = document.getElementById(`otp${focusIndex}`);
+      if (focusBox) focusBox.focus();
+    }
+    
+    // Get full OTP from boxes
+    function getOtpFromBoxes() {
+      let otp = '';
+      for (let i = 1; i <= 6; i++) {
+        const box = document.getElementById(`otp${i}`);
+        if (box) otp += box.value;
+      }
+      return otp;
+    }
+    
+    // Stop timer
+    function stopTimer() {
+      if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+        otpTimerInterval = null;
+      }
+    }
+    
+    // Check if phone number is authorized in any property
+    async function isPhoneAuthorized(phoneNumber) {
+      try {
+        console.log('Checking authorization for phone:', phoneNumber);
+        const propertiesRef = db.collection('properties');
+        const snapshot = await propertiesRef.get();
+        
+        const now = new Date();
+        
+        // Normalize phone number to +91XXXXXXXXXX format
+        const normalizePhone = (phone) => {
+          if (!phone) return '';
+          // Remove all non-digit characters
+          let cleaned = phone.toString().replace(/\D/g, '');
+          // Ensure it starts with 91
+          if (cleaned.startsWith('91')) {
+            cleaned = '+' + cleaned;
+          } else if (cleaned.length === 10) {
+            cleaned = '+91' + cleaned;
+          } else if (cleaned.length === 12 && cleaned.startsWith('91')) {
+            cleaned = '+' + cleaned;
+          }
+          return cleaned;
+        };
+        
+        const inputPhone = normalizePhone(phoneNumber);
+        console.log('Normalized input phone:', inputPhone);
+        
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          
+          // Collect all phone numbers from property
+          const phones = [
+            data.phone1,
+            data.phone2,
+            data.phone3
+          ].filter(phone => phone && phone.trim() !== '');
+          
+          console.log('Property phones:', phones);
+          
+          // Check if any phone matches
+          const match = phones.some(phone => {
+            const normalizedPhone = normalizePhone(phone);
+            return normalizedPhone === inputPhone;
+          });
+          
+          if (match) {
+            // Check expiry
+            const expiryDateTime = new Date(data.expiryDate + ' ' + data.expiryTime);
+            if (expiryDateTime > now) {
+              console.log('Phone authorized for property:', data.propertyName);
+              return {
+                authorized: true,
+                propertyId: doc.id,
+                propertyData: data
+              };
+            } else {
+              console.log('Access expired for property:', data.propertyName);
+              return {
+                authorized: false,
+                reason: 'expired'
+              };
+            }
+          }
+        }
+        
+        console.log('Phone not authorized');
+        return {
+          authorized: false,
+          reason: 'not_authorized'
+        };
+      } catch (error) {
+        console.error('Error checking phone authorization:', error);
+        return {
+          authorized: false,
+          reason: 'error',
+          error: error.message
+        };
+      }
+    }
+    
+    // Generate random 6-digit OTP
+    function generateOTP() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    
+    // Send OTP via proxy server
+    async function sendOTP() {
+      const phoneInput = document.getElementById('phoneNumber');
+      let phoneNumber = phoneInput ? phoneInput.value.trim() : '';
+      
+      if (!phoneNumber || phoneNumber.length !== 10 || !/^\d{10}$/.test(phoneNumber)) {
+        showError('Please enter a valid 10-digit mobile number');
+        return;
+      }
+      
+      const fullPhoneNumber = '+91' + phoneNumber;
+      
+      const sendBtn = document.getElementById('sendOtpBtn');
+      if (sendBtn) {
+        sendBtn.classList.add('loading');
+        sendBtn.innerHTML = '<div class="spinner"></div><span>Sending...</span>';
+        sendBtn.disabled = true;
+      }
+      
+      try {
+        const authResult = await isPhoneAuthorized(fullPhoneNumber);
+        
+        if (!authResult.authorized) {
+          let message = 'This phone number is not authorized.';
+          if (authResult.reason === 'expired') {
+            message = 'Your access has expired. Please contact the administrator.';
+          } else if (authResult.reason === 'error') {
+            message = 'Unable to verify phone number. Please contact administrator.';
+          }
+          showError(message);
+          if (sendBtn) {
+            sendBtn.classList.remove('loading');
+            sendBtn.innerHTML = '<span>Send OTP</span><i data-lucide="arrow-right"></i>';
+            sendBtn.disabled = false;
+          }
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+          return;
+        }
+        
+        currentOtp = generateOTP();
+        currentPhoneNumber = fullPhoneNumber;
+        
+        // Store OTP in Firestore
+        const otpData = {
+          phoneNumber: currentPhoneNumber,
+          otp: currentOtp,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          verified: false,
+          propertyId: authResult.propertyId,
+          propertyData: authResult.propertyData
+        };
+        
+        await db.collection('otps').add(otpData);
+        
+        // Call proxy server to send SMS
+        const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            otp: currentOtp
+          })
+        });
+        
+        const result = await response.json();
+        console.log('Proxy Response:', result);
+        
+        if (result.success) {
+          showSuccess('OTP sent successfully! Check your phone.');
+          
+          // Update display phone number
+          const displayPhone = document.getElementById('displayPhoneNumber');
+          if (displayPhone) {
+            displayPhone.textContent = `+91 ${phoneNumber.slice(0, 5)} ${phoneNumber.slice(5)}`;
+          }
+          
+          const phoneNumberView = document.getElementById('phoneNumberView');
+          const otpVerificationView = document.getElementById('otpVerificationView');
+          if (phoneNumberView) phoneNumberView.style.display = 'none';
+          if (otpVerificationView) otpVerificationView.style.display = 'block';
+          
+          startOtpTimer();
+          
+          // Focus first OTP box
+          setTimeout(() => {
+            const firstBox = document.getElementById('otp1');
+            if (firstBox) firstBox.focus();
+          }, 100);
+          
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+        } else {
+          throw new Error(result.error || 'Failed to send OTP');
+        }
+        
+      } catch (error) {
+        console.error('Error sending OTP:', error);
+        showError('Failed to send OTP. Please try again.');
+      } finally {
+        if (sendBtn) {
+          sendBtn.classList.remove('loading');
+          sendBtn.innerHTML = '<span>Send OTP</span><i data-lucide="arrow-right"></i>';
+          sendBtn.disabled = false;
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    }
+    
+    // Start OTP countdown timer
+    function startOtpTimer() {
+      let timeLeft = 300;
+      resendCooldown = 30;
+      
+      const timerText = document.getElementById('timerText');
+      const timerBadge = document.getElementById('timerBadge');
+      const resendBtn = document.getElementById('resendBtn');
+      
+      if (resendBtn) resendBtn.disabled = true;
+      if (timerBadge) timerBadge.classList.remove('expired');
+      
+      stopTimer();
+      
+      otpTimerInterval = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        if (timerText) timerText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Enable resend after 30 seconds
+        resendCooldown--;
+        if (resendCooldown <= 0 && resendBtn && resendBtn.disabled) {
+          resendBtn.disabled = false;
+        }
+        
+        if (timeLeft <= 0) {
+          stopTimer();
+          if (timerText) timerText.textContent = 'Expired';
+          if (timerBadge) timerBadge.classList.add('expired');
+          
+          for (let i = 1; i <= 6; i++) {
+            const box = document.getElementById(`otp${i}`);
+            if (box) box.disabled = true;
+          }
+          
+          if (resendBtn) resendBtn.disabled = false;
+        }
+        
+        timeLeft--;
+      }, 1000);
+    }
+    
+    // Resend OTP
+    async function resendOTP() {
+      const phoneNumber = currentPhoneNumber.replace('+91', '');
+      const resendBtn = document.getElementById('resendBtn');
+      
+      if (resendBtn) {
+        resendBtn.disabled = true;
+        resendBtn.innerHTML = '<div class="spinner"></div><span>Sending...</span>';
+      }
+      
+      try {
+        const authResult = await isPhoneAuthorized(currentPhoneNumber);
+        
+        if (!authResult.authorized) {
+          let message = 'This phone number is not authorized.';
+          if (authResult.reason === 'expired') {
+            message = 'Your access has expired. Please contact the administrator.';
+          }
+          showError(message);
+          if (resendBtn) {
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = '<i data-lucide="refresh-cw"></i><span>Resend OTP</span>';
+          }
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+          return;
+        }
+        
+        currentOtp = generateOTP();
+        
+        const otpData = {
+          phoneNumber: currentPhoneNumber,
+          otp: currentOtp,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          verified: false,
+          propertyId: authResult.propertyId,
+          propertyData: authResult.propertyData
+        };
+        
+        await db.collection('otps').add(otpData);
+        
+        // Call proxy server to send SMS
+        const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            otp: currentOtp
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showSuccess('OTP resent successfully!');
+          
+          clearOtpBoxes();
+          for (let i = 1; i <= 6; i++) {
+            const box = document.getElementById(`otp${i}`);
+            if (box) box.disabled = false;
+          }
+          
+          stopTimer();
+          startOtpTimer();
+          
+          // Focus first OTP box
+          const firstBox = document.getElementById('otp1');
+          if (firstBox) firstBox.focus();
+        } else {
+          throw new Error(result.error || 'Failed to resend OTP');
+        }
+        
+      } catch (error) {
+        console.error('Error resending OTP:', error);
+        showError('Failed to resend OTP. Please try again.');
+      } finally {
+        if (resendBtn) {
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = '<i data-lucide="refresh-cw"></i><span>Resend OTP</span>';
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    }
+    
+    // Verify OTP
+    async function verifyOTP() {
+      const enteredOtp = getOtpFromBoxes();
+      const phoneNumber = currentPhoneNumber;
+      
+      const verifyBtn = document.getElementById('verifyOtpBtn');
+      if (verifyBtn) {
+        verifyBtn.classList.add('loading');
+        verifyBtn.innerHTML = '<div class="spinner"></div><span>Verifying...</span>';
+        verifyBtn.disabled = true;
+      }
+      
+      try {
+        // Get the latest OTP for this phone number
+        const otpSnapshot = await db.collection('otps')
+          .where('phoneNumber', '==', phoneNumber)
+          .where('verified', '==', false)
+          .orderBy('createdAt', 'desc')
+          .limit(1)
+          .get();
+        
+        if (otpSnapshot.empty) {
+          showError('No OTP found. Please request a new one.');
+          return;
+        }
+        
+        const otpDoc = otpSnapshot.docs[0];
+        const otpData = otpDoc.data();
+        
+        // Check if OTP is expired (5 minutes expiry)
+        const expiryTime = new Date(otpData.expiresAt);
+        if (expiryTime < new Date()) {
+          showError('OTP has expired. Please request a new one.');
+          await otpDoc.ref.update({ expired: true });
+          return;
+        }
+        // In index.html, find the verifyOTP() function and update this section:
 
-      console.log('Access denied:', message);
-      showError(message);
-      await firebase.auth().signOut();
-      btn.classList.remove('loading');
-      btn.innerHTML = `
+// Success block after OTP verification
+if (otpData.otp !== enteredOtp) {
+    showError('Invalid OTP. Please try again.');
+    return;
+}
+
+// Mark OTP as verified
+await otpDoc.ref.update({ 
+    verified: true,
+    verifiedAt: new Date().toISOString()
+});
+
+// Get property data
+const propertyData = otpData.propertyData;
+const propertyId = otpData.propertyId;
+
+// Verify property still has valid access
+const propertyDoc = await db.collection('properties').doc(propertyId).get();
+if (!propertyDoc.exists) {
+    showError('Property not found');
+    return;
+}
+
+const freshPropertyData = propertyDoc.data();
+const expiryDateTime = new Date(freshPropertyData.expiryDate + ' ' + freshPropertyData.expiryTime);
+
+if (expiryDateTime < new Date()) {
+    showError('Your access has expired. Please contact administrator.');
+    return;
+}
+
+// Create session
+const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+const clientIP = await getClientIP();
+
+await db.collection('userSessions').doc(sessionId).set({
+    sessionId: sessionId,
+    phoneNumber: phoneNumber,
+    propertyId: propertyId,
+    propertyData: freshPropertyData,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    expiresAt: sessionExpiry,
+    userAgent: navigator.userAgent,
+    ipAddress: clientIP
+});
+
+// Store in localStorage
+localStorage.clear();
+localStorage.setItem('sessionId', sessionId);
+localStorage.setItem('currentPropertyId', propertyId);
+localStorage.setItem('currentPropertyData', JSON.stringify(freshPropertyData));
+localStorage.setItem('authMethod', 'phone');
+localStorage.setItem('currentPhoneNumber', phoneNumber); // Store phone number
+localStorage.setItem('sessionExpiry', sessionExpiry.toISOString());
+
+showSuccess('Login successful! Redirecting...');
+setTimeout(() => {
+    window.location.href = 'dashboard.html';
+}, 1500);
+        
+      } catch (error) {
+        console.error('Error verifying OTP:', error);
+        showError('Error verifying OTP. Please try again.');
+      } finally {
+        if (verifyBtn) {
+          verifyBtn.classList.remove('loading');
+          verifyBtn.innerHTML = '<span>Verify OTP</span><i data-lucide="check"></i>';
+          verifyBtn.disabled = false;
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    }
+    
+    // Back to phone number input
+    function backToPhoneNumber() {
+      stopTimer();
+      hideMessages();
+      resetPhoneLoginState();
+    }
+    
+    // Google Login
+    async function handleGoogleLogin() {
+      const btn = document.getElementById('googleBtn');
+      if (btn) {
+        btn.classList.add('loading');
+        btn.innerHTML = '<div class="spinner"></div><span>Signing in...</span>';
+      }
+      
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        
+        const userEmail = result.user.email;
+        
+        if (ADMIN_EMAILS.includes(userEmail)) {
+          window.location.href = 'admin.html';
+          return;
+        }
+        
+        const accessResult = await checkUserAccess(userEmail);
+        
+        if (accessResult.hasAccess) {
+          localStorage.setItem('currentPropertyId', accessResult.propertyId);
+          localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
+          localStorage.removeItem('currentPhoneNumber');
+          localStorage.setItem('authMethod', 'email');
+          window.location.href = 'dashboard.html';
+        } else {
+          let message = 'You do not have access to any properties.';
+          if (accessResult.reason === 'expired') {
+            message = 'Your access has expired. Please contact the administrator.';
+          } else if (accessResult.reason === 'not_authorized') {
+            message = 'Your email is not authorized by the administrator.';
+          }
+          
+          showError(message);
+          await firebase.auth().signOut();
+          if (btn) {
+            btn.classList.remove('loading');
+            btn.innerHTML = `
+              <svg viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span>Continue with Google</span>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        let errorMessage = 'Login failed. ';
+        
+        if (error.code === 'auth/popup-blocked') {
+          errorMessage += 'Popup was blocked by browser. Please allow popups for this site.';
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          errorMessage += 'Login popup was closed. Please try again.';
+        } else {
+          errorMessage += error.message;
+        }
+        
+        showError(errorMessage);
+        if (btn) {
+          btn.classList.remove('loading');
+          btn.innerHTML = `
             <svg viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -543,212 +1752,94 @@ async function handleGoogleLogin() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             <span>Continue with Google</span>
-        `;
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    let errorMessage = 'Login failed. ';
-
-    if (error.code === 'auth/popup-blocked') {
-      errorMessage += 'Popup was blocked by browser. Please allow popups for this site.';
-    } else if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage += 'Login popup was closed. Please try again.';
-    } else {
-      errorMessage += error.message;
-    }
-
-    showError(errorMessage);
-    btn.classList.remove('loading');
-    btn.innerHTML = `
-        <svg viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        <span>Continue with Google</span>
-    `;
-  }
-}
-
-async function checkUserAccess(userEmail) {
-  try {
-    console.log('Fetching properties from Firestore...');
-    const propertiesRef = db.collection('properties');
-    const snapshot = await propertiesRef.get();
-
-    console.log('Total properties found:', snapshot.size);
-
-    const now = new Date();
-
-    for (const doc of snapshot.docs) {
-      const data = doc.data();
-      console.log('Checking property:', data.propertyName, 'Emails:', [
-        data.email1, data.email2, data.email3
-      ]);
-
-      // Check if email is in any of the email fields
-      const emails = [data.email1, data.email2, data.email3]
-        .filter(email => email && email.trim() !== '');
-
-      console.log('Valid emails for this property:', emails);
-      console.log('User email:', userEmail);
-      console.log('Email match:', emails.includes(userEmail));
-
-      if (emails.includes(userEmail)) {
-        // Check expiration
-        console.log('Expiry date:', data.expiryDate);
-        console.log('Expiry time:', data.expiryTime);
-
-        const expiryDateTime = new Date(data.expiryDate + ' ' + data.expiryTime);
-        console.log('Expiry datetime:', expiryDateTime);
-        console.log('Current datetime:', now);
-        console.log('Is expired?', expiryDateTime <= now);
-
-        if (expiryDateTime > now) {
-          console.log('Access GRANTED for property:', data.propertyName);
-          return {
-            hasAccess: true,
-            propertyId: doc.id,
-            propertyData: data
-          };
-        } else {
-          console.log('Access EXPIRED for property:', data.propertyName);
-          return {
-            hasAccess: false,
-            reason: 'expired',
-            propertyId: doc.id
-          };
+          `;
         }
       }
     }
-
-    console.log('No matching properties found for email:', userEmail);
-    return {
-      hasAccess: false,
-      reason: 'not_authorized'
-    };
-  } catch (error) {
-    console.error('Error checking access:', error);
-
-    // Check if it's a permission error
-    if (error.code === 'permission-denied' || error.message.includes('insufficient permissions')) {
-      console.error('Firestore permission denied. Check your security rules.');
-      return {
-        hasAccess: false,
-        reason: 'firebase_error',
-        error: error.message
-      };
-    }
-
-    return {
-      hasAccess: false,
-      reason: 'error',
-      error: error.message
-    };
-  }
-}
-
-// Check if user is already logged in
-firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
-    console.log('User already signed in:', user.email);
     
-    // Check if admin first
-    if (ADMIN_EMAILS.includes(user.email)) {
-      console.log('Admin detected on login page');
-      
-      // Check which admin page to redirect to
-      // Check URL parameters first (for explicit navigation)
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectTo = urlParams.get('redirect');
-      
-      if (redirectTo === 'admin-control') {
-        console.log('Redirecting to admin-control based on URL parameter');
-        window.location.href = 'admin-control.html';
-        return;
-      }
-      
-      // Check localStorage for last visited admin page
-      const lastAdminPage = localStorage.getItem('lastAdminPage');
-      if (lastAdminPage === 'admin-control') {
-        console.log('Redirecting to admin-control based on localStorage');
-        window.location.href = 'admin-control.html';
-        return;
-      }
-      
-      // Check referrer as fallback
-      const referrer = document.referrer;
-      console.log('Referrer:', referrer);
-      if (referrer.includes('admin-control.html')) {
-        console.log('Redirecting to admin-control based on referrer');
-        localStorage.setItem('lastAdminPage', 'admin-control');
-        window.location.href = 'admin-control.html';
-        return;
-      }
-      
-      // Default to admin.html
-      console.log('Redirecting to admin.html (default)');
-      localStorage.setItem('lastAdminPage', 'admin');
-      window.location.href = 'admin.html';
-      return;
-    }
-    
-    // Regular user check
-    console.log('Regular user detected, checking access');
-    try {
-      const accessResult = await checkUserAccess(user.email);
-      console.log('Auto-login access result:', accessResult);
-      
-      if (accessResult.hasAccess) {
-        localStorage.setItem('currentPropertyId', accessResult.propertyId);
-        localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
-        window.location.href = 'dashboard.html';
-      } else {
-        // Not authorized or expired, show message
-        let message = 'Your session has expired or you are not authorized.';
-        if (accessResult.reason === 'expired') {
-          message = 'Your access has expired. Please contact the administrator.';
-        } else if (accessResult.reason === 'not_authorized') {
-          message = 'Your email is not authorized. Please contact the administrator.';
+    async function checkUserAccess(userEmail) {
+      try {
+        const propertiesRef = db.collection('properties');
+        const snapshot = await propertiesRef.get();
+        const now = new Date();
+        
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          const emails = [data.email1, data.email2, data.email3].filter(email => email && email.trim() !== '');
+          
+          if (emails.includes(userEmail)) {
+            const expiryDateTime = new Date(data.expiryDate + ' ' + data.expiryTime);
+            if (expiryDateTime > now) {
+              return {
+                hasAccess: true,
+                propertyId: doc.id,
+                propertyData: data
+              };
+            } else {
+              return {
+                hasAccess: false,
+                reason: 'expired'
+              };
+            }
+          }
         }
         
-        showError(message);
-        // Sign out the user
-        await firebase.auth().signOut();
-        localStorage.removeItem('currentPropertyId');
-        localStorage.removeItem('currentPropertyData');
-        localStorage.removeItem('lastAdminPage');
+        return {
+          hasAccess: false,
+          reason: 'not_authorized'
+        };
+      } catch (error) {
+        console.error('Error checking access:', error);
+        return {
+          hasAccess: false,
+          reason: 'error'
+        };
       }
-    } catch (error) {
-      console.error('Auto-login check error:', error);
-      showError('Error checking your access. Please try again.');
-      // Sign out on error
-      await firebase.auth().signOut();
-      localStorage.clear();
     }
-  } else {
-    console.log('No user signed in');
-    // Clear any stale localStorage data
-    localStorage.removeItem('lastAdminPage');
-  }
-});
-
-// Helper function to set redirect preference (call this from admin-control.html)
-function setAdminRedirectPreference(page) {
-  if (ADMIN_EMAILS.includes(firebase.auth().currentUser?.email)) {
-    localStorage.setItem('lastAdminPage', page);
-    console.log('Set admin redirect preference to:', page);
-  }
-}
-
-// Optional: Add this to admin-control.html to track when user is on control panel
-if (typeof setAdminRedirectPreference === 'function' && 
-    ADMIN_EMAILS.includes(firebase.auth().currentUser?.email)) {
-  setAdminRedirectPreference('admin-control');
-}
+    
+    // Check if user is already logged in
+    if (typeof firebase !== 'undefined') {
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          if (ADMIN_EMAILS.includes(user.email)) {
+            window.location.href = 'admin.html';
+            return;
+          }
+          
+          try {
+            const accessResult = await checkUserAccess(user.email);
+            
+            if (accessResult.hasAccess) {
+              localStorage.setItem('currentPropertyId', accessResult.propertyId);
+              localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
+              localStorage.removeItem('currentPhoneNumber');
+              localStorage.setItem('authMethod', 'email');
+              window.location.href = 'dashboard.html';
+            } else {
+              await firebase.auth().signOut();
+              localStorage.clear();
+            }
+          } catch (error) {
+            console.error('Auto-login check error:', error);
+            await firebase.auth().signOut();
+            localStorage.clear();
+          }
+        } else {
+          // Check for phone session
+          const sessionId = localStorage.getItem('sessionId');
+          const sessionExpiry = localStorage.getItem('sessionExpiry');
+          const propertyId = localStorage.getItem('currentPropertyId');
+          
+          if (sessionId && sessionExpiry && propertyId && new Date(sessionExpiry) > new Date()) {
+            // Valid phone session exists
+            window.location.href = 'dashboard.html';
+          } else {
+            localStorage.clear();
+          }
+        }
+      });
+    }
   </script>
-  
 </body>
 
 </html>

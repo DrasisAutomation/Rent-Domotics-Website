@@ -29,7 +29,7 @@
         }
 
         .card {
-            height: 200px;
+            height: 270px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 0px;
             padding: 0;
@@ -100,7 +100,6 @@
             overflow: visible;
         }
 
-        /* Image Navigation Grid - 3 rows, 2 columns */
         .nav-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -127,16 +126,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Image labels (if text is embedded in images, these can be hidden) */
-        .image-label {
-            display: none;
-            text-align: center;
-            margin-top: 5px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Full width image below the grid */
         .full-width-image {
             width: 100%;
             max-width: 480px;
@@ -159,117 +148,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        @media (max-width: 500px) {
-            .full-width-image {
-                padding: 0 10px;
-            }
-
-            .full-width-img {
-                height: 150px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .full-width-img {
-                height: 130px;
-            }
-        }
-
-        @media (max-width: 500px) {
-            .container {
-                padding: 0 15px;
-            }
-
-            .name {
-                font-size: 22px;
-            }
-
-            .card {
-                height: 220px;
-            }
-
-            .date {
-                top: 32%;
-            }
-
-            .welcome {
-                top: 47%;
-            }
-
-            .tagline {
-                top: 60%;
-            }
-
-            .intro {
-                top: 73%;
-            }
-
-            .nav-grid {
-                gap: 8px;
-                padding: 0 10px;
-            }
-
-            .nav-image {
-                height: 100px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .name {
-                font-size: 22px;
-            }
-
-            .date {
-                font-size: 12px;
-            }
-
-            .card {
-                height: 180px;
-            }
-
-            .welcome {
-                top: 45%;
-                font-size: 12px;
-            }
-
-            .tagline {
-                top: 57%;
-                font-size: 12px;
-            }
-
-            .intro {
-                top: 70%;
-                font-size: 10px;
-            }
-
-            .nav-image {
-                height: 90px;
-            }
-        }
-
-        @media (max-width: 350px) {
-            .nav-image {
-                height: 80px;
-            }
-        }
-                 /* Increase card height to accommodate logout button */
-        .card {
-            height: 270px !important; /* Increased from 200px */
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 0px;
-            padding: 0;
-            box-shadow: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            margin-top: 15px;
-            margin-bottom: 8px;
-            position: relative;
-            width: 100%;
-        }
-
-        /* Logout Button Styles - Full bottom width */
         .logout-btn {
             position: absolute;
             bottom: 15px;
@@ -304,49 +182,49 @@
             transform: translateX(-50%) translateY(0);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-                @media (max-width: 500px) {
+
+        @media (max-width: 500px) {
             .container {
                 padding: 0 15px;
             }
-
+            
             .name {
                 font-size: 22px;
                 top: 12%;
             }
-
+            
             .card {
-                height: 220px !important; /* Increased from 220px */
+                height: 220px !important;
             }
-
+            
             .date {
-                top: 30%; /* Adjusted from 32% */
                 top: 18%;
             }
-
+            
             .welcome {
-                top: 29%; /* Adjusted from 47% */
+                top: 29%;
             }
-
+            
             .tagline {
-                top: 40%; /* Adjusted from 60% */
+                top: 40%;
             }
-
+            
             .intro {
-                top: 52%; /* Adjusted from 73% */
+                top: 52%;
             }
-
+            
             .logout-btn {
                 bottom: 17px;
                 width: 88%;
                 padding: 10px;
                 font-size: 13px;
             }
-
+            
             .nav-grid {
                 gap: 8px;
                 padding: 0 10px;
             }
-
+            
             .nav-image {
                 height: 100px;
             }
@@ -354,41 +232,41 @@
 
         @media (max-width: 380px) {
             .name {
-                font-size: 22px;
+                font-size: 20px;
                 top: 12%;
             }
-
+            
             .date {
                 font-size: 12px;
                 top: 18%;
             }
-
+            
             .card {
-                height: 190px !important; /* Increased from 180px */
+                height: 190px !important;
             }
-
+            
             .welcome {
-                top: 35%; /* Adjusted from 45% */
+                top: 35%;
                 font-size: 12px;
             }
-
+            
             .tagline {
-                top: 43%; /* Adjusted from 57% */
+                top: 43%;
                 font-size: 12px;
             }
-
+            
             .intro {
-                top: 55%; /* Adjusted from 70% */
+                top: 55%;
                 font-size: 10px;
             }
-
+            
             .logout-btn {
                 bottom: 15px;
                 width: 90%;
                 padding: 8px;
                 font-size: 12px;
             }
-
+            
             .nav-image {
                 height: 90px;
             }
@@ -398,125 +276,148 @@
 <body>
     <div class="container">
         <div class="card">
-            <div class="name">HOTEL NAME</div>
+            <div class="name" id="hotelName">HOTEL NAME</div>
             <div class="date" id="date-time">Loading...</div>
-            <div class="welcome">Welcome to Hotel Name ✨</div>
-            <div class="tagline">Experience Elegance, Comfort & Luxury</div>
-            <div class="intro">Enjoy a refined blend of world-class hospitality, modern luxury, and personalized comfort
-                during your stay with us....</div>
-            <!-- Add this logout button -->
+            <div class="welcome" id="welcomeText">Welcome to Hotel Name ✨</div>
+            <div class="tagline" id="taglineText">Experience Elegance, Comfort & Luxury</div>
+            <div class="intro" id="introText">Enjoy a refined blend of world-class hospitality, modern luxury, and personalized comfort during your stay with us....</div>
             <button class="logout-btn" id="logout-btn">Logout</button>
         </div>
 
-        <!-- 3x2 Image Navigation Grid -->
         <div class="nav-grid">
-            <!-- Row 1 -->
             <div class="nav-item" onclick="location.href='control.html'">
-                <img class="nav-image" src="./assets/1.png" alt="Rooms & Suites" data-nav="rooms">
-                <div class="image-label">Rooms & Suites</div>
+                <img class="nav-image" src="./assets/1.png" alt="Rooms & Suites">
             </div>
             <div class="nav-item" onclick="location.href='floorplan.html'">
-                <img class="nav-image" src="./assets/2.png" alt="Restaurant" data-nav="restaurant">
-                <div class="image-label">Restaurant</div>
+                <img class="nav-image" src="./assets/2.png" alt="Restaurant">
             </div>
-
-            <!-- Row 2 -->
             <div class="nav-item" onclick="location.href='service.html'">
-                <img class="nav-image" src="./assets/3.png" alt="Spa & Wellness" data-nav="spa">
-                <div class="image-label">Spa & Wellness</div>
+                <img class="nav-image" src="./assets/3.png" alt="Spa & Wellness">
             </div>
             <div class="nav-item" onclick="location.href='order.html'">
-                <img class="nav-image" src="./assets/4.png" alt="Swimming Pool" data-nav="pool">
-                <div class="image-label">Swimming Pool</div>
+                <img class="nav-image" src="./assets/4.png" alt="Swimming Pool">
             </div>
-
-            <!-- Row 3 -->
             <div class="nav-item" onclick="location.href='complaints.html'">
-                <img class="nav-image" src="./assets/5.png" alt="Events & Meetings" data-nav="events">
-                <div class="image-label">Events & Meetings</div>
+                <img class="nav-image" src="./assets/5.png" alt="Events & Meetings">
             </div>
             <div class="nav-item" onclick="location.href='facility.html'">
-                <img class="nav-image" src="./assets/6.png" alt="Contact & Services" data-nav="contact">
-                <div class="image-label">Contact & Services</div>
+                <img class="nav-image" src="./assets/6.png" alt="Contact & Services">
             </div>
         </div>
         
-        <!-- Full width image below the grid -->
         <div class="full-width-image" onclick="location.href='upcoming-events.html'">
-            <img class="full-width-img" src="./assets/10.png" alt="Special Offer" data-nav="special-offer">
+            <img class="full-width-img" src="./assets/10.png" alt="Special Offer">
         </div>
     </div>
 
-    <script>
-        // Date/time functionality
-        function updateDateTime() {
-            const now = new Date();
-            const optsTime = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true };
-            const optsDate = { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short' };
-            const optsDay = { timeZone: 'Asia/Kolkata', weekday: 'short' };
-
-            const time = new Intl.DateTimeFormat('en-US', optsTime).format(now);
-            const date = new Intl.DateTimeFormat('en-US', optsDate).format(now);
-            const day = new Intl.DateTimeFormat('en-US', optsDay).format(now);
-
-            document.getElementById('date-time').textContent = `${time} | ${date} | ${day}`;
-        }
-
-        // Initial update
-        updateDateTime();
-
-        // Update every minute
-        setInterval(updateDateTime, 60000);
-
-        // Optional: Keyboard navigation support
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && document.activeElement.classList.contains('nav-image')) {
-                document.activeElement.click();
-            }
-        });
-    </script>
-    
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
-        // Admin emails (hardcoded)
         const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
-
+        
+        // Date/time functionality
+        function updateDateTime() {
+            const now = new Date();
+            const optsTime = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true };
+            const optsDate = { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short' };
+            const optsDay = { timeZone: 'Asia/Kolkata', weekday: 'short' };
+            
+            const time = new Intl.DateTimeFormat('en-US', optsTime).format(now);
+            const date = new Intl.DateTimeFormat('en-US', optsDate).format(now);
+            const day = new Intl.DateTimeFormat('en-US', optsDay).format(now);
+            
+            document.getElementById('date-time').textContent = `${time} | ${date} | ${day}`;
+        }
+        
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+        
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', async function () {
-            // Check if user is authenticated
+            // Check for valid session
+            const sessionId = localStorage.getItem('sessionId');
+            const propertyId = localStorage.getItem('currentPropertyId');
+            const sessionExpiry = localStorage.getItem('sessionExpiry');
+            const authMethod = localStorage.getItem('authMethod');
+            
+            // Check if session is expired
+            if (sessionExpiry && new Date(sessionExpiry) < new Date()) {
+                console.log('Session expired');
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            if (propertyId && sessionId) {
+                console.log('Valid session found for property:', propertyId);
+                console.log('Auth method:', authMethod);
+                
+                // Verify property still exists and is valid
+                try {
+                    const propertyDoc = await db.collection('properties').doc(propertyId).get();
+                    
+                    if (!propertyDoc.exists) {
+                        console.log('Property not found');
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    
+                    const propertyData = propertyDoc.data();
+                    
+                    // Check expiry
+                    const expiryDateTime = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
+                    if (expiryDateTime <= new Date()) {
+                        console.log('Property access expired');
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    
+                    // Update UI with property data
+                    updateUIWithPropertyData(propertyData);
+                    
+                    // Store fresh data
+                    localStorage.setItem('currentPropertyData', JSON.stringify(propertyData));
+                    
+                    // User is verified, show dashboard
+                    document.body.style.display = 'flex';
+                    
+                } catch (error) {
+                    console.error('Error verifying property:', error);
+                    localStorage.clear();
+                    window.location.href = 'index.html';
+                }
+                return;
+            }
+            
+            // Fallback to Firebase auth check
             firebase.auth().onAuthStateChanged(async (user) => {
                 if (!user) {
-                    // Not logged in, redirect to login
                     window.location.href = 'index.html';
                     return;
                 }
-
+                
                 const userEmail = user.email;
                 
-                // Check if user is admin
                 if (ADMIN_EMAILS.includes(userEmail)) {
                     window.location.href = 'admin.html';
                     return;
                 }
-
-                // Verify user has authorized access to a property
+                
                 try {
                     const accessResult = await checkUserAccess(userEmail);
-
+                    
                     if (accessResult.hasAccess) {
-                        // Store property data in localStorage for use in control.html
                         localStorage.setItem('currentPropertyId', accessResult.propertyId);
                         localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
-                        
-                        // User is verified, show the dashboard
+                        localStorage.setItem('authMethod', 'email');
+                        updateUIWithPropertyData(accessResult.propertyData);
                         document.body.style.display = 'flex';
                     } else {
-                        // User not authorized - show message and log out
                         let message = 'Your email is not authorized by the administrator.';
                         if (accessResult.reason === 'expired') {
                             message = 'Your access has expired. Please contact the administrator.';
@@ -526,7 +427,6 @@
                         await firebase.auth().signOut();
                         localStorage.clear();
                         window.location.href = 'index.html';
-                        return;
                     }
                 } catch (error) {
                     console.error('Error checking authorization:', error);
@@ -537,26 +437,27 @@
                 }
             });
         });
-
-        // Check user access
+        
+        function updateUIWithPropertyData(propertyData) {
+            if (propertyData) {
+                const hotelName = propertyData.propertyName || 'HOTEL NAME';
+                document.getElementById('hotelName').textContent = hotelName.toUpperCase();
+                document.getElementById('welcomeText').textContent = `Welcome to ${hotelName} ✨`;
+            }
+        }
+        
         async function checkUserAccess(userEmail) {
             try {
                 const propertiesRef = db.collection('properties');
                 const snapshot = await propertiesRef.get();
-
                 const now = new Date();
-
+                
                 for (const doc of snapshot.docs) {
                     const propertyData = doc.data();
-
-                    // Check if email is in any of the email fields
-                    const emails = [propertyData.email1, propertyData.email2, propertyData.email3]
-                        .filter(email => email && email.trim() !== '');
-
+                    const emails = [propertyData.email1, propertyData.email2, propertyData.email3].filter(email => email && email.trim() !== '');
+                    
                     if (emails.includes(userEmail)) {
-                        // Check expiration
                         const expiryDateTime = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
-
                         if (expiryDateTime > now) {
                             return {
                                 hasAccess: true,
@@ -566,13 +467,12 @@
                         } else {
                             return {
                                 hasAccess: false,
-                                reason: 'expired',
-                                propertyId: doc.id
+                                reason: 'expired'
                             };
                         }
                     }
                 }
-
+                
                 return {
                     hasAccess: false,
                     reason: 'not_authorized'
@@ -585,26 +485,35 @@
                 };
             }
         }
-
-        // Start expiration check (run every minute)
+        
+        // Start expiration check
         function startExpirationCheck() {
             setInterval(async () => {
-                const user = firebase.auth().currentUser;
-                if (!user) return;
-
-                const accessResult = await checkUserAccess(user.email);
-                if (!accessResult.hasAccess) {
-                    alert('Your access has expired or been revoked. Logging out...');
-                    await firebase.auth().signOut();
-                    localStorage.clear();
-                    window.location.href = 'index.html';
+                const propertyId = localStorage.getItem('currentPropertyId');
+                if (!propertyId) return;
+                
+                try {
+                    const propertyDoc = await db.collection('properties').doc(propertyId).get();
+                    if (propertyDoc.exists) {
+                        const propertyData = propertyDoc.data();
+                        const expiryDateTime = new Date(propertyData.expiryDate + ' ' + propertyData.expiryTime);
+                        
+                        if (expiryDateTime <= new Date()) {
+                            alert('Your access has expired. Logging out...');
+                            await firebase.auth().signOut();
+                            localStorage.clear();
+                            window.location.href = 'index.html';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Expiration check error:', error);
                 }
-            }, 60000); // Check every minute
+            }, 60000);
         }
-
-        // Start expiration check
+        
         startExpirationCheck();
-                // Add logout functionality
+        
+        // Add logout functionality
         document.getElementById('logout-btn').addEventListener('click', async function() {
             try {
                 await firebase.auth().signOut();
@@ -615,32 +524,24 @@
                 alert('Error logging out. Please try again.');
             }
         });
+        
+        // Back button prevention
+        (function () {
+            const url = location.href;
+            history.replaceState(null, '', url);
+            for (let i = 0; i < 20; i++) {
+                history.pushState(null, '', url);
+            }
+            
+            window.addEventListener('popstate', function () {
+                history.replaceState(null, '', url);
+                history.pushState(null, '', url);
+            });
+            
+            window.addEventListener('pageshow', function (e) {
+                if (e.persisted) location.replace(url);
+            });
+        })();
     </script>
-  <script>
-(function () {
-    const url = location.href;
-
-    // Reset current entry
-    history.replaceState(null, '', url);
-
-    // Build a deep history wall
-    for (let i = 0; i < 20; i++) {
-        history.pushState(null, '', url);
-    }
-
-    window.addEventListener('popstate', function () {
-        // Replace instead of only push (important)
-        history.replaceState(null, '', url);
-        history.pushState(null, '', url);
-    });
-
-    // Handle bfcache restore (Safari / mobile)
-    window.addEventListener('pageshow', function (e) {
-        if (e.persisted) location.replace(url);
-    });
-})();
-</script>
-
-
 </body>
 </html>

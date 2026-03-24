@@ -28,13 +28,15 @@ async function loadDashboardFromFirebase() {
     try {
         console.log("Loading dashboard from Firebase...");
         
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            console.log("User not authenticated, redirecting to login");
-            showNotification("User not authenticated", "error");
-            window.location.href = 'index.html';
-            return;
-        }
+const authMethod = localStorage.getItem("authMethod");
+const user = firebase.auth().currentUser;
+
+// ✅ allow phone login
+if (authMethod !== "phone" && !user) {
+    console.log("No auth → redirect");
+    window.location.href = 'index.html';
+    return;
+}
 
         const userEmail = user.email;
         console.log("Loading dashboard for user:", userEmail);
@@ -94,15 +96,33 @@ async function loadDashboardFromFirebase() {
             }
         }
 
-        // Load dashboard data
-        if (propertyDataFromDB.dashboardData && propertyDataFromDB.dashboardData.data) {
-            dashboardData = propertyDataFromDB.dashboardData.data;
-            renderDashboard();
-        } else {
-            // No dashboard data configured yet
-            dashboardData = [];
-            renderDashboard();
-        }
+const raw = propertyDataFromDB.dashboardData;
+
+if (!raw) {
+    dashboardData = [];
+} 
+else if (Array.isArray(raw)) {
+    dashboardData = raw;
+}
+else if (Array.isArray(raw.data)) {
+    dashboardData = raw.data;
+}
+else if (Array.isArray(raw.controls)) {
+    dashboardData = raw.controls;
+}
+else if (typeof raw === "string") {
+    try {
+        const parsed = JSON.parse(raw);
+        dashboardData = parsed.data || parsed.controls || [];
+    } catch (e) {
+        dashboardData = [];
+    }
+}
+else {
+    dashboardData = Object.values(raw);
+}
+
+renderDashboard();
         
         // Start expiration check
         startExpirationCheck(propertyId);

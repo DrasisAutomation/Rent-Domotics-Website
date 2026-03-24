@@ -33,7 +33,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-width: 0; /* Prevents overflow on mobile */
+            min-width: 0;
         }
 
         /* Header */
@@ -47,6 +47,8 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .header-left {
@@ -72,23 +74,24 @@
         }
 
         .header-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 500;
             color: #202124;
         }
 
         .header-actions {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .search-input {
-            padding: 10px 16px;
+            padding: 8px 16px;
             border: 1px solid #dadce0;
             border-radius: 4px;
             font-size: 14px;
-            width: 300px;
+            min-width: 200px;
             transition: all 0.2s;
         }
 
@@ -102,7 +105,7 @@
             background: #1a73e8;
             color: #fff;
             border: none;
-            padding: 10px 24px;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -119,7 +122,7 @@
             background: #f8f9fa;
             color: #1a73e8;
             border: 1px solid #dadce0;
-            padding: 10px 24px;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -136,7 +139,7 @@
             background: #34a853;
             color: #fff;
             border: none;
-            padding: 10px 24px;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -154,87 +157,6 @@
 
         .btn-dashboard::before {
             content: '📊';
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background: #fff;
-            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            z-index: 1001;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .mobile-menu.active {
-            transform: translateX(280px);
-        }
-
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #dadce0;
-        }
-
-        .mobile-menu-title {
-            font-size: 20px;
-            font-weight: 500;
-            color: #202124;
-        }
-
-        .mobile-menu-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #5f6368;
-            padding: 4px;
-        }
-
-        .mobile-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            color: #202124;
-            transition: background-color 0.2s;
-        }
-
-        .mobile-menu-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .mobile-menu-item.active {
-            background-color: #e8f0fe;
-            color: #1a73e8;
-        }
-
-        .mobile-menu-item-icon {
-            font-size: 20px;
         }
 
         /* Content Area */
@@ -263,7 +185,7 @@
         /* Properties Grid */
         .properties-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 24px;
         }
 
@@ -271,7 +193,7 @@
             background: #fff;
             border: 1px solid #dadce0;
             border-radius: 8px;
-            padding: 24px;
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -290,33 +212,34 @@
             border-radius: 12px;
             font-size: 12px;
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .property-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             color: #202124;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .property-details {
             font-size: 14px;
             color: #5f6368;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             line-height: 1.6;
         }
 
         .property-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #f1f3f4;
         }
 
         .property-info-item {
             text-align: center;
+            flex: 1;
         }
 
         .property-info-label {
@@ -336,7 +259,7 @@
 
         .property-user {
             background: #f8f9fa;
-            padding: 12px;
+            padding: 10px;
             border-radius: 4px;
             margin-bottom: 8px;
             font-size: 13px;
@@ -356,21 +279,42 @@
             word-break: break-all;
         }
 
+        .property-phone {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .property-phone-label {
+            color: #5f6368;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .property-phone-value {
+            color: #202124;
+            font-weight: 500;
+        }
+
         .property-expiry {
             background: #fef7e0;
             border: 1px solid #fbbc04;
             color: #9d8600;
-            padding: 12px;
+            padding: 10px;
             border-radius: 4px;
             font-size: 12px;
-            margin-top: 16px;
+            margin-top: 12px;
             text-align: center;
         }
 
         .property-actions {
             display: flex;
             gap: 8px;
-            margin-top: 16px;
+            margin-top: 12px;
         }
 
         .btn-sm {
@@ -423,21 +367,23 @@
 
         .modal-content {
             background: #fff;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 0;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
         .modal-header {
-            padding: 24px;
+            padding: 20px 24px;
             border-bottom: 1px solid #dadce0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
         }
 
         .modal-header h2 {
@@ -452,10 +398,12 @@
             font-size: 24px;
             cursor: pointer;
             color: #5f6368;
+            padding: 4px;
+            line-height: 1;
         }
 
         .modal-body {
-            padding: 32px;
+            padding: 24px;
         }
 
         .form-group {
@@ -477,11 +425,16 @@
             margin-left: 4px;
         }
 
+        .form-label .required {
+            color: #d33b27;
+            margin-left: 4px;
+        }
+
         .form-input {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.2s;
             font-family: inherit;
@@ -493,11 +446,55 @@
             box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
         }
 
+        .phone-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .phone-input-wrapper:focus-within {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .country-code {
+            background: #f8f9fa;
+            padding: 12px 12px;
+            border-right: 1px solid #dadce0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .phone-input {
+            flex: 1;
+            border: none;
+            padding: 12px 0;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #202124;
+            margin: 24px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1a73e8;
+            display: inline-block;
+        }
+
         .date-time-picker {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
-            margin-bottom: 24px;
+            margin: 20px 0;
         }
 
         .picker-group {
@@ -518,7 +515,7 @@
         .time-input {
             padding: 12px 16px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.2s;
             font-family: inherit;
@@ -531,69 +528,9 @@
             box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
         }
 
-        .modal-footer {
-            padding: 24px;
-            border-top: 1px solid #dadce0;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .btn-cancel {
-            background: #f8f9fa;
-            color: #5f6368;
-            border: 1px solid #dadce0;
-            padding: 10px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel:hover {
-            background: #f1f3f4;
-        }
-
-        .btn-save {
-            background: #1a73e8;
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .btn-save:hover {
-            background: #1665d8;
-        }
-
-        .btn-upload {
-            background: #34a853;
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-upload:hover {
-            background: #2e8b47;
-        }
-
-        /* Upload Section in Modal */
         .upload-section {
             border-top: 1px solid #dadce0;
-            margin-top: 32px;
+            margin-top: 24px;
             padding-top: 24px;
         }
 
@@ -605,10 +542,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .upload-section-title::before {
-            content: '📊';
         }
 
         .upload-area {
@@ -652,7 +585,7 @@
         .uploaded-file {
             background: #f1f3f4;
             padding: 12px 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             margin-top: 16px;
             display: flex;
             align-items: center;
@@ -680,26 +613,46 @@
             color: #5f6368;
         }
 
-        .upload-actions {
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #dadce0;
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 12px;
+            justify-content: flex-end;
+            background: #fff;
+            border-radius: 0 0 12px 12px;
         }
 
-        .btn-remove {
-            background: #fce8e6;
-            color: #d33b27;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            padding: 10px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 500;
             transition: all 0.2s;
         }
 
-        .btn-remove:hover {
-            background: #f8d7da;
+        .btn-cancel:hover {
+            background: #f1f3f4;
+        }
+
+        .btn-save {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover {
+            background: #1665d8;
         }
 
         .toast {
@@ -709,7 +662,7 @@
             background: #1a73e8;
             color: #fff;
             padding: 16px 24px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             animation: slideIn 0.3s ease;
@@ -737,95 +690,39 @@
             }
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f3f4;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #dadce0;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #9aa0a6;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .properties-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
-        }
-
-        @media (max-width: 992px) {
-            .header {
-                padding: 16px 20px;
-            }
-            
-            .search-input {
-                width: 200px;
-            }
-            
-            .content {
-                padding: 24px;
-            }
-        }
-
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header-left {
+                justify-content: space-between;
+            }
+            
             .hamburger-menu {
                 display: block;
             }
             
-            .header-title {
-                font-size: 20px;
-            }
-            
             .header-actions {
-                gap: 12px;
+                flex-wrap: wrap;
             }
             
             .search-input {
-                width: 180px;
-                padding: 8px 12px;
-            }
-            
-            .btn-primary,
-            .btn-secondary,
-            .btn-dashboard {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .content-header h1 {
-                font-size: 24px;
+                flex: 1;
+                min-width: auto;
             }
             
             .properties-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
             }
             
-            .property-card {
-                padding: 20px;
-            }
-            
-            .property-name {
-                font-size: 18px;
-            }
-            
-            .modal-body {
-                padding: 24px;
+            .modal-content {
+                max-width: 95%;
             }
             
             .date-time-picker {
                 grid-template-columns: 1fr;
-                gap: 12px;
             }
             
             .toast {
@@ -835,132 +732,23 @@
                 max-width: none;
             }
         }
-
-        @media (max-width: 576px) {
-            .header {
-                padding: 12px 16px;
-            }
-            
-            .header-actions {
-                gap: 8px;
-            }
-            
-            .search-input {
-                width: 150px;
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-            
-            .btn-primary,
-            .btn-secondary,
-            .btn-dashboard {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            
-            .content {
-                padding: 16px;
-            }
-            
-            .content-header h1 {
-                font-size: 20px;
-            }
-            
-            .property-card {
-                padding: 16px;
-            }
-            
-            .modal-content {
-                margin: 10px;
-            }
-            
-            .modal-header {
-                padding: 20px;
-            }
-            
-            .modal-body {
-                padding: 20px;
-            }
-            
-            .modal-footer {
-                padding: 20px;
-                flex-direction: column;
-            }
-            
-            .btn-cancel,
-            .btn-save {
-                width: 100%;
-            }
-            
-            .upload-area {
-                padding: 24px 16px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .search-input {
-                display: none;
-            }
-            
-            .header-actions {
-                gap: 6px;
-            }
-            
-            .btn-primary,
-            .btn-secondary,
-            .btn-dashboard {
-                padding: 6px 10px;
-                font-size: 11px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
-    
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <div class="mobile-menu-title">Menu</div>
-            <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
-        </div>
-        <a href="ADMIN/control.html" class="mobile-menu-item">
-            <div class="mobile-menu-item-icon">📊</div>
-            <div>Dashboard</div>
-        </a>
-        <div class="mobile-menu-item active">
-            <div class="mobile-menu-item-icon">🏠</div>
-            <div>Properties</div>
-        </div>
-        <div class="mobile-menu-item" onclick="openModal()">
-            <div class="mobile-menu-item-icon">➕</div>
-            <div>Add Property</div>
-        </div>
-        <div class="mobile-menu-item" onclick="logout()">
-            <div class="mobile-menu-item-icon">🚪</div>
-            <div>Logout</div>
-        </div>
-    </div>
-
     <div class="container">
-        <!-- Main Content -->
         <div class="main">
-            <!-- Header -->
             <div class="header">
                 <div class="header-left">
-                    <button class="hamburger-menu" onclick="toggleMobileMenu()">☰</button>
                     <div class="header-title">Real Estate Properties Management</div>
                 </div>
                 <div class="header-actions">
-                    <input type="search" placeholder="Search properties..." class="search-input">
+                    <input type="search" placeholder="Search properties..." class="search-input" id="searchInput">
                     <button class="btn-dashboard" onclick="goToDashboard()">Dashboard</button>
                     <button class="btn-primary" onclick="openModal()">Add Property</button>
                     <button class="btn-secondary" onclick="logout()">Logout</button>
                 </div>
             </div>
 
-            <!-- Content -->
             <div class="content">
                 <div class="content-header">
                     <h1>Managed Properties</h1>
@@ -983,12 +771,12 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">Property Name <span style="color: #d33b27;">*</span></label>
+                    <label class="form-label">Property Name <span class="required">*</span></label>
                     <input type="text" class="form-input" id="propertyName" placeholder="Enter property name" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Primary Email Address <span style="color: #d33b27;">*</span></label>
+                    <label class="form-label">Primary Email Address <span class="required">*</span></label>
                     <input type="email" class="form-input" id="email1" placeholder="Enter primary email address" required>
                 </div>
 
@@ -1000,6 +788,38 @@
                 <div class="form-group">
                     <label class="form-label">Tertiary Email Address <span class="optional">(Optional)</span></label>
                     <input type="email" class="form-input" id="email3" placeholder="Enter tertiary email address">
+                </div>
+
+                <div style="margin: 24px 0 8px 0;">
+                    <div class="section-title">📱 Phone Numbers (Optional)</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Primary Phone Number <span class="optional">(Optional)</span></label>
+                    <div class="phone-input-wrapper">
+                        <span class="country-code">+91</span>
+                        <input type="tel" class="phone-input" id="phone1" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Secondary Phone Number <span class="optional">(Optional)</span></label>
+                    <div class="phone-input-wrapper">
+                        <span class="country-code">+91</span>
+                        <input type="tel" class="phone-input" id="phone2" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tertiary Phone Number <span class="optional">(Optional)</span></label>
+                    <div class="phone-input-wrapper">
+                        <span class="country-code">+91</span>
+                        <input type="tel" class="phone-input" id="phone3" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div style="margin: 24px 0 8px 0;">
+                    <div class="section-title">⏰ Access Expiration</div>
                 </div>
 
                 <div class="date-time-picker">
@@ -1015,7 +835,7 @@
 
                 <!-- Upload Section -->
                 <div class="upload-section">
-                    <div class="upload-section-title">Upload Dashboard Data</div>
+                    <div class="upload-section-title">📊 Upload Dashboard Data</div>
 
                     <div class="upload-area" id="uploadArea" onclick="document.getElementById('jsonFile').click()">
                         <div class="upload-icon">📊</div>
@@ -1063,8 +883,25 @@
             await checkAdminAuth();
             await loadProperties();
             setupDragAndDrop();
-            setupMobileMenuClose();
+            
+            // Setup search
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterProperties(e.target.value);
+                });
+            }
         });
+
+        // Filter properties based on search
+        function filterProperties(searchTerm) {
+            const filtered = properties.filter(property => 
+                property.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                property.email1?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                property.phone1?.includes(searchTerm)
+            );
+            renderProperties(filtered);
+        }
 
         // Check if user is admin
         async function checkAdminAuth() {
@@ -1078,7 +915,6 @@
                     const userEmail = user.email;
                     
                     if (!ADMIN_EMAILS.includes(userEmail)) {
-                        // Not admin, redirect to user dashboard
                         window.location.href = 'index.html';
                         return;
                     }
@@ -1110,22 +946,22 @@
         }
 
         // Render all properties
-        function renderProperties() {
+        function renderProperties(propertiesToRender = properties) {
             const grid = document.getElementById('propertiesGrid');
             grid.innerHTML = '';
 
-            if (properties.length === 0) {
+            if (propertiesToRender.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #5f6368;">
                         <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
-                        <h3 style="font-weight: 400; margin-bottom: 8px;">No properties yet</h3>
+                        <h3 style="font-weight: 400; margin-bottom: 8px;">No properties found</h3>
                         <p style="font-size: 14px;">Click the "Add Property" button to create your first property</p>
                     </div>
                 `;
                 return;
             }
 
-            properties.forEach(property => {
+            propertiesToRender.forEach(property => {
                 const card = document.createElement('div');
                 card.className = 'property-card';
                 
@@ -1136,8 +972,16 @@
                     property.email3
                 ].filter(email => email && email.trim() !== '');
                 
+                // Collect all non-empty phones
+                const phones = [
+                    property.phone1,
+                    property.phone2,
+                    property.phone3
+                ].filter(phone => phone && phone.trim() !== '');
+                
                 let expiryInfo = '';
                 let userInfo = '';
+                let phoneInfo = '';
                 
                 if (property.expiryDate && property.expiryTime) {
                     const expiryDate = new Date(property.expiryDate + ' ' + property.expiryTime);
@@ -1154,8 +998,17 @@
                 if (emails.length > 0) {
                     userInfo = emails.map((email, index) => `
                         <div class="property-user">
-                            <div class="property-user-label">Email ${index + 1}</div>
+                            <div class="property-user-label">✉️ Email ${index + 1}</div>
                             <div class="property-user-value">${email}</div>
+                        </div>
+                    `).join('');
+                }
+                
+                if (phones.length > 0) {
+                    phoneInfo = phones.map((phone, index) => `
+                        <div class="property-phone">
+                            <div class="property-phone-label">📱 Phone ${index + 1}</div>
+                            <div class="property-phone-value">+91 ${phone}</div>
                         </div>
                     `).join('');
                 }
@@ -1166,18 +1019,23 @@
                     
                     <div class="property-info">
                         <div class="property-info-item">
-                            <span class="property-info-label">Users</span>
+                            <span class="property-info-label">Emails</span>
                             <span class="property-info-value">${emails.length}</span>
+                        </div>
+                        <div class="property-info-item">
+                            <span class="property-info-label">Phones</span>
+                            <span class="property-info-value">${phones.length}</span>
                         </div>
                         <div class="property-info-item">
                             <span class="property-info-label">Dashboard</span>
                             <span class="property-info-value" style="color: ${property.dashboardData ? '#1a73e8' : '#5f6368'}">
-                                ${property.dashboardData ? 'Configured' : 'Not Set'}
+                                ${property.dashboardData ? '✓ Configured' : 'Not Set'}
                             </span>
                         </div>
                     </div>
                     
-                    ${emails.length > 0 ? userInfo : '<div style="color: #5f6368; font-size: 13px; padding: 12px; background: #f8f9fa; border-radius: 4px;">No users assigned</div>'}
+                    ${userInfo}
+                    ${phoneInfo}
                     ${expiryInfo}
                     
                     <div class="property-actions">
@@ -1194,7 +1052,6 @@
 
         // Open modal for property configuration
         async function openModal(propertyId = null) {
-            closeMobileMenu(); // Close mobile menu when opening modal
             currentPropertyId = propertyId;
             
             if (propertyId) {
@@ -1205,6 +1062,9 @@
                 document.getElementById('email1').value = property.email1 || '';
                 document.getElementById('email2').value = property.email2 || '';
                 document.getElementById('email3').value = property.email3 || '';
+                document.getElementById('phone1').value = property.phone1 || '';
+                document.getElementById('phone2').value = property.phone2 || '';
+                document.getElementById('phone3').value = property.phone3 || '';
                 document.getElementById('expiryDate').value = property.expiryDate || '';
                 document.getElementById('expiryTime').value = property.expiryTime || '';
                 
@@ -1219,6 +1079,9 @@
                 document.getElementById('email1').value = '';
                 document.getElementById('email2').value = '';
                 document.getElementById('email3').value = '';
+                document.getElementById('phone1').value = '';
+                document.getElementById('phone2').value = '';
+                document.getElementById('phone3').value = '';
                 document.getElementById('expiryDate').value = '';
                 document.getElementById('expiryTime').value = '';
                 currentDashboardData = null;
@@ -1240,18 +1103,27 @@
             currentDashboardData = null;
         }
 
+        // Validate phone number
+        function validatePhone(phone) {
+            if (!phone) return true;
+            return /^\d{10}$/.test(phone);
+        }
+
         // Save property to Firebase
         async function saveProperty() {
             const propertyName = document.getElementById('propertyName').value.trim();
             const email1 = document.getElementById('email1').value.trim();
             const email2 = document.getElementById('email2').value.trim();
             const email3 = document.getElementById('email3').value.trim();
+            const phone1 = document.getElementById('phone1').value.trim();
+            const phone2 = document.getElementById('phone2').value.trim();
+            const phone3 = document.getElementById('phone3').value.trim();
             const expiryDate = document.getElementById('expiryDate').value;
             const expiryTime = document.getElementById('expiryTime').value;
 
             // Validation
             if (!propertyName || !email1 || !expiryDate || !expiryTime) {
-                showToast('Please fill all required fields', 'error');
+                showToast('Please fill all required fields (Property Name, Primary Email, Expiry Date & Time)', 'error');
                 return;
             }
 
@@ -1271,6 +1143,22 @@
                 showToast('Please enter a valid tertiary email address', 'error');
                 return;
             }
+            
+            // Phone validation
+            if (phone1 && !validatePhone(phone1)) {
+                showToast('Please enter a valid 10-digit primary phone number', 'error');
+                return;
+            }
+            
+            if (phone2 && !validatePhone(phone2)) {
+                showToast('Please enter a valid 10-digit secondary phone number', 'error');
+                return;
+            }
+            
+            if (phone3 && !validatePhone(phone3)) {
+                showToast('Please enter a valid 10-digit tertiary phone number', 'error');
+                return;
+            }
 
             try {
                 const propertyData = {
@@ -1278,6 +1166,9 @@
                     email1,
                     email2: email2 || null,
                     email3: email3 || null,
+                    phone1: phone1 || null,
+                    phone2: phone2 || null,
+                    phone3: phone3 || null,
                     expiryDate,
                     expiryTime,
                     updatedAt: new Date().toISOString()
@@ -1322,43 +1213,6 @@
                     showToast('Error deleting property', 'error');
                 }
             }
-        }
-
-        // Mobile Menu Functions
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('mobileMenuOverlay');
-            
-            if (menu.classList.contains('active')) {
-                closeMobileMenu();
-            } else {
-                menu.classList.add('active');
-                overlay.style.display = 'block';
-                setTimeout(() => {
-                    overlay.style.opacity = '1';
-                }, 10);
-            }
-        }
-
-        function closeMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('mobileMenuOverlay');
-            
-            menu.classList.remove('active');
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 300);
-        }
-
-        function setupMobileMenuClose() {
-            // Close menu when clicking outside on mobile
-            document.getElementById('mobileMenuOverlay').addEventListener('click', closeMobileMenu);
-            
-            // Close menu when clicking on menu items
-            document.querySelectorAll('.mobile-menu-item').forEach(item => {
-                item.addEventListener('click', closeMobileMenu);
-            });
         }
 
         // Dashboard Navigation
@@ -1492,20 +1346,21 @@
             }
         });
 
-        // Close mobile menu on escape key
+        // Close modal on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeMobileMenu();
                 closeModal();
             }
         });
-        // Track admin location
-if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
-  localStorage.setItem('lastAdminPage', 'admin');
-  console.log('Admin on properties page, setting redirect preference');
-}
+
+        // Add phone number input validation
+        document.querySelectorAll('.phone-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+            });
+        });
     </script>
     <script src="firebase-config.js"></script>
-<script src="admin-auth-check.js"></script>
+    <script src="admin-auth-check.js"></script>
 </body>
 </html>
