@@ -3,1364 +3,1730 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Property Dashboard</title>
-    <!-- Add Firebase SDK -->
+    <title>Domotics Admin — Automated Property Dashboard</title>
+
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-void:       #f8f9fa;
+            --bg-deep:       #ffffff;
+            --bg-surface:    #f1f3f4;
+            --bg-card:       #ffffff;
+            --bg-raised:     #e8eaed;
+            --bg-hover:      #e2e5e9;
+
+            --border-dim:    rgba(60,64,67,0.08);
+            --border-soft:   rgba(60,64,67,0.14);
+            --border-mid:    rgba(60,64,67,0.22);
+            --border-focus:  rgba(26,115,232,0.6);
+
+            --gold:          #1a73e8;
+            --gold-light:    #4285f4;
+            --gold-dim:      rgba(26,115,232,0.10);
+            --gold-glow:     rgba(26,115,232,0.18);
+
+            --text-primary:  #202124;
+            --text-secondary:#5f6368;
+            --text-muted:    #9aa0a6;
+            --text-accent:   #1a73e8;
+
+            --green:         #188038;
+            --green-dim:     rgba(24,128,56,0.10);
+            --red:           #d93025;
+            --red-dim:       rgba(217,48,37,0.10);
+            --amber:         #e37400;
+            --amber-dim:     rgba(227,116,0,0.10);
+            --blue:          #1967d2;
+            --blue-dim:      rgba(25,103,210,0.10);
+
+            --sidebar-w:     260px;
+            --header-h:      64px;
+            --radius-sm:     8px;
+            --radius-md:     12px;
+            --radius-lg:     16px;
+            --radius-xl:     24px;
+
+            --shadow-card:   0 1px 3px rgba(60,64,67,0.10), 0 4px 12px rgba(60,64,67,0.06);
+            --shadow-modal:  0 24px 72px rgba(60,64,67,0.22), 0 8px 24px rgba(60,64,67,0.12);
+            --shadow-glow:   0 0 0 3px rgba(26,115,232,0.15);
+
+            --font-display:  'Poppins', sans-serif;
+            --font-body:     'Poppins', sans-serif;
+            --font-mono:     'Poppins', sans-serif;
+
+            --transition:    all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: #f8f9fa;
-            color: #202124;
-            line-height: 1.5;
+            font-family: var(--font-body);
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.6;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        .container {
-            display: flex;
-            height: 100vh;
+        /* ── Subtle paper texture overlay ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; opacity: 0.4;
         }
 
-        /* Main Content */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
+        /* ═══════════════════════════════
+           SIDEBAR
+        ═══════════════════════════════ */
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--bg-deep);
+            border-right: 1px solid var(--border-dim);
+            display: flex; flex-direction: column;
+            z-index: 500;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Header */
-        .header {
-            background: #fff;
-            border-bottom: 1px solid #dadce0;
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-wrap: wrap;
-            gap: 16px;
+        .sidebar::after {
+            content: '';
+            position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(26,115,232,0.2) 30%, rgba(26,115,232,0.2) 70%, transparent);
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .sidebar-logo {
+            padding: 28px 24px 24px;
+            border-bottom: 1px solid var(--border-dim);
         }
 
-        .hamburger-menu {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #5f6368;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+        .logo-mark {
+            display: flex; align-items: center; gap: 12px;
         }
 
-        .hamburger-menu:hover {
-            background-color: #f1f3f4;
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(26,115,232,0.30);
         }
 
-        .header-title {
-            font-size: 20px;
-            font-weight: 500;
-            color: #202124;
+        .logo-icon svg { width: 18px; height: 18px; color: #ffffff; }
+
+        .logo-text { line-height: 1.1; }
+
+        .logo-name {
+            font-family: var(--font-display);
+            font-size: 17px; font-weight: 700;
+            color: var(--text-primary); letter-spacing: 0.3px;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
+        .logo-tagline {
+            font-size: 10px; font-weight: 500;
+            color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        .search-input {
-            padding: 8px 16px;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            font-size: 14px;
-            min-width: 200px;
-            transition: all 0.2s;
+        .sidebar-section {
+            padding: 20px 12px 8px;
         }
 
-        .search-input:focus {
-            outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        .sidebar-section-label {
+            font-size: 9.5px; font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 2px;
+            padding: 0 12px; margin-bottom: 8px;
         }
 
-        .btn-primary {
-            background: #1a73e8;
-            color: #fff;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-primary:hover {
-            background: #1665d8;
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #1a73e8;
-            border: 1px solid #dadce0;
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-secondary:hover {
-            background: #f1f3f4;
-        }
-
-        .btn-dashboard {
-            background: #34a853;
-            color: #fff;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-dashboard:hover {
-            background: #2e8b47;
-        }
-
-        .btn-dashboard::before {
-            content: '📊';
-        }
-
-        /* Content Area */
-        .content {
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-        }
-
-        .content-header {
-            margin-bottom: 32px;
-        }
-
-        .content-header h1 {
-            font-size: 28px;
-            font-weight: 400;
-            color: #202124;
-            margin-bottom: 8px;
-        }
-
-        .content-header p {
-            font-size: 14px;
-            color: #5f6368;
-        }
-
-        /* Properties Grid */
-        .properties-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 24px;
-        }
-
-        .property-card {
-            background: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; margin-bottom: 2px;
+            border-radius: var(--radius-md);
+            cursor: pointer; transition: var(--transition);
+            color: var(--text-secondary);
+            text-decoration: none; font-size: 13.5px; font-weight: 500;
             position: relative;
         }
 
-        .property-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-color: #1a73e8;
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
-        .property-location {
-            display: inline-block;
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 12px;
+        .nav-item.active {
+            background: var(--gold-dim);
+            color: var(--gold-light);
+            border: 1px solid rgba(196,160,80,0.15);
         }
 
-        .property-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #202124;
-            margin-bottom: 12px;
+        .nav-item.active::before {
+            content: '';
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 3px; height: 60%; background: var(--gold);
+            border-radius: 0 3px 3px 0;
         }
 
-        .property-details {
-            font-size: 14px;
-            color: #5f6368;
-            margin-bottom: 16px;
-            line-height: 1.6;
+        .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid rgba(196,160,80,0.2);
+            padding: 2px 7px; border-radius: 20px;
+            font-size: 10px; font-weight: 600; font-family: var(--font-mono);
         }
 
-        .property-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f3f4;
+        .sidebar-divider {
+            height: 1px; background: var(--border-dim);
+            margin: 8px 16px;
         }
 
-        .property-info-item {
-            text-align: center;
-            flex: 1;
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 12px;
+            border-top: 1px solid var(--border-dim);
         }
 
-        .property-info-label {
-            display: block;
-            color: #5f6368;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
+        .user-profile {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: var(--radius-md);
+            cursor: pointer; transition: var(--transition);
         }
 
-        .property-info-value {
-            color: #202124;
-            font-weight: 600;
-            font-size: 14px;
+        .user-profile:hover { background: var(--bg-hover); }
+
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: #fff;
+            flex-shrink: 0;
         }
 
-        .property-user {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 13px;
+        .user-info { flex: 1; min-width: 0; }
+
+        .user-name {
+            font-size: 12.5px; font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .property-user-label {
-            color: #5f6368;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .property-user-value {
-            color: #202124;
-            font-weight: 500;
-            word-break: break-all;
-        }
-
-        .property-phone {
-            background: #f1f3f4;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .property-phone-label {
-            color: #5f6368;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .property-phone-value {
-            color: #202124;
+        .user-role {
+            font-size: 10.5px; color: var(--gold);
             font-weight: 500;
         }
 
-        .property-expiry {
-            background: #fef7e0;
-            border: 1px solid #fbbc04;
-            color: #9d8600;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-top: 12px;
-            text-align: center;
+        .logout-btn {
+            width: 28px; height: 28px;
+            background: var(--red-dim); border: 1px solid rgba(224,85,85,0.2);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition); flex-shrink: 0;
         }
 
-        .property-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
+        .logout-btn:hover { background: rgba(224,85,85,0.25); }
+        .logout-btn svg { width: 13px; height: 13px; color: var(--red); }
 
-        .btn-sm {
-            flex: 1;
-            padding: 8px 12px;
-            font-size: 12px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-edit {
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-
-        .btn-edit:hover {
-            background: #d2e3fc;
-        }
-
-        .btn-delete {
-            background: #fce8e6;
-            color: #d33b27;
-        }
-
-        .btn-delete:hover {
-            background: #f8d7da;
-        }
-
-        /* Modal */
-        .modal {
+        /* ── Overlay for mobile ── */
+        .sidebar-overlay {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 499;
+            backdrop-filter: blur(2px);
         }
 
-        .modal.active {
-            display: flex;
+        .sidebar-overlay.active { display: block; }
+
+        /* ═══════════════════════════════
+           MAIN LAYOUT
+        ═══════════════════════════════ */
+        .layout {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            position: relative; z-index: 1;
         }
 
-        .modal-content {
-            background: #fff;
-            border-radius: 12px;
-            padding: 0;
-            max-width: 700px;
+        /* ── Topbar ── */
+        .topbar {
+            height: var(--header-h);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-dim);
+            display: flex; align-items: center;
+            padding: 0 28px;
+            gap: 16px;
+            position: sticky; top: 0; z-index: 400;
+        }
+
+        .hamburger {
+            display: none;
+            background: none; border: none;
+            color: var(--text-secondary); cursor: pointer;
+            padding: 8px; border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .hamburger:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .hamburger svg { width: 20px; height: 20px; }
+
+        .topbar-title {
+            font-family: var(--font-display);
+            font-size: 19px; font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .search-wrap {
+            position: relative; flex: 0 1 280px;
+        }
+
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 14px; height: 14px; color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 9px 14px 9px 36px;
+            font-size: 13px; font-family: var(--font-body);
+            color: var(--text-primary);
+            transition: var(--transition);
         }
 
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #dadce0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            border-radius: 12px 12px 0 0;
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
-        .modal-header h2 {
-            font-size: 20px;
-            font-weight: 500;
-            color: #202124;
+        .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 9px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13px; font-weight: 600; font-family: var(--font-body);
+            cursor: pointer; border: none; transition: var(--transition);
+            white-space: nowrap; letter-spacing: 0.2px;
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #5f6368;
-            padding: 4px;
-            line-height: 1;
+        .btn svg { width: 14px; height: 14px; }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #1a73e8, #1557b0);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(26,115,232,0.30);
+            letter-spacing: 0.3px;
         }
 
-        .modal-body {
-            padding: 24px;
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            box-shadow: 0 4px 14px rgba(26,115,232,0.40);
+            transform: translateY(-1px);
         }
 
-        .form-group {
+        .btn-ghost {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-soft);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--border-mid);
+        }
+
+        .btn-green-ghost {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(76,175,125,0.25);
+        }
+
+        .btn-green-ghost:hover {
+            background: rgba(76,175,125,0.2);
+        }
+
+        /* ═══════════════════════════════
+           CONTENT
+        ═══════════════════════════════ */
+        .content {
+            flex: 1; padding: 32px 28px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-eyebrow {
+            font-size: 11px; font-weight: 600;
+            color: var(--gold); text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+        }
+
+        .page-eyebrow::before {
+            content: '';
+            display: inline-block; width: 24px; height: 2px;
+            background: var(--gold); border-radius: 2px;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 38px; font-weight: 700;
+            color: var(--text-primary); line-height: 1.1;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 13.5px; color: var(--text-secondary); font-weight: 400;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            transition: var(--transition);
+            position: relative; overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #1a73e8, #4285f4, #34a853);
+            opacity: 0.7;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-soft);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .stat-icon {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .stat-icon svg { width: 17px; height: 17px; }
+
+        .stat-icon.gold { background: var(--gold-dim); color: var(--gold); }
+        .stat-icon.green { background: var(--green-dim); color: var(--green); }
+        .stat-icon.red { background: var(--red-dim); color: var(--red); }
+        .stat-icon.blue { background: var(--blue-dim); color: var(--blue); }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 28px; font-weight: 500;
+            color: var(--text-primary); line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 11.5px; color: var(--text-muted); font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.8px;
+        }
+
+        /* Properties Grid */
+        .section-toolbar {
+            display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px;
         }
 
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #202124;
+        .section-label {
+            font-family: var(--font-display);
+            font-size: 18px; font-weight: 600; color: var(--text-primary);
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        /* Property Card */
+        .property-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative; overflow: hidden;
+        }
+
+        .property-card::after {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196,160,80,0.0), transparent);
+            transition: var(--transition);
+        }
+
+        .property-card:hover {
+            border-color: rgba(196,160,80,0.25);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            transform: translateY(-3px);
+        }
+
+        .property-card:hover::after {
+            background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+        }
+
+        .card-top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .property-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(196,160,80,0.2);
+            color: var(--gold);
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 10.5px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.8px;
+        }
+
+        .property-badge svg { width: 10px; height: 10px; }
+
+        .card-menu {
+            width: 28px; height: 28px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-raised);
+            border: 1px solid var(--border-dim);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition);
+            color: var(--text-muted);
+        }
+
+        .card-menu:hover { background: var(--bg-hover); color: var(--text-secondary); }
+        .card-menu svg { width: 13px; height: 13px; }
+
+        .property-name {
+            font-family: var(--font-display);
+            font-size: 20px; font-weight: 600; color: var(--text-primary);
+            margin-bottom: 4px; line-height: 1.2;
+        }
+
+        .property-id {
+            font-size: 10px; font-family: var(--font-mono);
+            color: var(--text-muted); margin-bottom: 16px; letter-spacing: 0.5px;
+        }
+
+        .card-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: var(--border-dim);
+            border-radius: var(--radius-md);
+            overflow: hidden; margin-bottom: 16px;
+        }
+
+        .card-stat {
+            background: var(--bg-surface);
+            padding: 12px 10px; text-align: center;
+        }
+
+        .card-stat-val {
+            font-family: var(--font-mono);
+            font-size: 16px; font-weight: 500; color: var(--text-primary);
+            display: block; line-height: 1;
+        }
+
+        .card-stat-lbl {
+            font-size: 9.5px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.7px; margin-top: 4px; display: block;
+        }
+
+        .contact-rows { margin-bottom: 14px; }
+
+        .contact-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            margin-bottom: 6px;
+            transition: var(--transition);
+        }
+
+        .contact-row:last-child { margin-bottom: 0; }
+
+        .contact-row:hover { border-color: var(--border-soft); }
+
+        .contact-icon {
+            width: 22px; height: 22px; flex-shrink: 0;
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .contact-icon.email { background: var(--blue-dim); color: var(--blue); }
+        .contact-icon.phone { background: var(--green-dim); color: var(--green); }
+        .contact-icon svg { width: 11px; height: 11px; }
+
+        .contact-label {
+            font-size: 9px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.7px; line-height: 1;
+        }
+
+        .contact-value {
+            font-size: 12px; color: var(--text-primary); font-weight: 500;
+            word-break: break-all; line-height: 1.2;
+        }
+
+        .expiry-chip {
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 12px; border-radius: var(--radius-sm);
+            border: 1px solid; margin-bottom: 16px;
+            font-size: 11.5px; font-weight: 500;
+        }
+
+        .expiry-chip.active {
+            background: var(--green-dim); border-color: rgba(76,175,125,0.3); color: var(--green);
+        }
+
+        .expiry-chip.expired {
+            background: var(--red-dim); border-color: rgba(224,85,85,0.3); color: var(--red);
+        }
+
+        .expiry-chip.warning {
+            background: var(--amber-dim); border-color: rgba(232,168,56,0.3); color: var(--amber);
+        }
+
+        .expiry-chip svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+        .expiry-chip-time { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; opacity: 0.75; }
+
+        .card-actions {
+            display: flex; gap: 8px;
+        }
+
+        .btn-card {
+            flex: 1; padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px; font-weight: 600;
+            cursor: pointer; border: none; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-family: var(--font-body);
+        }
+
+        .btn-card svg { width: 12px; height: 12px; }
+
+        .btn-card-edit {
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid rgba(196,160,80,0.2);
+        }
+
+        .btn-card-edit:hover { background: rgba(196,160,80,0.2); }
+
+        .btn-card-delete {
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(224,85,85,0.2);
+            flex: 0 0 auto; padding: 9px 12px;
+        }
+
+        .btn-card-delete:hover { background: rgba(224,85,85,0.2); }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center; padding: 80px 20px;
+        }
+
+        .empty-icon {
+            width: 64px; height: 64px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .empty-icon svg { width: 28px; height: 28px; color: var(--text-muted); }
+
+        .empty-title {
+            font-family: var(--font-display);
+            font-size: 22px; font-weight: 600; color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
-        .form-label .optional {
-            color: #5f6368;
-            font-weight: normal;
-            font-size: 12px;
-            margin-left: 4px;
+        .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+        /* Loading */
+        .loading-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
         }
 
-        .form-label .required {
-            color: #d33b27;
-            margin-left: 4px;
+        .skeleton-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            padding: 22px; height: 280px;
         }
+
+        .skeleton {
+            background: linear-gradient(90deg, #ece9e3 25%, #dedad3 50%, #ece9e3 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ═══════════════════════════════
+           MODAL
+        ═══════════════════════════════ */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            z-index: 900;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-xl);
+            width: 100%; max-width: 640px;
+            max-height: 92vh; overflow-y: auto;
+            box-shadow: var(--shadow-modal);
+            animation: modalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(16px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal::-webkit-scrollbar { width: 4px; }
+        .modal::-webkit-scrollbar-track { background: transparent; }
+        .modal::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 4px; }
+
+        .modal-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-surface);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            position: sticky; top: 0; z-index: 10;
+        }
+
+        .modal-header-left { }
+
+        .modal-eyebrow {
+            font-size: 9.5px; font-weight: 600; color: var(--gold);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 22px; font-weight: 700; color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px; height: 32px;
+            background: var(--bg-raised); border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition); color: var(--text-muted);
+        }
+
+        .modal-close:hover { background: var(--red-dim); border-color: rgba(224,85,85,0.3); color: var(--red); }
+        .modal-close svg { width: 14px; height: 14px; }
+
+        .modal-body { padding: 24px; }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-section-title {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .form-section-icon {
+            width: 28px; height: 28px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .form-section-icon.gold { background: var(--gold-dim); color: var(--gold); }
+        .form-section-icon.blue { background: var(--blue-dim); color: var(--blue); }
+        .form-section-icon.green { background: var(--green-dim); color: var(--green); }
+        .form-section-icon.amber { background: var(--amber-dim); color: var(--amber); }
+        .form-section-icon svg { width: 13px; height: 13px; }
+
+        .form-section-name {
+            font-size: 12px; font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 1.2px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-label {
+            display: block; font-size: 11.5px; font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 7px;
+        }
+
+        .label-req { color: var(--red); margin-left: 3px; }
+        .label-opt { color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 10px; }
 
         .form-input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            font-family: inherit;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            font-size: 13px; font-family: var(--font-body);
+            color: var(--text-primary);
+            transition: var(--transition);
         }
+
+        .form-input::placeholder { color: var(--text-muted); }
 
         .form-input:focus {
             outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+            border-color: var(--border-focus);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
-        .phone-input-wrapper {
+        .phone-wrap {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            transition: border-color 0.2s;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            overflow: hidden; transition: var(--transition);
         }
 
-        .phone-input-wrapper:focus-within {
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        .phone-wrap:focus-within {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
-        .country-code {
-            background: #f8f9fa;
-            padding: 12px 12px;
-            border-right: 1px solid #dadce0;
-            font-size: 14px;
-            font-weight: 500;
-            color: #202124;
-            border-radius: 8px 0 0 8px;
+        .phone-prefix {
+            padding: 11px 14px;
+            background: var(--bg-raised);
+            border-right: 1px solid var(--border-soft);
+            font-size: 13px; font-weight: 600; color: var(--gold);
+            font-family: var(--font-mono);
+            flex-shrink: 0;
         }
 
         .phone-input {
-            flex: 1;
-            border: none;
-            padding: 12px 0;
-            font-size: 14px;
-            outline: none;
-            font-family: inherit;
+            flex: 1; border: none; outline: none;
+            background: transparent;
+            padding: 11px 14px;
+            font-size: 13px; font-family: var(--font-mono);
+            color: var(--text-primary);
         }
 
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #202124;
-            margin: 24px 0 16px 0;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #1a73e8;
-            display: inline-block;
+        .phone-input::placeholder { color: var(--text-muted); font-family: var(--font-body); }
+
+        .date-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
         }
 
-        .date-time-picker {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin: 20px 0;
-        }
-
-        .picker-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .picker-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #5f6368;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .date-input,
-        .time-input {
-            padding: 12px 16px;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .date-input:focus,
-        .time-input:focus {
-            outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-        }
-
-        .upload-section {
-            border-top: 1px solid #dadce0;
-            margin-top: 24px;
-            padding-top: 24px;
-        }
-
-        .upload-section-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .upload-area {
-            border: 2px dashed #dadce0;
-            border-radius: 8px;
-            padding: 32px 24px;
+        /* Upload */
+        .upload-zone {
+            border: 1px dashed var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 32px 20px;
             text-align: center;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 16px;
+            background: var(--bg-deep);
+            cursor: pointer; transition: var(--transition);
+            position: relative;
         }
 
-        .upload-area:hover {
-            border-color: #1a73e8;
-            background: #f1f3f4;
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--border-focus);
+            background: var(--gold-dim);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
-        .upload-area.dragover {
-            border-color: #1a73e8;
-            background: #e8f0fe;
+        .upload-zone-icon {
+            width: 44px; height: 44px;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            color: var(--text-muted);
         }
 
-        .upload-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-            color: #5f6368;
-        }
+        .upload-zone-icon svg { width: 20px; height: 20px; }
 
-        .upload-text {
-            font-size: 14px;
-            color: #5f6368;
+        .upload-zone-title {
+            font-size: 13.5px; font-weight: 600; color: var(--text-secondary);
             margin-bottom: 4px;
         }
 
-        .upload-subtext {
-            font-size: 12px;
-            color: #9aa0a6;
+        .upload-zone-sub { font-size: 11px; color: var(--text-muted); }
+
+        .upload-zone-sub span { color: var(--gold); cursor: pointer; }
+
+        .file-preview {
+            display: none;
+            background: var(--bg-deep);
+            border: 1px solid rgba(76,175,125,0.3);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-top: 12px;
         }
 
-        .uploaded-file {
-            background: #f1f3f4;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .file-preview.show { display: flex; align-items: center; gap: 12px; }
+
+        .file-preview-icon {
+            width: 36px; height: 36px; flex-shrink: 0;
+            background: var(--green-dim);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--green);
         }
 
-        .file-icon {
-            font-size: 20px;
-            color: #5f6368;
+        .file-preview-icon svg { width: 16px; height: 16px; }
+
+        .file-preview-info { flex: 1; min-width: 0; }
+
+        .file-preview-name {
+            font-size: 13px; font-weight: 600; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .file-info {
-            flex: 1;
+        .file-preview-size { font-size: 11px; color: var(--text-muted); }
+
+        .file-remove {
+            width: 26px; height: 26px; flex-shrink: 0;
+            background: var(--red-dim); border: 1px solid rgba(224,85,85,0.2);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition); color: var(--red);
         }
 
-        .file-name {
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 2px;
-            font-size: 13px;
-        }
-
-        .file-size {
-            font-size: 11px;
-            color: #5f6368;
-        }
+        .file-remove:hover { background: rgba(224,85,85,0.25); }
+        .file-remove svg { width: 12px; height: 12px; }
 
         .modal-footer {
-            padding: 20px 24px;
-            border-top: 1px solid #dadce0;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            background: #fff;
-            border-radius: 0 0 12px 12px;
+            padding: 18px 24px;
+            border-top: 1px solid var(--border-dim);
+            display: flex; gap: 10px; justify-content: flex-end;
+            background: var(--bg-surface);
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
         }
 
-        .btn-cancel {
-            background: #f8f9fa;
-            color: #5f6368;
-            border: 1px solid #dadce0;
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel:hover {
-            background: #f1f3f4;
-        }
-
-        .btn-save {
-            background: #1a73e8;
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .btn-save:hover {
-            background: #1665d8;
+        /* ═══════════════════════════════
+           TOAST
+        ═══════════════════════════════ */
+        #toastContainer {
+            position: fixed; bottom: 24px; right: 24px;
+            z-index: 9999; display: flex; flex-direction: column; gap: 8px;
         }
 
         .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a73e8;
-            color: #fff;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            animation: slideIn 0.3s ease;
-            z-index: 2001;
-            max-width: 400px;
-            word-wrap: break-word;
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13px; font-weight: 500;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+            animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-width: 260px; max-width: 380px;
+            backdrop-filter: blur(20px);
         }
 
-        .toast.success {
-            background: #34a853;
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
-        .toast.error {
-            background: #ea4335;
+        .toast.success { background: #e6f4ea; border: 1px solid rgba(24,128,56,0.3); color: var(--green); }
+        .toast.error   { background: #fce8e6; border: 1px solid rgba(217,48,37,0.3); color: var(--red); }
+        .toast.info    { background: #e8f0fe; border: 1px solid rgba(26,115,232,0.3); color: var(--blue); }
+
+        .toast-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+        .divider-line {
+            height: 1px; background: var(--border-dim);
+            margin: 24px 0;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        /* ═══════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════ */
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .header-left {
-                justify-content: space-between;
-            }
-            
-            .hamburger-menu {
-                display: block;
-            }
-            
-            .header-actions {
-                flex-wrap: wrap;
-            }
-            
-            .search-input {
-                flex: 1;
-                min-width: auto;
-            }
-            
-            .properties-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                max-width: 95%;
-            }
-            
-            .date-time-picker {
-                grid-template-columns: 1fr;
-            }
-            
-            .toast {
-                left: 20px;
-                right: 20px;
-                bottom: 20px;
-                max-width: none;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .layout { margin-left: 0; }
+            .hamburger { display: flex; }
+            .topbar { padding: 0 14px; }
+            .search-wrap { flex: 1; }
+            .topbar-title { display: none; }
+            .content { padding: 16px 14px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+            .stat-card { padding: 14px 14px; }
+            .stat-icon { width: 30px; height: 30px; margin-bottom: 10px; }
+            .stat-icon svg { width: 14px; height: 14px; }
+            .stat-value { font-size: 22px; }
+            .stat-label { font-size: 10px; letter-spacing: 0.5px; }
+            .properties-grid { grid-template-columns: 1fr; }
+            .page-title { font-size: 26px; }
+            .page-subtitle { font-size: 12px; }
+            .date-row { grid-template-columns: 1fr; }
+            #toastContainer { left: 12px; right: 12px; bottom: 12px; }
+            .toast { max-width: 100%; }
+            .btn-text-hide { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 12px 10px; }
+            .stat-value { font-size: 20px; }
+            .stat-icon { width: 26px; height: 26px; margin-bottom: 8px; }
+            .stat-label { font-size: 9.5px; }
+            .topbar-actions .btn-ghost { display: none; }
+            .sidebar-overlay { background: rgba(0,0,0,0.35); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main">
-            <div class="header">
-                <div class="header-left">
-                    <div class="header-title">Real Estate Properties Management</div>
-                </div>
-                <div class="header-actions">
-                    <input type="search" placeholder="Search properties..." class="search-input" id="searchInput">
-                    <button class="btn-dashboard" onclick="goToDashboard()">Dashboard</button>
-                    <button class="btn-primary" onclick="openModal()">Add Property</button>
-                    <button class="btn-secondary" onclick="logout()">Logout</button>
-                </div>
+
+<!-- ── Sidebar Overlay (mobile) ── -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
-
-            <div class="content">
-                <div class="content-header">
-                    <h1>Managed Properties</h1>
-                    <p>Manage property access and control user permissions with automatic expiration</p>
-                </div>
-
-                <div class="properties-grid" id="propertiesGrid">
-                    <!-- Properties will be generated here -->
-                </div>
+            <div class="logo-text">
+                <div class="logo-name">Domotics Admin</div>
+                <div class="logo-tagline">Automated Property Dashboard</div>
             </div>
         </div>
     </div>
 
-    <!-- Property Modal -->
-    <div class="modal" id="propertyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Manage Property Access</h2>
-                <button class="modal-close" onclick="closeModal()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Property Name <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="propertyName" placeholder="Enter property name" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Primary Email Address <span class="required">*</span></label>
-                    <input type="email" class="form-input" id="email1" placeholder="Enter primary email address" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Secondary Email Address <span class="optional">(Optional)</span></label>
-                    <input type="email" class="form-input" id="email2" placeholder="Enter secondary email address">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tertiary Email Address <span class="optional">(Optional)</span></label>
-                    <input type="email" class="form-input" id="email3" placeholder="Enter tertiary email address">
-                </div>
-
-                <div style="margin: 24px 0 8px 0;">
-                    <div class="section-title">📱 Phone Numbers (Optional)</div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Primary Phone Number <span class="optional">(Optional)</span></label>
-                    <div class="phone-input-wrapper">
-                        <span class="country-code">+91</span>
-                        <input type="tel" class="phone-input" id="phone1" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Secondary Phone Number <span class="optional">(Optional)</span></label>
-                    <div class="phone-input-wrapper">
-                        <span class="country-code">+91</span>
-                        <input type="tel" class="phone-input" id="phone2" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tertiary Phone Number <span class="optional">(Optional)</span></label>
-                    <div class="phone-input-wrapper">
-                        <span class="country-code">+91</span>
-                        <input type="tel" class="phone-input" id="phone3" placeholder="Enter 10-digit number" maxlength="10" pattern="[0-9]{10}">
-                    </div>
-                </div>
-
-                <div style="margin: 24px 0 8px 0;">
-                    <div class="section-title">⏰ Access Expiration</div>
-                </div>
-
-                <div class="date-time-picker">
-                    <div class="picker-group">
-                        <div class="picker-label">Expiry Date</div>
-                        <input type="date" class="date-input" id="expiryDate" required>
-                    </div>
-                    <div class="picker-group">
-                        <div class="picker-label">Expiry Time</div>
-                        <input type="time" class="time-input" id="expiryTime" required>
-                    </div>
-                </div>
-
-                <!-- Upload Section -->
-                <div class="upload-section">
-                    <div class="upload-section-title">📊 Upload Dashboard Data</div>
-
-                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('jsonFile').click()">
-                        <div class="upload-icon">📊</div>
-                        <div class="upload-text">Click to upload JSON file or drag and drop</div>
-                        <div class="upload-subtext">Supports .json files only</div>
-                        <input type="file" id="jsonFile" accept=".json" style="display: none;" 
-                               onchange="handleFileUpload(event)">
-                    </div>
-
-                    <div id="uploadedFileInfo" style="display: none;">
-                        <div class="uploaded-file">
-                            <div class="file-icon">📄</div>
-                            <div class="file-info">
-                                <div class="file-name" id="fileName"></div>
-                                <div class="file-size" id="fileSize"></div>
-                            </div>
-                        </div>
-                        <div class="upload-actions">
-                            <button class="btn-remove" onclick="removeFile()">Remove File</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                <button class="btn-save" onclick="saveProperty()">Save Property</button>
-            </div>
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+        <div class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Properties
+            <span class="nav-badge" id="navBadge">0</span>
+        </div>
+        <div class="nav-item" onclick="goToDashboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Analytics Dashboard
         </div>
     </div>
 
-    <!-- Add Firebase Config -->
-    <script src="firebase-config.js"></script>
+    <div class="sidebar-divider"></div>
 
-    <script>
-        // Admin emails (hardcoded)
-        const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
-        
-        let currentPropertyId = null;
-        let uploadedFile = null;
-        let currentDashboardData = null;
-        let properties = [];
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Quick Actions</div>
+        <div class="nav-item" onclick="openModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New Property
+        </div>
+    </div>
 
-        // Check authentication on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            await checkAdminAuth();
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <div class="user-avatar" id="userAvatarSidebar">A</div>
+            <div class="user-info">
+                <div class="user-name" id="userEmailSidebar">Admin User</div>
+                <div class="user-role">Dashboard Admin</div>
+            </div>
+            <div class="logout-btn" onclick="logout()" title="Logout">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════ MAIN LAYOUT ═══════════ -->
+<div class="layout">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <button class="hamburger" onclick="openSidebar()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+
+        <span class="topbar-title">Automated Property Dashboard</span>
+
+        <div class="search-wrap">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" class="search-input" id="searchInput" placeholder="Search properties, emails…">
+        </div>
+
+        <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="goToDashboard()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span class="btn-text-hide">Dashboard</span>
+            </button>
+            <button class="btn btn-gold" onclick="openModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span class="btn-text-hide">Add Property</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+        <div class="page-header">
+            <div class="page-eyebrow">Automated Property Dashboard</div>
+            <h1 class="page-title">Property Access Control</h1>
+            <p class="page-subtitle">Manage automated access, user permissions & smart expiration for all properties</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon gold">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total Properties</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-value" id="statActive">0</div>
+                <div class="stat-label">Active Access</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="stat-value" id="statExpired">0</div>
+                <div class="stat-label">Expired</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                </div>
+                <div class="stat-value" id="statDashboard">0</div>
+                <div class="stat-label">With Dashboard</div>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="section-toolbar">
+            <div class="section-label">All Properties</div>
+        </div>
+
+        <div id="propertiesGrid" class="properties-grid">
+            <!-- Skeleton loaders -->
+            <div class="skeleton-card"><div class="skeleton" style="height:20px;width:40%;margin-bottom:12px"></div><div class="skeleton" style="height:28px;width:70%;margin-bottom:24px"></div><div class="skeleton" style="height:60px;margin-bottom:12px"></div><div class="skeleton" style="height:40px;margin-bottom:12px"></div><div class="skeleton" style="height:36px"></div></div>
+            <div class="skeleton-card"><div class="skeleton" style="height:20px;width:40%;margin-bottom:12px"></div><div class="skeleton" style="height:28px;width:70%;margin-bottom:24px"></div><div class="skeleton" style="height:60px;margin-bottom:12px"></div><div class="skeleton" style="height:40px;margin-bottom:12px"></div><div class="skeleton" style="height:36px"></div></div>
+            <div class="skeleton-card"><div class="skeleton" style="height:20px;width:40%;margin-bottom:12px"></div><div class="skeleton" style="height:28px;width:70%;margin-bottom:24px"></div><div class="skeleton" style="height:60px;margin-bottom:12px"></div><div class="skeleton" style="height:40px;margin-bottom:12px"></div><div class="skeleton" style="height:36px"></div></div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ═══════════ MODAL ═══════════ -->
+<div class="modal-overlay" id="propertyModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-eyebrow">Automated Property Dashboard</div>
+                <div class="modal-title" id="modalTitle">New Property</div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <!-- Property Name -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="form-section-icon gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <span class="form-section-name">Property Details</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Property Name <span class="label-req">*</span></label>
+                    <input type="text" class="form-input" id="propertyName" placeholder="e.g. Sunrise Residency, Block A">
+                </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Emails -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="form-section-icon blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <span class="form-section-name">Email Access</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Primary Email <span class="label-req">*</span></label>
+                    <input type="email" class="form-input" id="email1" placeholder="primary@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Secondary Email <span class="label-opt">(optional)</span></label>
+                    <input type="email" class="form-input" id="email2" placeholder="secondary@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tertiary Email <span class="label-opt">(optional)</span></label>
+                    <input type="email" class="form-input" id="email3" placeholder="tertiary@example.com">
+                </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Phones -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="form-section-icon green">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.7a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </div>
+                    <span class="form-section-name">Phone Numbers <span class="label-opt" style="font-weight:400">(optional)</span></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Primary Phone</label>
+                    <div class="phone-wrap">
+                        <span class="phone-prefix">+91</span>
+                        <input type="tel" class="phone-input" id="phone1" placeholder="Enter 10-digit number" maxlength="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Secondary Phone</label>
+                    <div class="phone-wrap">
+                        <span class="phone-prefix">+91</span>
+                        <input type="tel" class="phone-input" id="phone2" placeholder="Enter 10-digit number" maxlength="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tertiary Phone</label>
+                    <div class="phone-wrap">
+                        <span class="phone-prefix">+91</span>
+                        <input type="tel" class="phone-input" id="phone3" placeholder="Enter 10-digit number" maxlength="10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Expiry -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="form-section-icon amber">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <span class="form-section-name">Access Expiration <span class="label-req">*</span></span>
+                </div>
+                <div class="date-row">
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="date" class="form-input" id="expiryDate">
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Expiry Time</label>
+                        <input type="time" class="form-input" id="expiryTime">
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Dashboard Upload -->
+            <div class="form-section" style="margin-bottom:0">
+                <div class="form-section-title">
+                    <div class="form-section-icon gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <span class="form-section-name">Dashboard Data <span class="label-opt" style="font-weight:400">(optional)</span></span>
+                </div>
+                <div class="upload-zone" id="uploadArea" onclick="document.getElementById('jsonFile').click()">
+                    <div class="upload-zone-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                    </div>
+                    <div class="upload-zone-title">Upload JSON dashboard file</div>
+                    <div class="upload-zone-sub">Drag & drop or <span>browse files</span> · .json only</div>
+                    <input type="file" id="jsonFile" accept=".json" style="display:none" onchange="handleFileUpload(event)">
+                </div>
+                <div class="file-preview" id="uploadedFileInfo">
+                    <div class="file-preview-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div class="file-preview-info">
+                        <div class="file-preview-name" id="fileName"></div>
+                        <div class="file-preview-size" id="fileSize"></div>
+                    </div>
+                    <div class="file-remove" onclick="removeFile()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-gold" onclick="saveProperty()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Property
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<!-- Firebase Config -->
+<script src="firebase-config.js"></script>
+
+<script>
+    const ADMIN_EMAILS = ['mohancheenu04@gmail.com', 'drasisdata@gmail.com'];
+
+    let currentPropertyId = null;
+    let uploadedFile = null;
+    let currentDashboardData = null;
+    let properties = [];
+
+    // ── Sidebar ──
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebarOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkAdminAuth();
+        await loadProperties();
+        setupDragAndDrop();
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterProperties(e.target.value);
+        });
+    });
+
+    // ── Auth ──
+    async function checkAdminAuth() {
+        return new Promise((resolve) => {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (!user || !ADMIN_EMAILS.includes(user.email)) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                const email = user.email;
+                const initials = email.charAt(0).toUpperCase();
+                document.getElementById('userAvatarSidebar').textContent = initials;
+                document.getElementById('userEmailSidebar').textContent = email;
+                resolve();
+            });
+        });
+    }
+
+    // ── Load ──
+    async function loadProperties() {
+        try {
+            const snapshot = await db.collection('properties').get();
+            properties = [];
+            snapshot.forEach(doc => {
+                properties.push({ id: doc.id, ...doc.data() });
+            });
+            renderProperties();
+        } catch (error) {
+            console.error(error);
+            showToast('Error loading properties', 'error');
+        }
+    }
+
+    // ── Stats ──
+    function updateStats(list) {
+        const now = new Date();
+        let active = 0, expired = 0, withDash = 0;
+        list.forEach(p => {
+            if (p.expiryDate && p.expiryTime) {
+                const exp = new Date(p.expiryDate + ' ' + p.expiryTime);
+                if (exp < now) expired++; else active++;
+            }
+            if (p.dashboardData) withDash++;
+        });
+        document.getElementById('statTotal').textContent    = list.length;
+        document.getElementById('statActive').textContent   = active;
+        document.getElementById('statExpired').textContent  = expired;
+        document.getElementById('statDashboard').textContent = withDash;
+        document.getElementById('navBadge').textContent     = list.length;
+    }
+
+    // ── Render ──
+    function renderProperties(list = properties) {
+        const grid = document.getElementById('propertiesGrid');
+        updateStats(list);
+
+        if (list.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div class="empty-title">No properties found</div>
+                    <div class="empty-sub">Add your first property to get started</div>
+                </div>`;
+            return;
+        }
+
+        grid.innerHTML = '';
+        const now = new Date();
+
+        list.forEach(p => {
+            const emails = [p.email1, p.email2, p.email3].filter(Boolean);
+            const phones = [p.phone1, p.phone2, p.phone3].filter(Boolean);
+
+            let expiryHTML = '';
+            if (p.expiryDate && p.expiryTime) {
+                const exp = new Date(p.expiryDate + ' ' + p.expiryTime);
+                const isExpired = exp < now;
+                const diffMs = exp - now;
+                const diffDays = Math.ceil(diffMs / 86400000);
+                const cls = isExpired ? 'expired' : (diffDays <= 7 ? 'warning' : 'active');
+                const icon = isExpired
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+                const label = isExpired ? 'Expired' : (diffDays <= 7 ? `Expires in ${diffDays}d` : 'Active Access');
+                expiryHTML = `
+                    <div class="expiry-chip ${cls}">
+                        ${icon} ${label}
+                        <span class="expiry-chip-time">${exp.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+                    </div>`;
+            }
+
+            const emailRows = emails.map((e, i) => `
+                <div class="contact-row">
+                    <div class="contact-icon email">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div>
+                        <div class="contact-label">Email ${i + 1}</div>
+                        <div class="contact-value">${e}</div>
+                    </div>
+                </div>`).join('');
+
+            const phoneRows = phones.map((ph, i) => `
+                <div class="contact-row">
+                    <div class="contact-icon phone">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.7a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </div>
+                    <div>
+                        <div class="contact-label">Phone ${i + 1}</div>
+                        <div class="contact-value">+91 ${ph}</div>
+                    </div>
+                </div>`).join('');
+
+            const dashStat = p.dashboardData
+                ? `<span style="color:var(--green)">✓</span>`
+                : `<span style="color:var(--text-muted)">—</span>`;
+
+            const card = document.createElement('div');
+            card.className = 'property-card';
+            card.innerHTML = `
+                <div class="card-top">
+                    <div class="property-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Property
+                    </div>
+                </div>
+                <div class="property-name">${p.propertyName || 'Unnamed Property'}</div>
+                <div class="property-id">${p.id}</div>
+
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <span class="card-stat-val">${emails.length}</span>
+                        <span class="card-stat-lbl">Emails</span>
+                    </div>
+                    <div class="card-stat">
+                        <span class="card-stat-val">${phones.length}</span>
+                        <span class="card-stat-lbl">Phones</span>
+                    </div>
+                    <div class="card-stat">
+                        <span class="card-stat-val">${dashStat}</span>
+                        <span class="card-stat-lbl">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="contact-rows">
+                    ${emailRows}
+                    ${phoneRows}
+                </div>
+
+                ${expiryHTML}
+
+                <div class="card-actions">
+                    <button class="btn-card btn-card-edit" onclick="openModal('${p.id}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        ${p.dashboardData ? 'Edit Property' : 'Configure'}
+                    </button>
+                    <button class="btn-card btn-card-delete" onclick="deleteProperty('${p.id}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
+                </div>`;
+
+            grid.appendChild(card);
+        });
+    }
+
+    // ── Filter ──
+    function filterProperties(term) {
+        const t = term.toLowerCase();
+        const filtered = properties.filter(p =>
+            p.propertyName?.toLowerCase().includes(t) ||
+            p.email1?.toLowerCase().includes(t) ||
+            p.phone1?.includes(t)
+        );
+        renderProperties(filtered);
+    }
+
+    // ── Modal ──
+    async function openModal(propertyId = null) {
+        currentPropertyId = propertyId;
+        if (propertyId) {
+            const p = properties.find(x => x.id === propertyId);
+            document.getElementById('modalTitle').textContent = 'Edit Property';
+            document.getElementById('propertyName').value = p.propertyName || '';
+            document.getElementById('email1').value = p.email1 || '';
+            document.getElementById('email2').value = p.email2 || '';
+            document.getElementById('email3').value = p.email3 || '';
+            document.getElementById('phone1').value = p.phone1 || '';
+            document.getElementById('phone2').value = p.phone2 || '';
+            document.getElementById('phone3').value = p.phone3 || '';
+            document.getElementById('expiryDate').value = p.expiryDate || '';
+            document.getElementById('expiryTime').value = p.expiryTime || '';
+            if (p.dashboardData) {
+                currentDashboardData = p.dashboardData.data;
+                showToast('Existing dashboard data loaded', 'info');
+            }
+        } else {
+            document.getElementById('modalTitle').textContent = 'New Property';
+            ['propertyName','email1','email2','email3','phone1','phone2','phone3','expiryDate','expiryTime']
+                .forEach(id => document.getElementById(id).value = '');
+            currentDashboardData = null;
+        }
+        uploadedFile = null;
+        document.getElementById('uploadedFileInfo').classList.remove('show');
+        document.getElementById('uploadArea').classList.remove('dragover');
+        document.getElementById('jsonFile').value = '';
+        document.getElementById('propertyModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('propertyModal').classList.remove('active');
+        currentPropertyId = null;
+        currentDashboardData = null;
+    }
+
+    // ── Save ──
+    async function saveProperty() {
+        const propertyName = document.getElementById('propertyName').value.trim();
+        const email1 = document.getElementById('email1').value.trim();
+        const email2 = document.getElementById('email2').value.trim();
+        const email3 = document.getElementById('email3').value.trim();
+        const phone1 = document.getElementById('phone1').value.trim();
+        const phone2 = document.getElementById('phone2').value.trim();
+        const phone3 = document.getElementById('phone3').value.trim();
+        const expiryDate = document.getElementById('expiryDate').value;
+        const expiryTime = document.getElementById('expiryTime').value;
+
+        if (!propertyName || !email1 || !expiryDate || !expiryTime) {
+            showToast('Please fill all required fields', 'error'); return;
+        }
+        const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailReg.test(email1)) { showToast('Invalid primary email', 'error'); return; }
+        if (email2 && !emailReg.test(email2)) { showToast('Invalid secondary email', 'error'); return; }
+        if (email3 && !emailReg.test(email3)) { showToast('Invalid tertiary email', 'error'); return; }
+        if (phone1 && !/^\d{10}$/.test(phone1)) { showToast('Invalid primary phone (10 digits required)', 'error'); return; }
+        if (phone2 && !/^\d{10}$/.test(phone2)) { showToast('Invalid secondary phone', 'error'); return; }
+        if (phone3 && !/^\d{10}$/.test(phone3)) { showToast('Invalid tertiary phone', 'error'); return; }
+
+        try {
+            const data = {
+                propertyName, email1,
+                email2: email2 || null, email3: email3 || null,
+                phone1: phone1 || null, phone2: phone2 || null, phone3: phone3 || null,
+                expiryDate, expiryTime,
+                updatedAt: new Date().toISOString()
+            };
+            if (currentDashboardData) {
+                data.dashboardData = { data: currentDashboardData, uploadedAt: new Date().toISOString() };
+            }
+            if (currentPropertyId) {
+                await db.collection('properties').doc(currentPropertyId).update(data);
+                showToast('Property updated successfully', 'success');
+            } else {
+                data.createdAt = new Date().toISOString();
+                await db.collection('properties').add(data);
+                showToast('Property created successfully', 'success');
+            }
             await loadProperties();
-            setupDragAndDrop();
-            
-            // Setup search
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    filterProperties(e.target.value);
-                });
-            }
+            closeModal();
+        } catch (err) {
+            console.error(err);
+            showToast('Error saving property', 'error');
+        }
+    }
+
+    // ── Delete ──
+    async function deleteProperty(id) {
+        if (!confirm('Delete this property? This action cannot be undone.')) return;
+        try {
+            await db.collection('properties').doc(id).delete();
+            showToast('Property deleted', 'success');
+            await loadProperties();
+        } catch (err) {
+            showToast('Error deleting property', 'error');
+        }
+    }
+
+    // ── File Upload ──
+    function setupDragAndDrop() {
+        const zone = document.getElementById('uploadArea');
+        ['dragenter','dragover','dragleave','drop'].forEach(e => zone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }));
+        ['dragenter','dragover'].forEach(e => zone.addEventListener(e, () => zone.classList.add('dragover')));
+        ['dragleave','drop'].forEach(e => zone.addEventListener(e, () => zone.classList.remove('dragover')));
+        zone.addEventListener('drop', ev => {
+            const files = ev.dataTransfer.files;
+            if (files.length) handleFileUpload({ target: { files } });
         });
+    }
 
-        // Filter properties based on search
-        function filterProperties(searchTerm) {
-            const filtered = properties.filter(property => 
-                property.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                property.email1?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                property.phone1?.includes(searchTerm)
-            );
-            renderProperties(filtered);
-        }
-
-        // Check if user is admin
-        async function checkAdminAuth() {
-            return new Promise((resolve) => {
-                firebase.auth().onAuthStateChanged(async (user) => {
-                    if (!user) {
-                        window.location.href = 'index.html';
-                        return;
-                    }
-
-                    const userEmail = user.email;
-                    
-                    if (!ADMIN_EMAILS.includes(userEmail)) {
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                    
-                    resolve();
-                });
-            });
-        }
-
-        // Load properties from Firebase
-        async function loadProperties() {
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file || file.type !== 'application/json') { showToast('Please upload a valid JSON file', 'error'); return; }
+        uploadedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
             try {
-                const snapshot = await db.collection('properties').get();
-                properties = [];
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    properties.push({
-                        id: doc.id,
-                        ...data
-                    });
-                });
-                
-                renderProperties();
-            } catch (error) {
-                console.error('Error loading properties:', error);
-                showToast('Error loading properties', 'error');
+                currentDashboardData = JSON.parse(e.target.result);
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('uploadedFileInfo').classList.add('show');
+                showToast('Dashboard data loaded', 'success');
+            } catch {
+                showToast('Invalid JSON format', 'error');
+                uploadedFile = null; currentDashboardData = null;
             }
-        }
+        };
+        reader.readAsText(file);
+    }
 
-        // Render all properties
-        function renderProperties(propertiesToRender = properties) {
-            const grid = document.getElementById('propertiesGrid');
-            grid.innerHTML = '';
+    function removeFile() {
+        uploadedFile = null; currentDashboardData = null;
+        document.getElementById('uploadedFileInfo').classList.remove('show');
+        document.getElementById('jsonFile').value = '';
+    }
 
-            if (propertiesToRender.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #5f6368;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
-                        <h3 style="font-weight: 400; margin-bottom: 8px;">No properties found</h3>
-                        <p style="font-size: 14px;">Click the "Add Property" button to create your first property</p>
-                    </div>
-                `;
-                return;
-            }
+    function formatFileSize(bytes) {
+        if (!bytes) return '0 B';
+        const k = 1024, sizes = ['B','KB','MB','GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    }
 
-            propertiesToRender.forEach(property => {
-                const card = document.createElement('div');
-                card.className = 'property-card';
-                
-                // Collect all non-empty emails
-                const emails = [
-                    property.email1,
-                    property.email2,
-                    property.email3
-                ].filter(email => email && email.trim() !== '');
-                
-                // Collect all non-empty phones
-                const phones = [
-                    property.phone1,
-                    property.phone2,
-                    property.phone3
-                ].filter(phone => phone && phone.trim() !== '');
-                
-                let expiryInfo = '';
-                let userInfo = '';
-                let phoneInfo = '';
-                
-                if (property.expiryDate && property.expiryTime) {
-                    const expiryDate = new Date(property.expiryDate + ' ' + property.expiryTime);
-                    const now = new Date();
-                    const isExpired = expiryDate < now;
-                    
-                    expiryInfo = `
-                        <div class="property-expiry" style="${isExpired ? 'background: #fce8e6; border-color: #ea4335; color: #d33b27;' : ''}">
-                            ⏱️ ${isExpired ? 'EXPIRED: ' : ''}Access Expires: ${expiryDate.toLocaleString()}
-                        </div>
-                    `;
-                }
-                
-                if (emails.length > 0) {
-                    userInfo = emails.map((email, index) => `
-                        <div class="property-user">
-                            <div class="property-user-label">✉️ Email ${index + 1}</div>
-                            <div class="property-user-value">${email}</div>
-                        </div>
-                    `).join('');
-                }
-                
-                if (phones.length > 0) {
-                    phoneInfo = phones.map((phone, index) => `
-                        <div class="property-phone">
-                            <div class="property-phone-label">📱 Phone ${index + 1}</div>
-                            <div class="property-phone-value">+91 ${phone}</div>
-                        </div>
-                    `).join('');
-                }
+    // ── Toast ──
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icons = {
+            success: `<svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+            error:   `<svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+            info:    `<svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+        };
+        toast.innerHTML = (icons[type] || icons.info) + `<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
 
-                card.innerHTML = `
-                    <div class="property-location">${property.propertyName || 'Unnamed Property'}</div>
-                    <div class="property-name">${property.propertyName || 'Unnamed Property'}</div>
-                    
-                    <div class="property-info">
-                        <div class="property-info-item">
-                            <span class="property-info-label">Emails</span>
-                            <span class="property-info-value">${emails.length}</span>
-                        </div>
-                        <div class="property-info-item">
-                            <span class="property-info-label">Phones</span>
-                            <span class="property-info-value">${phones.length}</span>
-                        </div>
-                        <div class="property-info-item">
-                            <span class="property-info-label">Dashboard</span>
-                            <span class="property-info-value" style="color: ${property.dashboardData ? '#1a73e8' : '#5f6368'}">
-                                ${property.dashboardData ? '✓ Configured' : 'Not Set'}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    ${userInfo}
-                    ${phoneInfo}
-                    ${expiryInfo}
-                    
-                    <div class="property-actions">
-                        <button class="btn-sm btn-edit" onclick="openModal('${property.id}')">
-                            ${property.dashboardData ? 'Edit Property' : 'Configure Property'}
-                        </button>
-                        <button class="btn-sm btn-delete" onclick="deleteProperty('${property.id}')">Delete</button>
-                    </div>
-                `;
+    // ── Other ──
+    function goToDashboard() { window.location.href = 'admin-control.html'; }
 
-                grid.appendChild(card);
-            });
-        }
+    async function logout() {
+        try { await firebase.auth().signOut(); window.location.href = 'index.html'; }
+        catch (e) { console.error(e); }
+    }
 
-        // Open modal for property configuration
-        async function openModal(propertyId = null) {
-            currentPropertyId = propertyId;
-            
-            if (propertyId) {
-                // Edit existing property
-                const property = properties.find(p => p.id === propertyId);
-                document.getElementById('modalTitle').textContent = 'Edit Property';
-                document.getElementById('propertyName').value = property.propertyName || '';
-                document.getElementById('email1').value = property.email1 || '';
-                document.getElementById('email2').value = property.email2 || '';
-                document.getElementById('email3').value = property.email3 || '';
-                document.getElementById('phone1').value = property.phone1 || '';
-                document.getElementById('phone2').value = property.phone2 || '';
-                document.getElementById('phone3').value = property.phone3 || '';
-                document.getElementById('expiryDate').value = property.expiryDate || '';
-                document.getElementById('expiryTime').value = property.expiryTime || '';
-                
-                if (property.dashboardData) {
-                    currentDashboardData = property.dashboardData.data;
-                    showToast('Existing dashboard data loaded', 'success');
-                }
-            } else {
-                // Create new property
-                document.getElementById('modalTitle').textContent = 'Create New Property';
-                document.getElementById('propertyName').value = '';
-                document.getElementById('email1').value = '';
-                document.getElementById('email2').value = '';
-                document.getElementById('email3').value = '';
-                document.getElementById('phone1').value = '';
-                document.getElementById('phone2').value = '';
-                document.getElementById('phone3').value = '';
-                document.getElementById('expiryDate').value = '';
-                document.getElementById('expiryTime').value = '';
-                currentDashboardData = null;
-            }
+    document.getElementById('propertyModal').addEventListener('click', (e) => {
+        if (e.target.id === 'propertyModal') closeModal();
+    });
 
-            // Reset file upload section
-            uploadedFile = null;
-            document.getElementById('uploadedFileInfo').style.display = 'none';
-            document.getElementById('uploadArea').classList.remove('dragover');
-            document.getElementById('jsonFile').value = '';
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
 
-            document.getElementById('propertyModal').classList.add('active');
-        }
-
-        // Close modal
-        function closeModal() {
-            document.getElementById('propertyModal').classList.remove('active');
-            currentPropertyId = null;
-            currentDashboardData = null;
-        }
-
-        // Validate phone number
-        function validatePhone(phone) {
-            if (!phone) return true;
-            return /^\d{10}$/.test(phone);
-        }
-
-        // Save property to Firebase
-        async function saveProperty() {
-            const propertyName = document.getElementById('propertyName').value.trim();
-            const email1 = document.getElementById('email1').value.trim();
-            const email2 = document.getElementById('email2').value.trim();
-            const email3 = document.getElementById('email3').value.trim();
-            const phone1 = document.getElementById('phone1').value.trim();
-            const phone2 = document.getElementById('phone2').value.trim();
-            const phone3 = document.getElementById('phone3').value.trim();
-            const expiryDate = document.getElementById('expiryDate').value;
-            const expiryTime = document.getElementById('expiryTime').value;
-
-            // Validation
-            if (!propertyName || !email1 || !expiryDate || !expiryTime) {
-                showToast('Please fill all required fields (Property Name, Primary Email, Expiry Date & Time)', 'error');
-                return;
-            }
-
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email1)) {
-                showToast('Please enter a valid primary email address', 'error');
-                return;
-            }
-            
-            if (email2 && !emailRegex.test(email2)) {
-                showToast('Please enter a valid secondary email address', 'error');
-                return;
-            }
-            
-            if (email3 && !emailRegex.test(email3)) {
-                showToast('Please enter a valid tertiary email address', 'error');
-                return;
-            }
-            
-            // Phone validation
-            if (phone1 && !validatePhone(phone1)) {
-                showToast('Please enter a valid 10-digit primary phone number', 'error');
-                return;
-            }
-            
-            if (phone2 && !validatePhone(phone2)) {
-                showToast('Please enter a valid 10-digit secondary phone number', 'error');
-                return;
-            }
-            
-            if (phone3 && !validatePhone(phone3)) {
-                showToast('Please enter a valid 10-digit tertiary phone number', 'error');
-                return;
-            }
-
-            try {
-                const propertyData = {
-                    propertyName,
-                    email1,
-                    email2: email2 || null,
-                    email3: email3 || null,
-                    phone1: phone1 || null,
-                    phone2: phone2 || null,
-                    phone3: phone3 || null,
-                    expiryDate,
-                    expiryTime,
-                    updatedAt: new Date().toISOString()
-                };
-
-                // Add dashboard data if exists
-                if (currentDashboardData) {
-                    propertyData.dashboardData = {
-                        data: currentDashboardData,
-                        uploadedAt: new Date().toISOString()
-                    };
-                }
-
-                if (currentPropertyId) {
-                    // Update existing property
-                    await db.collection('properties').doc(currentPropertyId).update(propertyData);
-                    showToast('Property updated successfully!', 'success');
-                } else {
-                    // Create new property
-                    propertyData.createdAt = new Date().toISOString();
-                    await db.collection('properties').add(propertyData);
-                    showToast('Property created successfully!', 'success');
-                }
-
-                await loadProperties();
-                closeModal();
-            } catch (error) {
-                console.error('Error saving property:', error);
-                showToast('Error saving property data', 'error');
-            }
-        }
-
-        // Delete property
-        async function deleteProperty(propertyId) {
-            if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-                try {
-                    await db.collection('properties').doc(propertyId).delete();
-                    showToast('Property deleted', 'success');
-                    await loadProperties();
-                } catch (error) {
-                    console.error('Error deleting property:', error);
-                    showToast('Error deleting property', 'error');
-                }
-            }
-        }
-
-        // Dashboard Navigation
-        function goToDashboard() {
-            window.location.href = 'admin-control.html';
-        }
-
-        // Setup drag and drop
-        function setupDragAndDrop() {
-            const uploadArea = document.getElementById('uploadArea');
-
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, preventDefaults, false);
-            });
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, unhighlight, false);
-            });
-
-            uploadArea.addEventListener('drop', handleDrop, false);
-        }
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function highlight() {
-            document.getElementById('uploadArea').classList.add('dragover');
-        }
-
-        function unhighlight() {
-            document.getElementById('uploadArea').classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-
-            if (files.length > 0) {
-                handleFileUpload({ target: { files: files } });
-            }
-        }
-
-        // Handle file upload
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-
-            if (file && file.type === 'application/json') {
-                uploadedFile = file;
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        currentDashboardData = JSON.parse(e.target.result);
-
-                        // Display file info
-                        document.getElementById('fileName').textContent = file.name;
-                        document.getElementById('fileSize').textContent = formatFileSize(file.size);
-                        document.getElementById('uploadedFileInfo').style.display = 'block';
-
-                        showToast('File loaded successfully', 'success');
-                    } catch (error) {
-                        showToast('Invalid JSON file format', 'error');
-                        console.error('JSON parsing error:', error);
-                        uploadedFile = null;
-                        currentDashboardData = null;
-                    }
-                };
-
-                reader.onerror = function() {
-                    showToast('Error reading file', 'error');
-                    uploadedFile = null;
-                    currentDashboardData = null;
-                };
-
-                reader.readAsText(file);
-            } else {
-                showToast('Please upload a valid JSON file', 'error');
-            }
-        }
-
-        // Remove uploaded file
-        function removeFile() {
-            uploadedFile = null;
-            currentDashboardData = null;
-            document.getElementById('uploadedFileInfo').style.display = 'none';
-            document.getElementById('jsonFile').value = '';
-            document.getElementById('uploadArea').classList.remove('dragover');
-        }
-
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // Show toast
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        // Logout function
-        async function logout() {
-            try {
-                await firebase.auth().signOut();
-                window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('propertyModal').addEventListener('click', (e) => {
-            if (e.target.id === 'propertyModal') {
-                closeModal();
-            }
+    document.querySelectorAll('.phone-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
         });
-
-        // Close modal on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        // Add phone number input validation
-        document.querySelectorAll('.phone-input').forEach(input => {
-            input.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
-            });
-        });
-    </script>
-    <script src="firebase-config.js"></script>
-    <script src="admin-auth-check.js"></script>
+    });
+</script>
+<script src="admin-auth-check.js"></script>
 </body>
 </html>
