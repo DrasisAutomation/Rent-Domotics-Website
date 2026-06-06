@@ -16,6 +16,26 @@ const typeNames = {
     remote: "Remote"
 };
 
+async function waitForFirebaseUser(timeoutMs = 5000) {
+    return new Promise((resolve) => {
+        const currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            resolve(currentUser);
+            return;
+        }
+
+        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+            unsubscribe();
+            resolve(user);
+        });
+
+        setTimeout(() => {
+            unsubscribe();
+            resolve(firebase.auth().currentUser);
+        }, timeoutMs);
+    });
+}
+
 // Initialize the dashboard with Firebase data
 async function initializeDashboard() {
     console.log("Initializing dashboard...");
@@ -28,18 +48,65 @@ async function loadDashboardFromFirebase() {
     try {
         console.log("Loading dashboard from Firebase...");
         
-const authMethod = localStorage.getItem("authMethod");
-const user = firebase.auth().currentUser;
+        const authMethod = localStorage.getItem("authMethod");
+        let user = firebase.auth().currentUser;
 
-// ✅ allow phone login
-if (authMethod !== "phone" && !user) {
-    console.log("No auth → redirect");
-    window.location.href = 'index.html';
-    return;
-}
+        if (authMethod !== "phone" && !user) {
+            user = await waitForFirebaseUser();
+        }
 
-        const userEmail = user.email;
-        console.log("Loading dashboard for user:", userEmail);
+        if (authMethod !== "phone" && !user) {
+            console.log("No auth → redirect");
+            window.location.href = 'index.html';
+            return;
+        }
+
+        if (authMethod === "phone") {
+            const sessionExpiry = localStorage.getItem("sessionExpiry");
+            const sessionId = localStorage.getItem("sessionId");
+
+            if (!sessionId || (sessionExpiry && new Date(sessionExpiry) < new Date())) {
+                console.log("Phone session expired or missing → redirect");
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const sessionDoc = await db.collection('userSessions').doc(sessionId).get();
+                if (!sessionDoc.exists) {
+                    throw new Error('Session not found');
+                }
+
+                const sessionData = sessionDoc.data();
+                const expiresAt = sessionData.expiresAt && sessionData.expiresAt.toDate ? sessionData.expiresAt.toDate() : new Date(sessionData.expiresAt);
+                if (expiresAt <= new Date()) {
+                    throw new Error('Session expired in Firestore');
+                }
+
+                if (sessionData.propertyId) {
+                    localStorage.setItem('currentPropertyId', sessionData.propertyId);
+                }
+                if (sessionData.propertyData) {
+                    localStorage.setItem('currentPropertyData', JSON.stringify(sessionData.propertyData));
+                }
+
+            } catch (err) {
+                console.log('Phone session validation failed:', err);
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return;
+            }
+        }
+
+        const userEmail = user ? user.email : null;
+        if (!userEmail && authMethod !== "phone") {
+            console.log("Authenticated email user required");
+            window.location.href = 'index.html';
+            return;
+        }
+
+        console.log("Loading dashboard for:", authMethod === "phone" ? "phone session" : userEmail);
         
         // Get property data from localStorage
         const propertyDataStr = localStorage.getItem('currentPropertyData');
@@ -71,17 +138,19 @@ if (authMethod !== "phone" && !user) {
         
         const propertyDataFromDB = propertyDoc.data();
         
-        // Check if user has access to this property
-        const authorizedEmails = [
-            propertyDataFromDB.email1,
-            propertyDataFromDB.email2,
-            propertyDataFromDB.email3
-        ].filter(email => email && email.trim() !== '');
-        
-        if (!authorizedEmails.includes(userEmail)) {
-            showNotification("You are not authorized to access this property", "error");
-            window.location.href = 'index.html';
-            return;
+        // Check if user has access to this property for email auth only
+        if (authMethod !== "phone") {
+            const authorizedEmails = [
+                propertyDataFromDB.email1,
+                propertyDataFromDB.email2,
+                propertyDataFromDB.email3
+            ].filter(email => email && email.trim() !== '');
+            
+            if (!authorizedEmails.includes(userEmail)) {
+                showNotification("You are not authorized to access this property", "error");
+                window.location.href = 'index.html';
+                return;
+            }
         }
         
         // Check expiry

@@ -277,12 +277,10 @@ async function handleGoogleUser(user, redirectOnFail, adminOnly, resolve) {
     const accessResult = await checkPropertyAccess(userEmail, propertyId);
     
     if (accessResult.hasAccess) {
-        // Store property data if not already stored
-        if (!localStorage.getItem('currentPropertyId')) {
-            localStorage.setItem('currentPropertyId', accessResult.propertyId);
-            localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
-            localStorage.setItem('authMethod', 'google');
-        }
+        // Store property data so user pages can load without extra fallback
+        localStorage.setItem('currentPropertyId', accessResult.propertyId);
+        localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
+        localStorage.setItem('authMethod', 'email');
         console.log('User has valid property access');
         resolve(true);
     } else {
@@ -305,8 +303,8 @@ async function logout() {
             await db.collection('userSessions').doc(sessionId).delete();
         }
         
-        // Sign out from Firebase if Google user
-        if (authMethod === 'google') {
+        // Sign out from Firebase if Google/email user
+        if (authMethod === 'google' || authMethod === 'email') {
             await firebase.auth().signOut();
         }
         

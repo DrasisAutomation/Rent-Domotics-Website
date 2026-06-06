@@ -1563,6 +1563,16 @@ const API_BASE_URL = 'https://rentdomotics.lumihomecn.com';
     async function verifyOTP() {
       const enteredOtp = getOtpFromBoxes();
       const phoneNumber = currentPhoneNumber;
+
+      if (!phoneNumber) {
+        showError('Please request an OTP first.');
+        return;
+      }
+
+      if (!enteredOtp || enteredOtp.length !== 6) {
+        showError('Enter the complete 6-digit OTP.');
+        return;
+      }
       
       const verifyBtn = document.getElementById('verifyOtpBtn');
       if (verifyBtn) {
@@ -1595,70 +1605,60 @@ const API_BASE_URL = 'https://rentdomotics.lumihomecn.com';
           await otpDoc.ref.update({ expired: true });
           return;
         }
-        // In index.html, find the verifyOTP() function and update this section:
 
-// Success block after OTP verification
-if (otpData.otp !== enteredOtp) {
-    showError('Invalid OTP. Please try again.');
-    return;
-}
+        if (otpData.otp !== enteredOtp) {
+          showError('Invalid OTP. Please try again.');
+          return;
+        }
 
-// Mark OTP as verified
-await otpDoc.ref.update({ 
-    verified: true,
-    verifiedAt: new Date().toISOString()
-});
+        await otpDoc.ref.update({
+          verified: true,
+          verifiedAt: new Date().toISOString()
+        });
 
-// Get property data
-const propertyData = otpData.propertyData;
-const propertyId = otpData.propertyId;
+        const propertyId = otpData.propertyId;
+        const propertyDoc = await db.collection('properties').doc(propertyId).get();
 
-// Verify property still has valid access
-const propertyDoc = await db.collection('properties').doc(propertyId).get();
-if (!propertyDoc.exists) {
-    showError('Property not found');
-    return;
-}
+        if (!propertyDoc.exists) {
+          showError('Property not found. Please contact administrator.');
+          return;
+        }
 
-const freshPropertyData = propertyDoc.data();
-const expiryDateTime = new Date(freshPropertyData.expiryDate + ' ' + freshPropertyData.expiryTime);
+        const freshPropertyData = propertyDoc.data();
+        const expiryDateTime = new Date(freshPropertyData.expiryDate + ' ' + freshPropertyData.expiryTime);
 
-if (expiryDateTime < new Date()) {
-    showError('Your access has expired. Please contact administrator.');
-    return;
-}
+        if (expiryDateTime < new Date()) {
+          showError('Your access has expired. Please contact the administrator.');
+          return;
+        }
 
-// Create session
-const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const clientIP = await getClientIP();
 
-const clientIP = await getClientIP();
+        await db.collection('userSessions').doc(sessionId).set({
+          sessionId: sessionId,
+          phoneNumber: phoneNumber,
+          propertyId: propertyId,
+          propertyData: freshPropertyData,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: sessionExpiry,
+          userAgent: navigator.userAgent,
+          ipAddress: clientIP
+        });
 
-await db.collection('userSessions').doc(sessionId).set({
-    sessionId: sessionId,
-    phoneNumber: phoneNumber,
-    propertyId: propertyId,
-    propertyData: freshPropertyData,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    expiresAt: sessionExpiry,
-    userAgent: navigator.userAgent,
-    ipAddress: clientIP
-});
+        localStorage.clear();
+        localStorage.setItem('sessionId', sessionId);
+        localStorage.setItem('currentPropertyId', propertyId);
+        localStorage.setItem('currentPropertyData', JSON.stringify(freshPropertyData));
+        localStorage.setItem('authMethod', 'phone');
+        localStorage.setItem('currentPhoneNumber', phoneNumber);
+        localStorage.setItem('sessionExpiry', sessionExpiry.toISOString());
 
-// Store in localStorage
-localStorage.clear();
-localStorage.setItem('sessionId', sessionId);
-localStorage.setItem('currentPropertyId', propertyId);
-localStorage.setItem('currentPropertyData', JSON.stringify(freshPropertyData));
-localStorage.setItem('authMethod', 'phone');
-localStorage.setItem('currentPhoneNumber', phoneNumber); // Store phone number
-localStorage.setItem('sessionExpiry', sessionExpiry.toISOString());
-
-showSuccess('Login successful! Redirecting...');
-setTimeout(() => {
-    window.location.href = 'dashboard.html';
-}, 1500);
-        
+        showSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
       } catch (error) {
         console.error('Error verifying OTP:', error);
         showError('Error verifying OTP. Please try again.');
@@ -1701,6 +1701,11 @@ setTimeout(() => {
         const accessResult = await checkUserAccess(userEmail);
         
         if (accessResult.hasAccess) {
+          const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+          localStorage.setItem('sessionId', sessionId);
+          localStorage.setItem('sessionExpiry', sessionExpiry.toISOString());
           localStorage.setItem('currentPropertyId', accessResult.propertyId);
           localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
           localStorage.removeItem('currentPhoneNumber');
@@ -1805,10 +1810,26 @@ setTimeout(() => {
             window.location.href = 'admin.html';
             return;
           }
-          
+
+          const authMethod = localStorage.getItem('authMethod');
+          const propertyId = localStorage.getItem('currentPropertyId');
+          const sessionExpiry = localStorage.getItem('sessionExpiry');
+          const hasValidEmailSession = authMethod === 'email' && propertyId && sessionExpiry && new Date(sessionExpiry) > new Date();
+
+          if (!hasValidEmailSession) {
+            console.warn('[Login] Signed-in Firebase user found without a valid email session, signing out');
+            try {
+              await firebase.auth().signOut();
+            } catch (signOutError) {
+              console.warn('Firebase sign out failed:', signOutError);
+            }
+            localStorage.clear();
+            return;
+          }
+
           try {
             const accessResult = await checkUserAccess(user.email);
-            
+
             if (accessResult.hasAccess) {
               localStorage.setItem('currentPropertyId', accessResult.propertyId);
               localStorage.setItem('currentPropertyData', JSON.stringify(accessResult.propertyData));
