@@ -33,12 +33,15 @@
         }
 
         .title {
-            font-size: 34px;
+            font-size: 48px;
             font-weight: 300;
+            font-family: "Inter", sans-serif;
         }
 
         .subtitle {
+            font-size: 18px;
             opacity: .9;
+            font-family: "Inter", sans-serif;
         }
 
         .card {
@@ -67,6 +70,28 @@
 
         .button:hover {
             background: #e05e1a;
+        }
+
+        @media (max-width: 1024px) {
+            .title {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 28px;
+            }
         }
     </style>
 
